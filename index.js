@@ -57,6 +57,10 @@ app.post('/api/session', handler(async (req, res) => {
     let amount_rai = (currency === 'rai')
         ? parseInt(amount)
         : await toRai(currency, amount);
+
+    if (amount_rai < 1) {
+        throw new ValidationError(`Expected rai amount to be greater than or equal to 1`);
+    }
     
     let { wallet, account, private, public } = await walletAccountCreate();
 
