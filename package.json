@@ -1,0 +1,30 @@
+{
+  "name": "brainblocks-site",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "amqp-delay.node": "^0.2.0",
+    "amqplib": "^0.5.2",
+    "async-exit-hook": "^2.0.1",
+    "base-64": "^0.1.0",
+    "child-process-promise": "^2.2.1",
+    "exit-hook": "^1.1.1",
+    "express": "^4.16.2",
+    "jsonwebtoken": "^8.1.0",
+    "node-loggly-bulk": "^2.2.1",
+    "pg": "^7.4.1",
+    "raiblocks-client": "^1.0.0",
+    "uuid": "^3.1.0"
+  },
+  "devDependencies": {
+    "rabbot": "^1.1.0",
+    "request": "^2.83.0",
+    "request-promise": "^4.2.2"
+  }
+}

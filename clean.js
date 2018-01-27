@@ -1,0 +1,85 @@
+#!/usr/bin/env node
+
+let { postQuery, postSelect } = require('./lib/postgres');
+let { subscribe, publish } = require('./lib/queue');
+let { removeAccount, cleanupWallets } = require('./lib/rai');
+let { wait } = require('./lib/util');
+
+let { TRANSACTION_STATUS, QUEUE } = require('./constants');
+let { refundTransaction, setTransactionStatus } = require('./transaction');
+
+async function cleanTransactions() {
+
+    console.log('Starting cleanup');
+
+    try {
+
+        // Re-refund recently refunded transactions
+
+        let refunded = await postQuery(`
+        
+            SELECT id
+                FROM transaction
+                WHERE (status = $1 AND modified > (NOW() - INTERVAL '60 minutes'));
+
+        `, [ TRANSACTION_STATUS.REFUNDED ]);
+
+        for (let { id } of refunded) {
+            await refundTransaction(id);
+        }
+
+        // Expire and refund transactions
+
+        await postQuery(`
+
+            UPDATE transaction
+                SET status = $1
+                WHERE (status = $2 AND modified < (NOW() - INTERVAL '20 minutes'))
+                OR    (status = $3 AND modified < (NOW() - INTERVAL '20 minutes'))
+                OR    (status = $4 AND modified < (NOW() - INTERVAL '60 minutes'));
+
+        `, [ TRANSACTION_STATUS.EXPIRED, TRANSACTION_STATUS.CREATED, TRANSACTION_STATUS.WAITING, TRANSACTION_STATUS.PENDING ]);
+
+        let expired = await postSelect('transaction', { status: TRANSACTION_STATUS.EXPIRED });
+
+        for (let { id } of expired) {
+            await refundTransaction(id);
+        }
+
+        // Clean up accounts for old, refunded transactions
+
+        let oldRefunded = await postQuery(`
+        
+            SELECT id, wallet, account
+                FROM transaction
+                WHERE (status = $1 AND modified < (NOW() - INTERVAL '300 minutes'));
+
+        `, [ TRANSACTION_STATUS.REFUNDED ]);
+
+        for (let { id, wallet, account } of oldRefunded) {
+            await refundTransaction(id);
+            await removeAccount(wallet, account);
+            await setTransactionStatus(id, TRANSACTION_STATUS.PURGED);
+        }
+
+        await cleanupWallets();
+
+    } catch (err) {
+        console.error(err.stack);
+    }
+
+    // Wait and re-queue event
+
+    console.log('Waiting to re-initialize cleanup');
+
+    await wait(2 * 60 * 1000);
+
+    publish(QUEUE.CLEAN_TRANSACTIONS);
+}
+
+async function setupQueue() {
+    let queue = await subscribe(QUEUE.CLEAN_TRANSACTIONS, cleanTransactions, { singleton: true, cancelOnExit: true });
+    publish(QUEUE.CLEAN_TRANSACTIONS);
+}
+
+setupQueue();
