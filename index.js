@@ -5,7 +5,7 @@ let uuidv4 = require('uuid/v4');
 let base64 = require('base-64');
 
 let { config, SUPPORTED_CURRENCIES } = require('./config');
-let { waitForBalance, walletAccountCreate, getTotalReceived, send, receiveAllPending, refundAccount, destroyWallet } = require('./lib/rai');
+let { waitForBalance, walletAccountCreate, getTotalReceived, send, receiveAllPending, refundAccount, destroyWallet, getLatestTransaction } = require('./lib/rai');
 let { handler, wait, ValidationError } = require('./lib/util');
 let { subscribe, publish } = require('./lib/queue');
 let { toRai } = require('./lib/coinmarketcap');
@@ -102,7 +102,14 @@ app.get('/api/session/:token/verify', handler(async (req, res) => {
     let received_rai = Math.min(amount_rai, await getTotalReceived(account));
     let fulfilled = (received_rai === amount_rai);
 
-    return { token, destination, currency, amount, amount_rai, received_rai, fulfilled };
+    let response = { token, destination, currency, amount, amount_rai, received_rai, fulfilled };
+
+    if (fulfilled) {
+        let { send_block, sender } = await getLatestTransaction(account);
+        Object.assign(response, { send_block, sender });
+    };
+
+    return response;
 }));
 
 app.get('/api/exchange/:currency/:amount/rai', handler(async (req, res) => {
