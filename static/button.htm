@@ -10,6 +10,7 @@
 
         .brainblocks-button {
             transition: height 0.5s ease-in-out;
+            overflow: hidden;
         }
 
         #brainblocks-checkout {
@@ -21,7 +22,7 @@
             margin-top: 40px;
             width: 100px;
             height: 100px;
-            display: inline-block;
+            display: none;
         }
 
         #brainblocks-checkout-qr {
@@ -164,6 +165,7 @@
                 showButton();
 
                 button.appendChild(loader);
+                loader.style.display = 'inline-block';
 
                 return createSession(window.xprops.payment.destination, window.xprops.payment.amount, window.xprops.payment.currency).then(function(json) {
 
@@ -245,12 +247,13 @@
             if (window.xprops.payment.currency !== 'rai') {
                 api('get', '/api/exchange/' + window.xprops.payment.currency + '/' + window.xprops.payment.amount + '/rai')
                     .then(function(data) {
-                        var currency = 'XRB';
+                        var currency = '';
 
                         var amount = (data.rai >= 1000)
                             ? (data.rai / 1000000).toFixed(3)
                             : (data.rai / 1000000).toFixed(6);
 
+                        document.querySelector('.pay-text').innerText = 'Pay ';
                         document.querySelector('#pay-amount').innerText = amount;
                         document.querySelector('#pay-currency').innerText = currency;
                     });
