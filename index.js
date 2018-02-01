@@ -67,7 +67,7 @@ app.post('/api/session', handler(async (req, res) => {
     let id = await createTransaction({ destination, amount, amount_rai, wallet, account, currency, private, public });
     let token = base64.encode(jwt.sign({ id }, config.secret, { expiresIn: '1h' }));
 
-    return { status: 'success', token, account };
+    return { status: 'success', token, account, amount_rai };
 }));
 
 app.post('/api/session/:token/transfer', handler(async (req, res) => {

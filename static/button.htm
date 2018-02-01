@@ -172,6 +172,17 @@
                     button.removeChild(loader);
                     button.appendChild(checkout);
 
+                    function hasRai(num) {
+                        num = parseInt(num) / 1000;
+                        return num > Math.floor(num)
+                    }
+
+                    var amount = hasRai(json.amount_rai)
+                        ? (json.amount_rai / 1000000).toFixed(6)
+                        : (json.amount_rai / 1000000).toFixed(3);
+
+                    document.querySelector('#pay-amount').innerText = amount;
+
                     var qr = qrcode(4, 'L');
                     qr.addData('xrb:' + json.account);
                     qr.make();
@@ -249,9 +260,14 @@
                     .then(function(data) {
                         var currency = '';
 
-                        var amount = (data.rai >= 1000)
-                            ? (data.rai / 1000000).toFixed(3)
-                            : (data.rai / 1000000).toFixed(6);
+                        function hasRai(num) {
+                            num = parseInt(num) / 1000;
+                            return num > Math.floor(num)
+                        }
+
+                        var amount = hasRai(data.rai)
+                            ? (data.rai / 1000000).toFixed(6)
+                            : (data.rai / 1000000).toFixed(3);
 
                         document.querySelector('.pay-text').innerText = 'Pay ';
                         document.querySelector('#pay-amount').innerText = amount;
