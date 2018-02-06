@@ -1,7 +1,9 @@
 
 let { TRANSACTION_STATUS } = require('./constants');
-let { postQuery, postQuerySingle, postInsert, postSelectID, postUpdateID } = require('./lib/postgres');
-let { refundAccount, removeAccount, receiveAllPending, send } = require('./lib/rai');
+let { postQuery, postQuerySingle, postInsert, postSelectOne, postSelectID, postUpdateID } = require('./lib/postgres');
+let { refundAccount, removeAccount, receiveAllPending, send, recoverAndRefundAccount } = require('./lib/rai');
+
+const TRANSACTION_FIELDS = [ 'status', 'destination', 'amount', 'amount_rai', 'wallet', 'account', 'currency', 'private', 'public' ];
 
 async function createTransaction({ destination, amount, amount_rai, wallet, account, currency, private, public }) {
     let result = await postInsert('transaction', { status: TRANSACTION_STATUS.CREATED, destination, amount, amount_rai, wallet, account, currency, private, public });
@@ -9,7 +11,11 @@ async function createTransaction({ destination, amount, amount_rai, wallet, acco
 }
 
 async function getTransaction(id) {
-    return await postSelectID('transaction', id, [ 'status', 'destination', 'amount', 'amount_rai', 'wallet', 'account', 'currency', 'private', 'public' ]);
+    return await postSelectID('transaction', id, TRANSACTION_FIELDS);
+}
+
+async function getTransactionByAccount(account) {
+    return await postSelectOne('transaction', { account }, TRANSACTION_FIELDS);
 }
 
 async function setTransactionStatus(id, status) {
@@ -31,4 +37,9 @@ async function refundTransaction(id) {
     await setTransactionStatus(id, TRANSACTION_STATUS.REFUNDED);
 }
 
-module.exports = { createTransaction, getTransaction, setTransactionStatus, processTransaction, refundTransaction };
+async function recoverAndRefundTransactionAccount(account) {
+    let { private } = await getTransactionByAccount(account);
+    await recoverAndRefundAccount(private);
+}
+
+module.exports = { createTransaction, getTransaction, setTransactionStatus, processTransaction, refundTransaction, recoverAndRefundTransactionAccount };

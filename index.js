@@ -12,7 +12,7 @@ let { toRai } = require('./lib/coinmarketcap');
 let { postQuery, postQuerySingle, postInsert, postSelectID, postUpdateID } = require('./lib/postgres');
 let { TRANSACTION_STATUS, QUEUE } = require('./constants');
 let { createTransaction, getTransaction, setTransactionStatus,
-    processTransaction, refundTransaction } = require('./transaction');
+    processTransaction, refundTransaction, recoverAndRefundTransactionAccount } = require('./transaction');
 
 let app = express();
 app.use(express.urlencoded());
@@ -130,6 +130,21 @@ app.get('/api/exchange/:currency/:amount/rai', handler(async (req, res) => {
         status: 'success',
         rai
     };
+}));
+
+app.get('/api/recover/:account', handler(async (req, res) => {
+    
+    let { account } = req.params;
+
+    if (!account) {
+        throw new Error(`Expected account`);
+    }
+
+    await recoverAndRefundTransactionAccount(account);
+
+    return {
+        status: 'success'
+    }
 }));
 
 app.listen(config.server_port);
