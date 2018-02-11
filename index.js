@@ -65,7 +65,7 @@ app.post('/api/session', handler(async (req, res) => {
     let { wallet, account, private, public } = await walletAccountCreate();
 
     let id = await createTransaction({ destination, amount, amount_rai, wallet, account, currency, private, public });
-    let token = base64.encode(jwt.sign({ id }, config.secret, { expiresIn: '1h' }));
+    let token = base64.encode(jwt.sign({ id }, config.secret, { expiresIn: '1h' })).replace(/=/g, '');
 
     return { status: 'success', token, account, amount_rai };
 }));
@@ -73,6 +73,8 @@ app.post('/api/session', handler(async (req, res) => {
 app.post('/api/session/:token/transfer', handler(async (req, res) => {
 
     let { token } = req.params;
+    token = token.replace(/=/g, '');
+
     let { id } = jwt.verify(base64.decode(token), config.secret);
     let { wallet, account, destination, amount_rai } = await getTransaction(id);
 
@@ -96,6 +98,8 @@ app.post('/api/session/:token/transfer', handler(async (req, res) => {
 app.get('/api/session/:token/verify', handler(async (req, res) => {
 
     let { token } = req.params;
+    token = token.replace(/=/g, '');
+    
     let { id } = jwt.verify(base64.decode(token), config.secret);
     let { account, destination, amount, currency, amount_rai } = await getTransaction(id);
 
