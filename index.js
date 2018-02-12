@@ -85,7 +85,14 @@ app.post('/api/session/:token/transfer', handler(async (req, res) => {
 
     await setTransactionStatus(id, TRANSACTION_STATUS.WAITING);
 
-    let { balance, pending } = await waitForBalance(wallet, account, amount_rai, time);
+    let { balance, pending } = await waitForBalance({
+        wallet, 
+        account, 
+        amount: amount_rai, 
+        timeout: time,
+        onCancel: (handler) => req.connection.on('close', handler)
+    });
+
     let received = balance + pending;
 
     if (received < amount_rai) {
