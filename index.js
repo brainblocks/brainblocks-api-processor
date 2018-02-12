@@ -73,14 +73,19 @@ app.post('/api/session', handler(async (req, res) => {
 app.post('/api/session/:token/transfer', handler(async (req, res) => {
 
     let { token } = req.params;
+    let { time = '120' } = req.body;
+
     token = token.replace(/=/g, '');
+    time = Math.max(Math.min(parseInt(time), 300), 120) * 1000;
+
+    res.setTimeout(Math.floor(time * 1.5));
 
     let { id } = jwt.verify(base64.decode(token), config.secret);
     let { wallet, account, destination, amount_rai } = await getTransaction(id);
 
     await setTransactionStatus(id, TRANSACTION_STATUS.WAITING);
 
-    let { balance, pending } = await waitForBalance(wallet, account, amount_rai);
+    let { balance, pending } = await waitForBalance(wallet, account, amount_rai, time);
     let received = balance + pending;
 
     if (received < amount_rai) {
@@ -151,5 +156,5 @@ app.get('/api/recover/:account', handler(async (req, res) => {
     }
 }));
 
-app.listen(config.server_port);
+let server = app.listen(config.server_port);
 console.log(`brainblocks server listening on http://localhost:${ config.server_port }`);

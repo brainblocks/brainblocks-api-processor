@@ -74,6 +74,7 @@
     <script>
         (function() {
             window.LOG_LEVEL = 'warn';
+            var WAIT_TIME = 5 * 60;
 
             document.body.appendChild(brainblocks.buttonTemplate({ props: window.xprops }));
 
@@ -112,7 +113,7 @@
                 var req = {
                     method: method,
                     headers: { 'content-type': 'application/x-www-form-urlencoded' },
-                    timeout: 240000
+                    timeout: 2 * WAIT_TIME * 1000
                 };
 
                 if (method === 'post') {
@@ -138,7 +139,9 @@
             }
 
             function transfer(token) {
-                return api('post', '/api/session/' + token + '/transfer');
+                return api('post', '/api/session/' + token + '/transfer', {
+                    time: WAIT_TIME
+                });
             }
 
             function openButton() {
@@ -195,7 +198,7 @@
                     });
 
                     var width = 0;
-                    var time = 120000;
+                    var time = WAIT_TIME * 1000;
                     var start = Date.now();
 
                     var interval = setInterval(function() {
