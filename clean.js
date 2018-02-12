@@ -36,9 +36,10 @@ async function cleanTransactions() {
                 SET status = $1
                 WHERE (status = $2 AND modified < (NOW() - INTERVAL '20 minutes'))
                 OR    (status = $3 AND modified < (NOW() - INTERVAL '20 minutes'))
-                OR    (status = $4 AND modified < (NOW() - INTERVAL '60 minutes'));
+                OR    (status = $4 AND modified < (NOW() - INTERVAL '20 minutes'))
+                OR    (status = $5 AND modified < (NOW() - INTERVAL '60 minutes'));
 
-        `, [ TRANSACTION_STATUS.EXPIRED, TRANSACTION_STATUS.CREATED, TRANSACTION_STATUS.WAITING, TRANSACTION_STATUS.PENDING ]);
+        `, [ TRANSACTION_STATUS.EXPIRED, TRANSACTION_STATUS.CREATED, TRANSACTION_STATUS.WAITING, TRANSACTION_STATUS.COMPLETE, TRANSACTION_STATUS.PENDING ]);
 
         let expired = await postSelect('transaction', { status: TRANSACTION_STATUS.EXPIRED });
 

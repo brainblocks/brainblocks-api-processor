@@ -32,9 +32,11 @@ async function processTransaction(id) {
 }
 
 async function refundTransaction(id) {
-    let { wallet, account } = await getTransaction(id);
+    let { wallet, account, status } = await getTransaction(id);
     await refundAccount(wallet, account);
-    await setTransactionStatus(id, TRANSACTION_STATUS.REFUNDED);
+    if (status !== TRANSACTION_STATUS.COMPLETE) {
+        await setTransactionStatus(id, TRANSACTION_STATUS.REFUNDED);
+    }
 }
 
 async function recoverAndRefundTransactionAccount(account) {
