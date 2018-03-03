@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 
 <head>
-    <title>brainblocks - instant, free, easy raiblocks checkout</title>
+    <title>brainblocks - instant, free, easy nano checkout</title>
     <link rel=stylesheet href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.3/css/bootstrap.min.css" />
 
     <style>
@@ -14,7 +14,7 @@
             padding: 100px 20px;
         }
 
-        #raiblocks-button {
+        #nano-button {
             display: inline-block;
         }
 
@@ -52,7 +52,7 @@
 </head>
 
 <body>
-    <h1>brainblocks - instant, free, easy raiblocks checkout</h1>
+    <h1>brainblocks - instant, free, easy nano checkout</h1>
     <img class="logo" src="/static/img/brainblocks.svg" width=500 />
 
     <hr />
@@ -61,7 +61,7 @@
 
     <p>Click the button and try sending 0.001 NANO to the address</p>
 
-    <div id="raiblocks-button"></div>
+    <div id="nano-button"></div>
 
     <script src="/brainblocks.min.js"></script>
     <script>
@@ -75,7 +75,7 @@
             onPayment: function(data) {
                 console.log('Payment successful!', data.token);                
             }
-        }, '#raiblocks-button');
+        }, '#nano-button');
     </script>
 
     <hr />
@@ -84,13 +84,12 @@
 
     <p>Place the code somewhere on your site, and make sure to handle successful payments</p>
 
-    <pre>
-&lt;div id="raiblocks-button"&gt;&lt;/div&gt;
+    <pre>&lt;div id="nano-button"&gt;&lt;/div&gt;
 
 &lt;script src="https://brainblocks.io/brainblocks.min.js"&gt;&lt;/script&gt;
 
 &lt;script&gt;
-    // Render the RaiBlocks button
+    // Render the Nano button
 
     brainblocks.Button.render({
 
@@ -108,7 +107,7 @@
             console.log('Payment successful!', data.token);
         }
 
-    }, '#raiblocks-button');
+    }, '#nano-button');
 &lt;/script&gt;</pre>
 
 <p class="currencies">
@@ -123,8 +122,7 @@
 
     <p>Call the brainblocks api to verify the transaction. Make sure the transaction is fulfilled, the amount, currency and destination match what you expect, and the token is unique (to avoid replays).</p>
 
-    <pre>
-> curl https://brainblocks.io/api/session/&lt;token&gt;/verify
+    <pre>> curl https://brainblocks.io/api/session/&lt;token&gt;/verify
 
 {
     "token":        "ZXlKaGJHY...",
@@ -141,7 +139,8 @@
 
 <a href="https://github.com/bluepnume/brainblocks/issues/new">Bugs / support requests</a> |
 <a href="https://medium.com/@bluepnume/introducing-brainblocks-my-weekend-hack-project-to-build-a-simple-checkout-app-for-raiblocks-5f5770c06c14">Read more about BrainBlocks</a> |
-<a href="https://github.com/brainblocks/woocommerce-brainblocks">WooCommerce Plugin</a>
+<a href="https://github.com/brainblocks/woocommerce-brainblocks">WooCommerce Plugin</a> |
+<a href="https://shopify.brainblocks.io">Shopify Plugin</a>
 
 <hr>
 
