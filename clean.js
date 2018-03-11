@@ -1,18 +1,28 @@
 #!/usr/bin/env node
 
 let { postQuery, postSelect } = require('./lib/postgres');
-let { subscribe, publish } = require('./lib/queue');
-let { removeAccount, cleanupWallets } = require('./lib/rai');
+let { removeAccount, cleanupWallets, unlockWallet, destroyWallet } = require('./lib/rai');
 let { wait } = require('./lib/util');
 
 let { TRANSACTION_STATUS, QUEUE } = require('./constants');
-let { refundTransaction, setTransactionStatus } = require('./transaction');
+let { processTransaction, refundTransaction, setTransactionStatus, recoverAndRefundTransactionAccount } = require('./transaction');
 
 async function cleanTransactions() {
 
     console.log('Starting cleanup');
 
     try {
+
+        let pending = await postQuery(`
+        
+            SELECT id
+                FROM transaction where status = $1;
+
+        `, [ TRANSACTION_STATUS.PENDING ]);
+
+        for (let { id } of pending) {
+            await processTransaction(id);
+        }
 
         // Re-refund recently refunded transactions
 
@@ -36,10 +46,9 @@ async function cleanTransactions() {
                 SET status = $1
                 WHERE (status = $2 AND modified < (NOW() - INTERVAL '20 minutes'))
                 OR    (status = $3 AND modified < (NOW() - INTERVAL '20 minutes'))
-                OR    (status = $4 AND modified < (NOW() - INTERVAL '20 minutes'))
-                OR    (status = $5 AND modified < (NOW() - INTERVAL '60 minutes'));
+                OR    (status = $4 AND modified < (NOW() - INTERVAL '60 minutes'));
 
-        `, [ TRANSACTION_STATUS.EXPIRED, TRANSACTION_STATUS.CREATED, TRANSACTION_STATUS.WAITING, TRANSACTION_STATUS.COMPLETE, TRANSACTION_STATUS.PENDING ]);
+        `, [ TRANSACTION_STATUS.EXPIRED, TRANSACTION_STATUS.CREATED, TRANSACTION_STATUS.WAITING, TRANSACTION_STATUS.PENDING ]);
 
         let expired = await postSelect('transaction', { status: TRANSACTION_STATUS.EXPIRED });
 
