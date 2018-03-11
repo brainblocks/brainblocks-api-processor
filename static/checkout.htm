@@ -1,0 +1,163 @@
+<head>
+
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>BrainBlocks Checkout</title>
+
+    <style>
+        html, body {
+            text-align: center;
+            margin: 0;
+            padding: 0;
+        }
+
+        #logo {
+            width: 300px;
+        }
+
+        #nano-button {
+            display: inline-block;
+            min-width: 320px;
+        }
+
+        #container {
+            width: 60%;
+            margin-left: 20%;
+            border: 1px solid lightgrey;
+            padding: 40px;
+            border-radius: 10px;
+            margin-top: 100px;
+        }
+
+        @media screen and (max-width: 380px) {
+            #container {
+                width: 100%;
+                box-sizing: border-box;
+                padding: 0;
+                margin-left: 0;
+                margin-top: 20px;
+                border: none;
+            }
+
+            #nano-button {
+                display: inline-block;
+                min-width: 200px;
+                width: 80%;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div id="container">
+
+    <img id="logo" src="/static/img/brainblocks.svg">
+
+    <br>
+    <br>
+    
+    <div id="nano-button"></div>
+
+    <script src="https://brainblocks.io/brainblocks.min.js"></script>
+    
+    <script>
+        (function() {
+            var query = {};
+            
+            window.location.search.replace(/^\?/, '').split('&').forEach(function(pair) {
+                pair = pair.split('=');
+                query[decodeURIComponent(pair[0])] = decodeURIComponent(pair[1]);
+            });
+
+            function post(path, params, method) {
+                method = method || "post"; // Set method to post by default if not specified.
+
+                // The rest of this code assumes you are not using a library.
+                // It can be made less wordy if you use one.
+                var form = document.createElement("form");
+                form.setAttribute("method", method);
+                form.setAttribute("action", path);
+
+                for(var key in params) {
+                    if(params.hasOwnProperty(key)) {
+                        var hiddenField = document.createElement("input");
+                        hiddenField.setAttribute("type", "hidden");
+                        hiddenField.setAttribute("name", key);
+                        hiddenField.setAttribute("value", params[key]);
+
+                        form.appendChild(hiddenField);
+                    }
+                }
+
+                document.body.appendChild(form);
+                form.submit();
+            }
+
+            if (!query['payment.destination']) {
+                throw new Error(`Expected payment.destination to be passed in url`);
+            }
+
+            if (!query['payment.currency']) {
+                throw new Error(`Expected payment.currency to be passed in url`);
+            }
+
+            if (!query['payment.amount']) {
+                throw new Error(`Expected payment.amount to be passed in url`);
+            }
+
+            if (!query['urls.return']) {
+                throw new Error(`Expected urls.return to be passed in url`);
+            }
+
+            if (!query['urls.cancel']) {
+                throw new Error(`Expected urls.cancel to be passed in url`);
+            }
+
+
+            // Render the Nano button
+        
+            brainblocks.Button.render({
+
+                style: {
+                    expanded: true,
+                    size: 'responsive'
+                },
+                
+                // Pass in payment options
+
+                payment: {
+                    destination: query['payment.destination'],
+                    currency:    query['payment.currency'],
+                    amount:      query['payment.amount']
+                },
+
+                // Handle successful payments
+
+                onPayment: function(data) {
+                    var url = query['urls.return'];
+
+                    if (query['urls.method'] === 'post') {
+                        return post(url, { token: data.token }, 'POST');
+                    }
+
+                    if (url.indexOf('?') !== -1) {
+                        url += '&';
+                    } else {
+                        url += '?';
+                    }
+
+                    url += ('token=' + data.token);
+
+                    window.location = url;
+                }
+
+            }, '#nano-button');
+        })();
+
+
+
+    </script>
+
+</div>
+</body>
