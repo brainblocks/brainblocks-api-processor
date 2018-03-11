@@ -75,7 +75,33 @@ async function cleanTransactions() {
         await cleanupWallets();
 
     } catch (err) {
-        console.error(err.stack);
+
+        try {
+            if (err.message === 'Account not found in wallet' || err.message === 'Wallet not found') {
+                if (err.data && err.data.account) {
+                    await recoverAndRefundTransactionAccount(err.data.account);
+                    return cleanTransactions();
+                }
+            }
+
+            if (err.message === 'Wallet locked') {
+                if (err.data && err.data.wallet) {
+                    await destroyWallet(err.data.wallet);
+                    return cleanTransactions();
+                }
+            }
+        } catch (err) {
+            if (err.message === 'Wallet locked') {
+                if (err.data && err.data.wallet) {
+                    
+                    await destroyWallet(err.data.wallet);
+                    
+                    return cleanTransactions();
+                }
+            }
+
+            console.error(err.stack);
+        }
     }
 
     // Wait and re-queue event
