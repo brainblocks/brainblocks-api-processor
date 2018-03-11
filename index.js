@@ -140,6 +140,8 @@ app.get('/api/recover/:account', handler(async (req, res) => {
     
     let { account } = req.params;
 
+    await accountHistory(account);
+
     if (!account) {
         throw new Error(`Expected account`);
     }
