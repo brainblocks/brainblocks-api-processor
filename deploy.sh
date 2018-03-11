@@ -8,4 +8,4 @@ cd ~/woocommerce-brainblocks/
 zip -r $cwd/static/woocommerce-gateway-brainblocks.zip woocommerce-gateway-brainblocks
 cd $cwd
 
-rsync -avzr --exclude=node_modules . brainblocks@brainblocks.io:brainblocks
+rsync -avzr --exclude=node_modules --exclude=.git . brainblocks@ssh.brainblocks.io:brainblocks
