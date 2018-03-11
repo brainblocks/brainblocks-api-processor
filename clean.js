@@ -109,13 +109,6 @@ async function cleanTransactions() {
     console.log('Waiting to re-initialize cleanup');
 
     await wait(2 * 60 * 1000);
-
-    publish(QUEUE.CLEAN_TRANSACTIONS);
 }
 
-async function setupQueue() {
-    let queue = await subscribe(QUEUE.CLEAN_TRANSACTIONS, cleanTransactions, { singleton: true, cancelOnExit: true });
-    publish(QUEUE.CLEAN_TRANSACTIONS);
-}
-
-setupQueue();
+cleanTransactions();
