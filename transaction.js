@@ -18,6 +18,10 @@ async function getTransactionByAccount(account) {
     return await postSelectOne('transaction', { account }, TRANSACTION_FIELDS);
 }
 
+async function getTransactionByWallet(wallet) {
+    return await postSelectOne('transaction', { wallet }, TRANSACTION_FIELDS);
+}
+
 async function setTransactionStatus(id, status) {
     return await postUpdateID('transaction', id, { status });
 }
@@ -44,4 +48,5 @@ async function recoverAndRefundTransactionAccount(account) {
     await recoverAndRefundAccount(private);
 }
 
-module.exports = { createTransaction, getTransaction, setTransactionStatus, processTransaction, refundTransaction, recoverAndRefundTransactionAccount };
+module.exports = { createTransaction, getTransaction, setTransactionStatus,
+    processTransaction, refundTransaction, recoverAndRefundTransactionAccount, getTransactionByWallet };
