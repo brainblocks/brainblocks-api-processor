@@ -293,6 +293,12 @@
                 openButton();
             });
 
+            if (window.xprops.style && window.xprops.style.expanded) {
+                setTimeout(function() {
+                    openButton();
+                }, 50)
+            }
+
             if (window.xprops.payment.currency !== 'rai') {
                 api('get', '/api/exchange/' + window.xprops.payment.currency + '/' + window.xprops.payment.amount + '/rai')
                     .then(function(data) {
