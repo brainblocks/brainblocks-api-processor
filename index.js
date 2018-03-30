@@ -6,7 +6,7 @@ let base64 = require('base-64');
 
 let { config, SUPPORTED_CURRENCIES } = require('./config');
 let { waitForBalance, walletAccountCreate, getTotalReceived, send, receiveAllPending,
-    refundAccount, destroyWallet, getLatestTransaction, accountHistory } = require('./lib/rai');
+    refundAccount, destroyWallet, getLatestTransaction, accountHistory, isAccountValid } = require('./lib/rai');
 let { handler, wait, ValidationError } = require('./lib/util');
 let { toRai } = require('./lib/coinmarketcap');
 let { postQuery, postQuerySingle, postInsert, postSelectID, postUpdateID } = require('./lib/postgres');
@@ -51,6 +51,10 @@ app.post('/api/session', handler(async (req, res) => {
 
     if (amount_rai < 1) {
         throw new ValidationError(`Expected rai amount to be greater than or equal to 1`);
+    }
+
+    if (!await isAccountValid(destination)) {
+        throw new ValidationError(`Destination account is invalid`);
     }
     
     let { wallet, account, private, public } = await walletAccountCreate();
