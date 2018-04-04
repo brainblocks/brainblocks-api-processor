@@ -1,0 +1,3 @@
+#!/bin/bash
+
+sudo -u brainblocks immortal /home/brainblocks/raiblocks/rai_node --daemon
