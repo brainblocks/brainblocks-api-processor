@@ -4,8 +4,12 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "npm run lint",
-    "lint": "eslint lib/ *.js"
+    "start": "node .",
+    "clean": "node ./clean.js",
+    "test": "npm run lint && npm run flow-typed && npm run flow",
+    "flow-typed": "flow-typed install",
+    "flow": "flow",
+    "lint": "eslint server/ *.js"
   },
   "author": "",
   "license": "ISC",
@@ -28,6 +32,7 @@
     "grumbler-scripts": "^2.0.18",
     "rabbot": "^1.1.0",
     "request": "^2.83.0",
-    "request-promise": "^4.2.2"
+    "request-promise": "^4.2.2",
+    "flow-bin": "^0.69.0"
   }
 }

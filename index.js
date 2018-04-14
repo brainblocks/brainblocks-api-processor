@@ -1,3 +1,7 @@
+/* @flow */
 
+// eslint-disable-next-line import/no-commonjs, import/no-unassigned-import
 require('babel-register');
-require('./api');
+
+// eslint-disable-next-line import/no-commonjs,  import/no-unassigned-import
+require('./server');

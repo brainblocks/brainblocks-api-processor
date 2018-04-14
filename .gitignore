@@ -4,3 +4,5 @@ package-lock.json
 static/js/brainblocks.js
 static/js/brainblocks.min.js
 static/woocommerce-gateway-brainblocks.zip
+flow-typed
+

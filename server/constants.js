@@ -1,5 +1,6 @@
+/* @flow */
 
-module.exports.TRANSACTION_STATUS = {
+export const TRANSACTION_STATUS = {
     CREATED:  'created',
     WAITING:  'waiting',
     EXPIRED:  'expired',
@@ -9,7 +10,7 @@ module.exports.TRANSACTION_STATUS = {
     COMPLETE: 'complete'
 };
 
-module.exports.QUEUE = {
+export const QUEUE = {
     PROCESS_TRANSACTION: 'process_transaction',
     REFUND_TRANSACTION:  'refund_transaction',
     CLEAN_TRANSACTIONS:  'clean_transactions'

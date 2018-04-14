@@ -1,6 +1,7 @@
-const { Pool } = require('pg');
+/* @flow */
+import { Pool } from 'pg';
 
-let { DATABASE } = require('../config');
+import { DATABASE } from '../config';
 
 const pool = new Pool({
     host:                    DATABASE.HOST,
@@ -12,7 +13,8 @@ const pool = new Pool({
     connectionTimeoutMillis: 2000
 });
 
-async function postQuery(text, values = []) {
+export async function postQuery<T>(text : string, values : Array<string | number> = []) : Promise<Array<T>> {
+    // $FlowFixMe
     let client = await pool.connect();
     console.log(text, values);
     let result = await client.query(text, values);
@@ -21,7 +23,7 @@ async function postQuery(text, values = []) {
     return result.rows;
 }
 
-async function postQuerySingle(text, values = []) {
+export async function postQuerySingle<T>(text : string, values : Array<string | number> = []) : Promise<T> {
     let rows = await postQuery(text, values);
     if (rows.length > 1) {
         throw new Error(`Expected single result for query: ${ text }, ${ JSON.stringify(values) }`);
@@ -29,7 +31,7 @@ async function postQuerySingle(text, values = []) {
     return rows[0];
 }
 
-async function postInsert(table, data) {
+export async function postInsert<T>(table : string, data : { [string] : string | number }) : Promise<T> {
     let keys = Object.keys(data);
     let values = keys.map(key => data[key]);
 
@@ -42,7 +44,7 @@ async function postInsert(table, data) {
     return await postQuerySingle(query, values);
 }
 
-async function postSelect(table, criteria, columns = [ 'id' ]) {
+export async function postSelect<T>(table : string, criteria : { [string] : string }, columns : Array<string> = [ 'id' ]) : Promise<Array<T>> {
 
     let keys = Object.keys(criteria);
     let values = keys.map(key => criteria[key]);
@@ -56,7 +58,7 @@ async function postSelect(table, criteria, columns = [ 'id' ]) {
     return await postQuery(query, values);
 }
 
-async function postSelectOne(table, criteria, columns = [ 'id' ]) {
+export async function postSelectOne<T>(table : string, criteria : { [string] : string }, columns : Array<string> = [ 'id' ]) : Promise<T> {
     
     let rows = await postSelect(table, criteria, columns);
 
@@ -68,11 +70,11 @@ async function postSelectOne(table, criteria, columns = [ 'id' ]) {
 }
     
 
-async function postSelectID(table, id, columns = [ 'id' ]) {
+export async function postSelectID<T>(table : string, id : string, columns : Array<string> = [ 'id' ]) : Promise<T> {
     return await postSelectOne(table, { id }, columns);
 }
 
-async function postUpdateWhere(table, criteria, data) {
+export async function postUpdateWhere<T>(table : string, criteria : { [string] : string }, data : { [string] : string }) : Promise<T> {
     
     let keys = Object.keys(data);
     let values = keys.map(key => data[key]);
@@ -90,10 +92,6 @@ async function postUpdateWhere(table, criteria, data) {
     return await postQuerySingle(query, [ ...values, ...criteriaValues ]);
 }
 
-async function postUpdateID(table, id, data) {
+export async function postUpdateID<T>(table : string, id : string, data : { [string] : string }) : Promise<T> {
     return await postUpdateWhere(table, { id }, data);
 }
-
-
-module.exports = { postQuery, postQuerySingle, postInsert,
-    postSelect, postSelectOne, postSelectID, postUpdateWhere, postUpdateID };

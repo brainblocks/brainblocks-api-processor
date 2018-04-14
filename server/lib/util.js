@@ -1,35 +1,31 @@
+/* @flow */
 
-let uuidv4 = require('uuid/v4');
-let { decode, TokenExpiredError, JsonWebTokenError } = require('jsonwebtoken');
-let base64 = require('base-64');
-let requestPromise = require('request-promise');
+import uuidv4 from 'uuid/v4';
+import { TokenExpiredError, JsonWebTokenError } from 'jsonwebtoken';
+import requestPromise from 'request-promise';
 
-let { logger } = require('./logger');
+import { raven } from './raven';
+import { logger } from './logger';
 
-let { config } = require('../config');
-
-let { raven } = require('./raven');
-
-module.exports.ValidationError = function ValidationError(message) {
+export function ValidationError(message : string) {
     this.name = 'ValidationError';
     this.message = (message || '');
-};
-module.exports.ValidationError.prototype = Error.prototype;
+}
 
-module.exports.handler = function handler(fn) {
-    return async (req, res) => {
+// $FlowFixMe
+ValidationError.prototype = Error.prototype;
+
+export function handler<T : Object>(fn : (req : express$Request, res : express$Response) => Promise<T>) : (req : express$Request, res : express$Response) => Promise<void> {
+    return async (req : express$Request, res : express$Response) => {
         let uuid = uuidv4();
 
         try {
             console.log(uuid, req.originalUrl, req.body);
-            if (req.params.token) {
-                console.log(uuid, decode(base64.decode(req.params.token), config.secret));
-            }
             logger.log({ request: req.originalUrl });
             res.writeHead(200, { 'content-type': 'application/json' });
             res.write('   ');
             let result = await fn(req, res);
-            res.write(JSON.stringify(result, 0, 4));
+            res.write(JSON.stringify(result, null, 4));
             res.end();
         } catch (err) {
             console.error(uuid, err.stack || err.message || err.toString());
@@ -37,7 +33,7 @@ module.exports.handler = function handler(fn) {
 
             let message = 'Internal server error';
 
-            if (err instanceof module.exports.ValidationError) {
+            if (err instanceof ValidationError) {
                 message = err.message;
             } else if (err instanceof TokenExpiredError) {
                 message = 'Token expired';
@@ -45,19 +41,19 @@ module.exports.handler = function handler(fn) {
                 message = 'Invalid token';
             }
 
-            res.write(JSON.stringify({ status: 'error', message, uuid }, 0, 4));
+            res.write(JSON.stringify({ status: 'error', message, uuid }, null, 4));
             res.end();
         }
     };
-};
+}
 
-module.exports.wait = function wait(ms) {
-    return new Promise(resolve => setTimeout(resolve, ms));
-};
+export async function wait(ms : number) : Promise<void> {
+    return await new Promise(resolve => setTimeout(resolve, ms));
+}
 
-module.exports.request = async function request({ method, uri, json }) {
+export async function request<R : Object, T : Object>({ method, uri, json } : { method : string, uri : string, json? : R }) : Promise<T> {
 
-    let options = { method, uri };
+    let options : Object = { method, uri };
 
     if (json) {
         options.body = JSON.stringify(json);
@@ -78,8 +74,8 @@ module.exports.request = async function request({ method, uri, json }) {
     let data = JSON.parse(res.body);
 
     return data;
-};
+}
 
-module.exports.noop = function noop() {
+export function noop() {
     // pass
-};
+}

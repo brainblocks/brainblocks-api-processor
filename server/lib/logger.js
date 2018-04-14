@@ -1,7 +1,8 @@
+/* @flow */
 
-let loggly = require('node-loggly-bulk');
+import loggly from 'node-loggly-bulk';
 
-module.exports.logger = loggly.createClient({
+export let logger = loggly.createClient({
     token:     '***REMOVED***',
     subdomain: 'brainblocks.io',
     auth:      {
