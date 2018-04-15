@@ -7,7 +7,6 @@ import { exec } from 'child-process-promise';
 
 import { config } from '../config';
 
-import { logger } from './logger';
 import { wait, noop } from './util';
 
 const RAI_EXECUTABLE = [
@@ -27,8 +26,11 @@ export async function raiAction<R : Object>(action : string, args : Object = {})
 
     try {
         res = await request({
-            method: 'POST',
-            uri:    config.rai_server,
+            method:  'POST',
+            uri:     config.rai_server,
+            headers: {
+                'content-type': 'application/json'
+            },
             body:   JSON.stringify({
                 action,
                 ...args
@@ -55,7 +57,6 @@ export async function raiAction<R : Object>(action : string, args : Object = {})
     }
 
     console.log((new Date()).toUTCString(), 'COMPLETE', action, args, res.body);
-    logger.log({ action, ...args });
 
     if (res.statusCode !== 200) {
         throw new Error(`Expected status to be 200, got ${ res.statusCode } for action: ${ action }`);
@@ -64,8 +65,6 @@ export async function raiAction<R : Object>(action : string, args : Object = {})
     let data = JSON.parse(res.body);
 
     if (data.error) {
-
-        logger.log({ rai_error: data.error });
         let err = new Error(data.error);
 
         // $FlowFixMe
@@ -368,22 +367,22 @@ export async function waitForBalance({ account, amount, timeout = 120000, delay 
     });
     
     while (true) { // eslint-disable-line no-constant-condition
-        await wait(delay);
-
-        let elapsed = Date.now() - start;
-
-        if (elapsed > (timeout / 2)) {
-            delay *= 2;
-        }
-
         let { balance, pending } = await getBalance(account);
 
         if ((balance + pending) >= amount) {
             return { balance, pending };
         }
 
+        let elapsed = Date.now() - start;
+
         if (cancelled || elapsed > timeout) {
             break;
+        }
+
+        await wait(delay);
+
+        if (elapsed > (timeout / 2)) {
+            delay *= 2;
         }
     }
 

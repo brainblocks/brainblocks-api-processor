@@ -2,12 +2,17 @@
 
 set -e
 
-read -p 'This will delete the database. Press enter to continue'
-read -p 'THIS WILL DELETE THE DATABASE. Press enter to continue'
-read -p 'THIS WILL DELETE THE DATABASE. LAST CHANCE. Press enter to continue'
+test_db="brainblocks-test";
+db="${1-brainblocks}";
 
-dropdb brainblocks || echo 'BrainBlocks database does not exist'
-createdb brainblocks
+if [[ "$db" != $test_db ]]; then
+    read -p "This will delete the $db database. Press enter to continue"
+    read -p "THIS WILL DELETE THE $db DATABASE. Press enter to continue"
+    read -p "THIS WILL DELETE THE $db DATABASE. LAST CHANCE. Press enter to continue"
+fi
+
+dropdb "$db" || echo "$db database does not exist"
+createdb "$db"
 
 echo "
 
@@ -40,4 +45,4 @@ CREATE TRIGGER update_transaction_modtime
     BEFORE UPDATE ON transaction
     FOR EACH ROW EXECUTE PROCEDURE update_modified_column();
 
-" | psql brainblocks;
+" | psql "$db";

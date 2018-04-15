@@ -6,21 +6,31 @@ export const config = {
     secret:      '***REMOVED***'
 };
 
-export const DATABASE = {
-    HOST:     'localhost',
-    NAME:     'brainblocks',
-    USER:     '',
-    PASSWORD: ''
-};
+export let DATABASE;
 
-/*
-export const DATABASE = {
-    HOST:     'ip-172-31-6-166.us-east-2.compute.internal',
-    NAME:     'brainblocks',
-    USER:     'brainblocks',
-    PASSWORD: '***REMOVED***'
-};
-*/
+if (process.env.NODE_ENV === 'production') {
+    DATABASE = {
+        HOST:     'ip-172-31-6-166.us-east-2.compute.internal',
+        NAME:     'brainblocks',
+        USER:     'brainblocks',
+        PASSWORD: '***REMOVED***'
+    };
+} else if (process.env.NODE_ENV === 'test') {
+    DATABASE = {
+        HOST:     'localhost',
+        NAME:     'brainblocks-test',
+        USER:     '',
+        PASSWORD: ''
+    };
+} else {
+    DATABASE = {
+        HOST:     'localhost',
+        NAME:     'brainblocks',
+        USER:     '',
+        PASSWORD: ''
+    };
+}
+
 
 export const SUPPORTED_CURRENCIES = [
     'aud',

@@ -6,10 +6,12 @@
   "scripts": {
     "start": "node .",
     "clean": "node ./clean.js",
-    "test": "npm run lint && npm run flow-typed && npm run flow",
+    "db-setup": "./scripts/db-setup.sh $1",
+    "test": "npm run lint && npm run flow-typed && npm run flow && npm run jest",
     "flow-typed": "flow-typed install",
     "flow": "flow",
-    "lint": "eslint server/ *.js"
+    "lint": "eslint server/ *.js",
+    "jest": "npm run db-setup brainblocks-test && jest test --env=node --no-cache --coverage --verbose --runInBand --silent"
   },
   "author": "",
   "license": "ISC",
@@ -33,6 +35,12 @@
     "rabbot": "^1.1.0",
     "request": "^2.83.0",
     "request-promise": "^4.2.2",
-    "flow-bin": "^0.69.0"
+    "flow-bin": "^0.69.0",
+    "jest": "^22.4.3",
+    "nock": "^9",
+    "node-fetch": "^2",
+    "qs": "^6",
+    "pgtest": "^0",
+    "wtfnode": "^0"
   }
 }

@@ -7,7 +7,7 @@ import { wait } from './lib/util';
 import { TRANSACTION_STATUS } from './constants';
 import { processTransaction, refundTransaction, recoverAndRefundTransaction } from './transaction';
 
-async function cleanTransactions() : Promise<void> {
+export async function cleanTransactions() : Promise<void> {
 
     console.log('Starting cleanup');
 
@@ -72,5 +72,3 @@ async function cleanTransactions() : Promise<void> {
 
     await wait(2 * 60 * 1000);
 }
-
-cleanTransactions();

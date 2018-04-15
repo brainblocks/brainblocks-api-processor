@@ -1,3 +1,4 @@
 /* @flow */
 
-import './api'; // eslint-disable-line import/no-unassigned-import
+export * from './api';
+export * from './config';

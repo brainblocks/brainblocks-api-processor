@@ -15,7 +15,8 @@ import { createTransaction, getTransaction, setTransactionStatus, recoverAndRefu
 
 const ROOT_DIR = join(__dirname, '..');
 
-let app = express();
+export let app = express();
+
 app.use(express.urlencoded());
 app.use('/static', express.static(`${ __dirname  }/../static`));
 
@@ -180,6 +181,3 @@ app.get('/api/process/:account', handler(async (req : express$Request) => {
         status: 'success'
     };
 }));
-
-app.listen(config.server_port);
-console.log(`brainblocks server listening on http://localhost:${ config.server_port }`);

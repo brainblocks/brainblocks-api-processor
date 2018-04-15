@@ -3,24 +3,44 @@ import { Pool } from 'pg';
 
 import { DATABASE } from '../config';
 
-const pool = new Pool({
-    host:                    DATABASE.HOST,
-    user:                    DATABASE.USER,
-    database:                DATABASE.NAME,
-    password:                DATABASE.PASSWORD,
-    max:                     20,
-    idleTimeoutMillis:       30000,
-    connectionTimeoutMillis: 2000
-});
+let pool;
+
+function createPool() : Object {
+    if (!DATABASE) {
+        throw new Error(`No database config found`);
+    }
+
+    return new Pool({
+        host:                    DATABASE.HOST,
+        user:                    DATABASE.USER,
+        database:                DATABASE.NAME,
+        password:                DATABASE.PASSWORD,
+        max:                     20,
+        idleTimeoutMillis:       30000,
+        connectionTimeoutMillis: 2000
+    });
+}
 
 export async function postQuery<T>(text : string, values : Array<string | number> = []) : Promise<Array<T>> {
+    pool = pool || createPool();
     // $FlowFixMe
     let client = await pool.connect();
     console.log(text, values);
-    let result = await client.query(text, values);
-    client.release();
+    let result;
+    try {
+        result = await client.query(text, values);
+    } finally {
+        client.release();
+    }
     console.log(result.rows);
     return result.rows;
+}
+
+export async function endPool() : Promise<void> {
+    if (pool) {
+        await pool.end();
+        pool = null;
+    }
 }
 
 export async function postQuerySingle<T>(text : string, values : Array<string | number> = []) : Promise<T> {

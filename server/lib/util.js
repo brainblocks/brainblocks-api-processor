@@ -5,7 +5,6 @@ import { TokenExpiredError, JsonWebTokenError } from 'jsonwebtoken';
 import requestPromise from 'request-promise';
 
 import { raven } from './raven';
-import { logger } from './logger';
 
 export function ValidationError(message : string) {
     this.name = 'ValidationError';
@@ -21,7 +20,6 @@ export function handler<T : Object>(fn : (req : express$Request, res : express$R
 
         try {
             console.log(uuid, req.originalUrl, req.body);
-            logger.log({ request: req.originalUrl });
             res.writeHead(200, { 'content-type': 'application/json' });
             res.write('   ');
             let result = await fn(req, res);
