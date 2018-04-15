@@ -7,6 +7,8 @@ import { wait } from './lib/util';
 import { TRANSACTION_STATUS } from './constants';
 import { processTransaction, refundTransaction, recoverAndRefundTransaction } from './transaction';
 
+const REFUND_PERIOD = '100 minutes';
+
 export async function cleanTransactions() : Promise<void> {
 
     console.log('Starting cleanup');
@@ -17,7 +19,8 @@ export async function cleanTransactions() : Promise<void> {
             
         SELECT id, status
             FROM transaction
-            WHERE (status = $1 OR status = $2 OR status = $3 OR status = $4);
+            WHERE (status = $1 OR status = $2 OR status = $3 OR status = $4)
+            AND (created >= (NOW() - INTERVAL '${ REFUND_PERIOD }');
 
     `, [ TRANSACTION_STATUS.COMPLETE, TRANSACTION_STATUS.PENDING, TRANSACTION_STATUS.REFUNDED, TRANSACTION_STATUS.EXPIRED ]);
 
@@ -61,7 +64,7 @@ export async function cleanTransactions() : Promise<void> {
 
     UPDATE transaction
         SET status = $1
-        WHERE (created < (NOW() - INTERVAL '100 minutes'))
+        WHERE (created < (NOW() - INTERVAL '${ REFUND_PERIOD }'))
         AND (status != $2);
 
     `, [ TRANSACTION_STATUS.PURGED, TRANSACTION_STATUS.COMPLETE ]);
