@@ -1,10 +1,8 @@
 /* @flow */
 
-export const config = {
-    server_port: 8000,
-    rai_server:  'http://127.0.0.1:7076',
-    secret:      '***REMOVED***'
-};
+export const SERVER_PORT = 8000;
+export const RAI_SERVER = 'http://127.0.0.1:7076';
+export const SECRET = '***REMOVED***';
 
 export let DATABASE;
 

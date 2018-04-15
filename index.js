@@ -4,7 +4,7 @@
 require('babel-register');
 
 // eslint-disable-next-line import/no-commonjs
-let { app, config } = require('./server');
+let { app, SERVER_PORT } = require('./server');
 
-app.listen(config.server_port);
-console.log(`brainblocks server listening on http://localhost:${ config.server_port }`);
+app.listen(SERVER_PORT);
+console.log(`brainblocks server listening on http://localhost:${ SERVER_PORT }`);

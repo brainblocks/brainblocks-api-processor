@@ -5,7 +5,7 @@ import { existsSync } from 'fs';
 import request from 'request-promise';
 import { exec } from 'child-process-promise';
 
-import { config } from '../config';
+import { RAI_SERVER } from '../config';
 
 import { wait, noop } from './util';
 
@@ -27,7 +27,7 @@ export async function raiAction<R : Object>(action : string, args : Object = {})
     try {
         res = await request({
             method:  'POST',
-            uri:     config.rai_server,
+            uri:     RAI_SERVER,
             headers: {
                 'content-type': 'application/json'
             },
@@ -47,7 +47,7 @@ export async function raiAction<R : Object>(action : string, args : Object = {})
 
         res = await request({
             method: 'POST',
-            uri:    config.rai_server,
+            uri:    RAI_SERVER,
             body:   JSON.stringify({
                 action,
                 ...args

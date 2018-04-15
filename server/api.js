@@ -6,7 +6,7 @@ import express from 'express';
 import jwt from 'jsonwebtoken';
 import base64 from 'base-64';
 
-import { config, SUPPORTED_CURRENCIES } from './config';
+import { SECRET, SUPPORTED_CURRENCIES } from './config';
 import { waitForBalance, accountCreate, getTotalReceived, getLatestTransaction, accountHistory, isAccountValid } from './lib/rai';
 import { handler, ValidationError } from './lib/util';
 import { toRai } from './lib/coinmarketcap';
@@ -65,7 +65,7 @@ app.post('/api/session', handler(async (req : express$Request) => {
     let { account, privateKey, publicKey } = await accountCreate();
 
     let id = await createTransaction({ status: TRANSACTION_STATUS.CREATED, destination, amount, amount_rai, account, currency, privateKey, publicKey });
-    let token = base64.encode(jwt.sign({ id }, config.secret, { expiresIn: '1h' })).replace(/=/g, ''); // eslint-disable-line no-div-regex
+    let token = base64.encode(jwt.sign({ id }, SECRET, { expiresIn: '1h' })).replace(/=/g, ''); // eslint-disable-line no-div-regex
 
     return { status: 'success', token, account, amount_rai };
 }));
@@ -83,7 +83,7 @@ app.post('/api/session/:token/transfer', handler(async (req : express$Request, r
     res.setTimeout(Math.floor(time * 1.5));
 
     // $FlowFixMe
-    let { id } = jwt.verify(base64.decode(token), config.secret);
+    let { id } = jwt.verify(base64.decode(token), SECRET);
     let { account, amount_rai } = await getTransaction(id);
 
     await setTransactionStatus(id, TRANSACTION_STATUS.WAITING);
@@ -112,7 +112,7 @@ app.get('/api/session/:token/verify', handler(async (req : express$Request) => {
     token = token.replace(/=/g, ''); // eslint-disable-line no-div-regex
     
     // $FlowFixMe
-    let { id } = jwt.verify(base64.decode(token), config.secret);
+    let { id } = jwt.verify(base64.decode(token), SECRET);
     let { account, destination, amount, currency, amount_rai } = await getTransaction(id);
 
     let received_rai = Math.min(amount_rai, await getTotalReceived(account));
