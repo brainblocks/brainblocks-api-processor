@@ -1,5 +1,4 @@
 /* @flow */
 
 import './setup';
-
-export * from './tests';
+import './tests';

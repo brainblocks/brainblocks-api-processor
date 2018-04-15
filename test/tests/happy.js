@@ -1,7 +1,6 @@
 /* @flow */
 
-import qs from 'qs'
-
+import qs from 'qs';
 import fetch from 'node-fetch';
 
 import { URL } from '../config';

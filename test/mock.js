@@ -57,14 +57,14 @@ registerNanoOperation('key_create', () => {
         account: uuidv4(),
         public:  uuidv4(),
         private: uuidv4()
-    }
+    };
 });
 
 registerNanoOperation('account_balance', () => {
     return {
         balance: '1000000000000000000000000',
         pending: '0'
-    }
+    };
 });
 
 registerNanoOperation('rai_from_raw', ({ amount }) => {

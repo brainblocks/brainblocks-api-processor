@@ -1,4 +1,4 @@
 /* @flow */
 
-export * from './happy';
-export * from './validation';
+import './happy';
+import './validation';
