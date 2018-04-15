@@ -21,6 +21,7 @@ app.use(express.urlencoded());
 app.use('/static', express.static(`${ __dirname  }/../static`));
 
 app.get('/', (req : express$Request, res : express$Response) => res.sendFile(join(ROOT_DIR, 'static/index.htm')));
+app.get('/blank', (req : express$Request, res : express$Response) => res.status(200).send(''));
 app.get('/button', (req : express$Request, res : express$Response) => res.sendFile(join(ROOT_DIR, 'static/button.htm')));
 app.get('/brainblocks.js', (req : express$Request, res : express$Response) => res.sendFile(join(ROOT_DIR, 'static/js/brainblocks.js')));
 app.get('/brainblocks.min.js', (req : express$Request, res : express$Response) => res.sendFile(join(ROOT_DIR, 'static/js/brainblocks.min.js')));

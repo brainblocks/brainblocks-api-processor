@@ -6,11 +6,11 @@ import uuidv4 from 'uuid/v4';
 let nanoOperations = {};
 let singleNanoOperations = {};
 
-export function registerNanoOperation(name : string, handler : (Object) => Object) {
+export function registerNanoOperation(name : string, handler : (Object) => mixed) {
     nanoOperations[name] = handler;
 }
 
-export function registerSingleNanoOperation(name : string, handler : (Object) => Object) {
+export function registerSingleNanoOperation(name : string, handler : (Object) => mixed) {
     singleNanoOperations[name] = handler;
 }
 
@@ -70,5 +70,36 @@ registerNanoOperation('account_balance', () => {
 registerNanoOperation('rai_from_raw', ({ amount }) => {
     return {
         amount: parseInt(amount.replace(/000000000000000000000000$/, ''), 10)
+    };
+});
+
+registerNanoOperation('account_history', () => {
+    return [
+        {
+            hash:    uuidv4(),
+            type:    'receive',
+            amount:  '1000000000000000000000000',
+            account: uuidv4()
+        }
+    ];
+});
+
+registerNanoOperation('pending', () => {
+    return {
+        blocks: [ uuidv4() ]
+    };
+});
+
+registerNanoOperation('blocks_info', ({ hashes: [ block ] }) => {
+    return {
+        blocks: {
+            [ block ]: {
+                amount:        '1000000000000000000000000',
+                block_account: uuidv4(),
+                contents:      JSON.stringify({
+                    source: uuidv4()
+                })
+            }
+        }
     };
 });

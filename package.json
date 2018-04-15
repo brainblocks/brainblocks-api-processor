@@ -41,6 +41,7 @@
     "node-fetch": "^2",
     "qs": "^6",
     "pgtest": "^0",
+    "puppeteer": "^1",
     "wtfnode": "^0"
   }
 }
