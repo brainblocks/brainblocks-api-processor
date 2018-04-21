@@ -202,7 +202,7 @@
                     document.querySelector('#pay-amount').innerText = amount;
 
                     var qrcode = new QRCode({
-                        content: json.account,
+                        content: "xrb:" + json.account + "?amount=" + json.amount_rai + "000000000000000000000000",
                         width: 120,
                         height: 120,
                         padding: 1
