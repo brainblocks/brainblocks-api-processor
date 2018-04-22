@@ -20,7 +20,7 @@ export async function cleanTransactions() : Promise<void> {
         SELECT id, status
             FROM transaction
             WHERE (status = $1 OR status = $2 OR status = $3 OR status = $4)
-            AND (created >= (NOW() - INTERVAL '${ REFUND_PERIOD }');
+            AND (created >= (NOW() - INTERVAL '${ REFUND_PERIOD }'));
 
     `, [ TRANSACTION_STATUS.COMPLETE, TRANSACTION_STATUS.PENDING, TRANSACTION_STATUS.REFUNDED, TRANSACTION_STATUS.EXPIRED ]);
 
