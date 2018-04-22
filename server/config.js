@@ -6,12 +6,12 @@ export const SECRET = '***REMOVED***';
 
 export let DATABASE;
 
-if (process.env.NODE_ENV === 'production') {
+if (process.env.NODE_ENV === 'development') {
     DATABASE = {
-        HOST:     'ip-172-31-6-166.us-east-2.compute.internal',
+        HOST:     'localhost',
         NAME:     'brainblocks',
-        USER:     'brainblocks',
-        PASSWORD: '***REMOVED***'
+        USER:     '',
+        PASSWORD: ''
     };
 } else if (process.env.NODE_ENV === 'test') {
     DATABASE = {
@@ -22,10 +22,10 @@ if (process.env.NODE_ENV === 'production') {
     };
 } else {
     DATABASE = {
-        HOST:     'localhost',
+        HOST:     'ip-172-31-6-166.us-east-2.compute.internal',
         NAME:     'brainblocks',
-        USER:     '',
-        PASSWORD: ''
+        USER:     'brainblocks',
+        PASSWORD: '***REMOVED***'
     };
 }
 
