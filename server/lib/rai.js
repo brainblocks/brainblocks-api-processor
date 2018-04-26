@@ -74,26 +74,19 @@ export async function getLatestBlock(account : string, key : string) {
 }
 
 export async function blockCreateSend({ key, account, destination, amount }) : Promise<{}> {
-    let { balance } = await getRawBalance(account);
-    let previous = await getLatestBlock(account, key);
-
-    if (!previous) {
-        throw new Error(`Can not find previous block`);
-    }
-
-    let { hash, block } = await raiAction('block_create', { type: 'send', key, account, destination, balance, amount, previous });
+    let { hash, block } = await raiAction('block_create', { type: 'send', key, account, destination, amount });
     block = JSON.parse(block);
     return { hash, block };
 }
 
 export async function blockCreateReceive({ key, account, source }) : Promise<{}> {
     let previous = await getLatestBlock(account, key);
-
+    
     if (!previous) {
         let { hash, block } = await blockCreateOpen({ key, account, source });
         return { hash, block };
     } else {
-        let { hash, block } = await raiAction('block_create', { type: 'receive', key, account, source, previous });
+        let { hash, block } = await raiAction('block_create', { type: 'receive', key, account, source });
         block = JSON.parse(block);
         return { hash, block };
     }
