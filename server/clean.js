@@ -73,5 +73,5 @@ export async function cleanTransactions() : Promise<void> {
 
     console.log('Waiting to re-initialize cleanup');
 
-    await wait(2 * 60 * 1000);
+    await wait(15 * 1000);
 }
