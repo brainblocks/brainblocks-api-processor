@@ -4,7 +4,7 @@ import request from 'request-promise';
 
 import { RAI_SERVER, REPRESENTATIVE } from '../config';
 
-import { wait, noop } from './util';
+import { wait, noop, buffer } from './util';
 
 export async function raiAction<R : Object>(action : string, args : Object = {}) : Promise<R> {
 
@@ -81,7 +81,7 @@ export async function blockCreateSend({ key, account, destination, amount }) : P
 
 export async function blockCreateReceive({ key, account, source }) : Promise<{}> {
     let previous = await getLatestBlock(account, key);
-    
+
     if (!previous) {
         let { hash, block } = await blockCreateOpen({ key, account, source });
         return { hash, block };
@@ -116,10 +116,10 @@ export async function isAccountValid(account : string) : Promise<boolean> {
     return (await raiAction('validate_account_number', { account })).valid === '1';
 }
 
-export async function accountCreate() : Promise<{ account : string, privateKey : string, publicKey : string }> {
+export let accountCreate = buffer(async () : Promise<{ account : string, privateKey : string, publicKey : string }> => {
     let { private: privateKey, public: publicKey, account } = await raiAction('key_create');
     return { account, privateKey, publicKey };
-}
+});
 
 export async function getRawBalance(account : string) : Promise<{ balance : number, pending : number }> {
     let { balance, pending } = await raiAction('account_balance', { account });

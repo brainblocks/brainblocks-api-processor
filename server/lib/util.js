@@ -77,3 +77,12 @@ export async function request<R : Object, T : Object>({ method, uri, json } : { 
 export function noop() {
     // pass
 }
+
+export function buffer(method) {
+    let nextResult = method();
+    return async () => {
+        let result = nextResult;
+        nextResult = method();
+        return await result;
+    }
+}
