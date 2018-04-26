@@ -64,3 +64,5 @@ export const SUPPORTED_CURRENCIES = [
     'twd',
     'zar'
 ];
+
+export const REPRESENTATIVE = 'xrb_1brainb3zz81wmhxndsbrjb94hx3fhr1fyydmg6iresyk76f3k7y7jiazoji';

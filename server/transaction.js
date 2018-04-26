@@ -2,7 +2,7 @@
 
 import { TRANSACTION_STATUS } from './constants';
 import { postInsert, postSelectOne, postSelectID, postUpdateID } from './lib/postgres';
-import { refundAccount, receiveAllPending, send, recoverAndRefundAccount, withPrivate } from './lib/rai';
+import { refundAccount, receiveAllPending, send, recoverAndRefundAccount } from './lib/rai';
 
 const TRANSACTION_FIELDS = [ 'id', 'status', 'destination', 'amount', 'amount_rai', 'account', 'currency', 'private', 'public' ];
 
@@ -53,23 +53,19 @@ export async function setTransactionStatus(id : string, status : string) : Promi
 export async function processTransaction(id : string) : Promise<void> {
     let { private: privateKey, amount_rai, destination } = await getTransaction(id);
 
-    await withPrivate(privateKey, async ({ wallet, account }) => {
-        await receiveAllPending(wallet, account);
-        await send(wallet, account, amount_rai, destination);
-        await refundAccount(wallet, account);
-        await setTransactionStatus(id, TRANSACTION_STATUS.COMPLETE);
-    });
+    await receiveAllPending(privateKey);
+    await send(privateKey, amount_rai, destination);
+    await refundAccount(privateKey);
+    await setTransactionStatus(id, TRANSACTION_STATUS.COMPLETE);
 }
 
 export async function refundTransaction(id : string) : Promise<void> {
     let { private: privateKey, status } = await getTransaction(id);
 
-    await withPrivate(privateKey, async ({ wallet, account }) => {
-        await refundAccount(wallet, account);
-        if (status !== TRANSACTION_STATUS.COMPLETE) {
-            await setTransactionStatus(id, TRANSACTION_STATUS.REFUNDED);
-        }
-    });
+    await refundAccount(privateKey);
+    if (status !== TRANSACTION_STATUS.COMPLETE) {
+        await setTransactionStatus(id, TRANSACTION_STATUS.REFUNDED);
+    }
 }
 
 export async function recoverAndRefundTransaction(account : string) : Promise<void> {

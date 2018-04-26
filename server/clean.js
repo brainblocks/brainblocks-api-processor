@@ -2,7 +2,6 @@
 
 import { raven } from './lib/raven';
 import { postQuery } from './lib/postgres';
-import { cleanupWallets, destroyWallet } from './lib/rai';
 import { wait } from './lib/util';
 import { TRANSACTION_STATUS } from './constants';
 import { processTransaction, refundTransaction, recoverAndRefundTransaction } from './transaction';
@@ -12,8 +11,6 @@ const REFUND_PERIOD = '100 minutes';
 export async function cleanTransactions() : Promise<void> {
 
     console.log('Starting cleanup');
-
-    await cleanupWallets();
 
     let transactions = await postQuery(`
             
@@ -38,25 +35,6 @@ export async function cleanTransactions() : Promise<void> {
         } catch (err) {
             console.error(err.stack);
             raven.captureException(err);
-
-            try {
-                if (err.message === 'Account not found in wallet' || err.message === 'Wallet not found') {
-                    let account = err.data && (err.data.account || err.data.source);
-                    
-                    if (account) {
-                        await recoverAndRefundTransaction(account);
-                    }
-                }
-    
-                if (err.message === 'Wallet locked') {
-                    if (err.data && err.data.wallet) {
-                        await destroyWallet(err.data.wallet);
-                    }
-                }
-            } catch (err2) {
-                console.error(err2.stack);
-                raven.captureException(err2);
-            }
         }
     }
 
@@ -65,9 +43,10 @@ export async function cleanTransactions() : Promise<void> {
     UPDATE transaction
         SET status = $1
         WHERE (created < (NOW() - INTERVAL '${ REFUND_PERIOD }'))
-        AND (status != $2);
+        AND (status != $2)
+        AND (status != $3);
 
-    `, [ TRANSACTION_STATUS.PURGED, TRANSACTION_STATUS.COMPLETE ]);
+    `, [ TRANSACTION_STATUS.PURGED, TRANSACTION_STATUS.COMPLETE, TRANSACTION_STATUS.PENDING ]);
 
     // Wait and re-queue event
 

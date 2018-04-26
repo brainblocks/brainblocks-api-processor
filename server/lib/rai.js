@@ -1,22 +1,10 @@
 /* @flow */
 
-import { existsSync } from 'fs';
-
 import request from 'request-promise';
-import { exec } from 'child-process-promise';
 
-import { RAI_SERVER } from '../config';
+import { RAI_SERVER, REPRESENTATIVE } from '../config';
 
 import { wait, noop } from './util';
-
-const RAI_EXECUTABLE = [
-    '/Applications/RaiBlocks.app/Contents/MacOS/rai_wallet',
-    '/home/brainblocks/raiblocks/rai_node'
-].find(existsSync);
-
-if (!RAI_EXECUTABLE) {
-    throw new Error(`Can not find rai executable`);
-}
 
 export async function raiAction<R : Object>(action : string, args : Object = {}) : Promise<R> {
 
@@ -76,6 +64,47 @@ export async function raiAction<R : Object>(action : string, args : Object = {})
     return data;
 }
 
+export async function blockCreate({ type, key, account, representative, source }) : Promise<{}> {
+    return await raiAction('block_create', { type, key, account, representative, source });
+}
+
+export async function getLatestBlock(account : string, key : string) {
+    let history = await accountHistory(account);
+    return history && history[0] && history[0].hash;
+}
+
+export async function blockCreateSend({ key, account, destination, amount }) : Promise<{}> {
+    let { balance } = await getRawBalance(account);
+    let previous = await getLatestBlock(account, key);
+
+    if (!previous) {
+        throw new Error(`Can not find previous block`);
+    }
+
+    let { hash, block } = await raiAction('block_create', { type: 'send', key, account, destination, balance, amount, previous });
+    block = JSON.parse(block);
+    return { hash, block };
+}
+
+export async function blockCreateReceive({ key, account, source }) : Promise<{}> {
+    let previous = await getLatestBlock(account, key);
+
+    if (!previous) {
+        let { hash, block } = await blockCreateOpen({ key, account, source });
+        return { hash, block };
+    } else {
+        let { hash, block } = await raiAction('block_create', { type: 'receive', key, account, source, previous });
+        block = JSON.parse(block);
+        return { hash, block };
+    }
+}
+
+export async function blockCreateOpen({ key, account, source }) : Promise<{}> {
+    let { hash, block } = await raiAction('block_create', { type: 'open', key, account, representative: REPRESENTATIVE, source });
+    block = JSON.parse(block);
+    return { hash, block };
+}
+
 export async function raiToRaw(rai : number) : Promise<string> {
     if (rai === 0) {
         return '0';
@@ -94,48 +123,19 @@ export async function isAccountValid(account : string) : Promise<boolean> {
     return (await raiAction('validate_account_number', { account })).valid === '1';
 }
 
-export async function raiCLIAction(action : string) : Promise<string> {
-    let result = await exec(`${ RAI_EXECUTABLE } --${ action }`);
-    if (result.stderr) {
-        throw new Error(result.stderr);
-    }
-    return result.stdout;
-}
-
-export async function walletList() : Promise<Array<{ wallet : string, accounts : Array<string> }>> {
-    let rawWalletList = await raiCLIAction('wallet_list');
-
-    let result = [];
-    
-    rawWalletList.split('\n').forEach(line => {
-        if (line.trim().match(/^Wallet ID:/)) {
-            result.push({
-                wallet:   line.replace('Wallet ID:', '').trim(),
-                accounts: []
-            });
-        } else if (line.trim().match(/^xrb_/)) {
-            result[result.length - 1].accounts.push(line.trim());
-        }
-    });
-
-    return result;
-}
-
-export async function walletCreate() : Promise<string> {
-    return (await raiAction('wallet_create')).wallet;
-}
-
-export async function walletUnlock(wallet : string) : Promise<void> {
-    return await raiAction('password_enter', { wallet, password: '' });
-}
-
 export async function accountCreate() : Promise<{ account : string, privateKey : string, publicKey : string }> {
     let { private: privateKey, public: publicKey, account } = await raiAction('key_create');
     return { account, privateKey, publicKey };
 }
 
-export async function getBalance(account : string) : Promise<{ balance : number, pending : number }> {
+export async function getRawBalance(account : string) : Promise<{ balance : number, pending : number }> {
     let { balance, pending } = await raiAction('account_balance', { account });
+    return { balance, pending };
+}
+
+
+export async function getBalance(account : string) : Promise<{ balance : number, pending : number }> {
+    let { balance, pending } = await getRawBalance(account);
     
     [ balance, pending ] = await Promise.all([ rawToRai(balance), rawToRai(pending) ]);
 
@@ -160,43 +160,52 @@ export async function blockInfo(block : string) : Promise<{ amount : number, con
     return result;
 }
 
-export async function receive(wallet : string, account : string, block : string) : Promise<{}> {
-    return await raiAction('receive', {
-        wallet,
-        account,
-        block
+export async function receive(key : string, sendBlock : string) : Promise<{}> {
+    let { block: receiveBlock } = await blockCreateReceive({
+        key,
+        account: await keyToAccount(key),
+        source:  sendBlock
     });
+
+    return await process(receiveBlock);
 }
 
-export async function destroyWallet(wallet : string) : Promise<void> {
-    try {
-        await raiAction('wallet_destroy', { wallet });
-    } catch (err) {
-        if (err.message === 'Wallet not found') {
-            return;
-        }
-        throw err;
-    }
+export async function keyExpand(key : string) {
+    return await raiAction('key_expand', { key });
 }
 
-export async function send(wallet : string, account : string, amount : number, destination : string) : Promise<{}> {
-    return await raiAction('send', {
-        wallet,
-        source:      account,
-        amount:      await raiToRaw(amount),
-        destination
+export async function keyToAccount(key : string) {
+    let { account } = await keyExpand(key);
+    return account;
+}
+
+export async function process(block) {
+    block = JSON.stringify(block);
+    let { hash } = await raiAction('process', { block });
+    return hash;
+}
+
+export async function send(key : string, amount : number, destination : string) : Promise<{}> {
+
+    let { block } = await blockCreateSend({
+        key,
+        destination,
+        account:     await keyToAccount(key),
+        amount:      await raiToRaw(amount)
     });
+
+    return await process(block);
 }
 
-export async function receiveAllPending(wallet : string, account : string) : Promise<{ balance : number, pending : number }> {
+export async function receiveAllPending(key : string) : Promise<{ balance : number, pending : number }> {
+    let account = await keyToAccount(key);
     let blocks = await getPending(account);
 
     for (let block of blocks) {
-        await receive(wallet, account, block);
+        await receive(key, block);
     }
 
     let { balance, pending } = await getBalance(account);
-
     return { balance, pending };
 }
 
@@ -254,18 +263,19 @@ export async function getTotalReceived(account : string) : Promise<number> {
     return total;
 }
 
-export async function refundAccount(wallet : string, account : string) : Promise<void> {
-    let { balance } = await receiveAllPending(wallet, account);
+export async function refundAccount(key : string) : Promise<void> {
+    let { balance } = await receiveAllPending(key);
 
     if (!balance) {
         return;
     }
 
+    let account = await keyToAccount(key);
     let received = await getReceived(account);
 
     for (let transaction of received) {
         let refundAmount = Math.min(balance, await rawToRai(transaction.amount));
-        await send(wallet, account, refundAmount, transaction.account);
+        await send(key, refundAmount, transaction.account);
         balance -= refundAmount;
 
         if (!balance) {
@@ -302,51 +312,6 @@ export async function getLatestTransaction(account : string) : Promise<{ send_bl
     let sender = info.block_account;
 
     return { send_block, sender };
-}
-
-export async function removeAccount(wallet : string, account : string) : Promise<void> {
-    try {
-        await raiAction('account_remove', { wallet, account });
-    } catch (err) {
-        if (err.message === 'Wallet not found') {
-            return;
-        }
-        if (err.message === 'Account not found in wallet') {
-            return;
-        }
-        throw err;
-    }
-}
-
-export async function walletBalances(wallet : string) : Promise<{}> {
-    let result = await raiAction('wallet_balances', { wallet });
-    if (result && result.balance) {
-        return result.balance;
-    }
-    return {};
-}
-
-export async function walletExists(wallet : string) : Promise<boolean> {
-    try {
-        await walletBalances(wallet);
-        return true;
-    } catch (err) {
-        return false;
-    }
-}
-
-export async function cleanupWallets() : Promise<void> {
-    let wallets = await walletList();
-
-    console.log('Cleaning addresses after 30 seconds');
-
-    for (let { wallet, accounts } of wallets) {
-        if (!accounts.length && await walletExists(wallet)) {
-            if (!Object.keys(await walletBalances(wallet)).length) {
-                await destroyWallet(wallet);
-            }
-        }
-    }
 }
 
 type WaitForBalance = {
@@ -389,28 +354,7 @@ export async function waitForBalance({ account, amount, timeout = 120000, delay 
     return await getBalance(account);
 }
 
-export async function withPrivate<T>(privateKey : string, handler : ({ wallet : string, account : string }) => Promise<T> | T) : Promise<T> {
-    let wallet = await walletCreate();
-    let result = await raiAction('wallet_add', { wallet, key: privateKey });
-    let account = result.account;
-
-    let res;
-    try {
-        res = await handler({ wallet, account });
-    } catch (err) {
-        await destroyWallet(wallet);
-        throw err;
-    }
-    
-    await removeAccount(wallet, account);
-    await destroyWallet(wallet);
-
-    return res;
-}
-
 
 export async function recoverAndRefundAccount(privateKey : string) : Promise<void> {
-    return await withPrivate(privateKey, async ({ wallet, account }) => {
-        await refundAccount(wallet, account);
-    });
+    await refundAccount(privateKey);
 }
