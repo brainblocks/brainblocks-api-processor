@@ -1,7 +1,7 @@
 /* @flow */
 
 export const SERVER_PORT = 8000;
-export const RAI_SERVER = 'http://127.0.0.1:7076';
+export const RAI_SERVER = 'http://[::1]:7076';
 export const SECRET = '***REMOVED***';
 
 export let DATABASE;
