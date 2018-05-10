@@ -1,7 +1,8 @@
 /* @flow */
 
 export const SERVER_PORT = 8000;
-export const RAI_SERVER = 'http://[::1]:7076';
+//set to DigitalOcean Processing Node Private IP: 10.136.7.198
+export const RAI_SERVER = 'http://[10.136.7.198]:7076';
 export const SECRET = '***REMOVED***';
 
 export let DATABASE;
