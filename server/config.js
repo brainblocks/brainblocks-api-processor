@@ -23,7 +23,7 @@ if (process.env.NODE_ENV === 'development') {
     };
 } else {
     DATABASE = {
-        HOST:     'ip-172-31-6-166.us-east-2.compute.internal',
+        HOST:     'db.brainblocks.io',
         NAME:     'brainblocks',
         USER:     'brainblocks',
         PASSWORD: '***REMOVED***'
