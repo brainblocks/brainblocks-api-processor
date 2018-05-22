@@ -1,10 +1,22 @@
 <!DOCTYPE html>
 
 <head>
-    <title>brainblocks - instant, easy nano checkout</title>
+    <title>brainblocks - instant, free, easy nano checkout</title>
     <link rel=stylesheet href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.3/css/bootstrap.min.css" />
+  	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+  	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+  	<meta name="description" content="brainblocks - instant, free, easy nano checkout" />
 
     <style>
+    	.alert.alert-success {
+		  position: fixed;
+		  top: 0;
+		  left: 0;
+		  z-index: 100%;
+		  width: 100%;
+		  height: 50px;
+    	}
+
         h1 {
             display: none;
         }
@@ -52,7 +64,12 @@
 </head>
 
 <body>
-    <h1>brainblocks - instant, easy nano checkout</h1>
+
+	<div class="alert alert-success">
+  		<strong>Support Brainblocks - <a href="https://nanothings.store/product-category/brainblocks/?ref=23" class="alert-link">Buy Our Official Merch Here</a> Using Code "paywithnano" For 10% Off!</strong>
+	</div>
+
+    <h1>brainblocks - instant, free, easy nano checkout</h1>
     <img class="logo" src="/static/img/brainblocks2.svg" width=500 />
 
     <hr />
@@ -72,6 +89,9 @@
                 amount: '1000',
                 currency: 'rai'
             },
+            onToken: function(data) {
+                console.log('Payment Session Started', data.token);
+            },
             onPayment: function(data) {
                 console.log('Payment successful!', data.token);                
             }
@@ -88,7 +108,6 @@
 
 &lt;script src="https://brainblocks.io/brainblocks.min.js"&gt;&lt;/script&gt;
 
-&lt;script&gt;
     // Render the Nano button
 
     brainblocks.Button.render({
@@ -100,8 +119,12 @@
             amount:      '1000'
         },
 
-        // Handle successful payments
+        // Handle new token on payment session start
+        onToken: function(data) {
+            console.log('Payment Session Started', data.token);
+        },
 
+        // Handle successful payments
         onPayment: function(data) {
             console.log('Payment successful!', data.token);
         }
