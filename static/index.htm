@@ -90,9 +90,11 @@
                 currency: 'rai'
             },
             onToken: function(data) {
+		// Don't log token to console for production use
                 console.log('Payment Session Started', data.token);
             },
             onPayment: function(data) {
+		// Don't log token to console for production use
                 console.log('Payment successful!', data.token);                
             }
         }, '#nano-button');
