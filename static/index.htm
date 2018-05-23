@@ -3,9 +3,9 @@
 <head>
     <title>brainblocks - instant, easy nano checkout</title>
     <link rel=stylesheet href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.3/css/bootstrap.min.css" />
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
-    <meta name="description" content="brainblocks - instant, free, easy nano checkout" />
+  	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+  	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+  	<meta name="description" content="brainblocks - instant, free, easy nano checkout" />
 
     <style>
     	.alert.alert-success {
@@ -60,6 +60,26 @@
             margin: 20px 0;
             padding: 0 15%;
         }
+
+		/* unvisited link */
+		a:link {
+		    color: black;
+		}
+
+		/* visited link */
+		a:visited {
+		    color: black;
+		}
+
+		/* mouse over link */
+		a:hover {
+		    color: black;
+		}
+
+		/* selected link */
+		a:active {
+		    color: black;
+		} 
     </style>
 </head>
 
@@ -85,7 +105,7 @@
         brainblocks.Button.render({
             env: window.location.hostname === 'localhost' ? 'local' : 'production',
             payment: {
-                destination: 'nano_1brainb3zz81wmhxndsbrjb94hx3fhr1fyydmg6iresyk76f3k7y7jiazoji',
+                destination: 'xrb_1brainb3zz81wmhxndsbrjb94hx3fhr1fyydmg6iresyk76f3k7y7jiazoji',
                 amount: '1000',
                 currency: 'rai'
             },
@@ -175,9 +195,9 @@
 
 <h4>Core Contributors</h4>
 <br>
-<div>Built by <strong>Daniel Brain</strong></div>
-<div>Designed by <strong>Jill Robinson</strong></div>
-<div>Mobile SDK by <strong>Ty Schenk</strong></div>
+<div>Co-Founder: <a href="https://github.com/bluepnume"><strong>Daniel Brain</strong></a></div>
+<div>Co-Founder: <a href="https://github.com/schenkty"><strong>Ty Schenk</strong></a></div>
+<div>Designer: <a href="https://github.com/wildlingjill"><strong>Jill Robinson</strong></a></div>
 
 <hr>
 
