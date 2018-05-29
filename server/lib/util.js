@@ -14,12 +14,18 @@ export function ValidationError(message : string) {
 // $FlowFixMe
 ValidationError.prototype = Error.prototype;
 
-export function handler<T : Object>(fn : (req : express$Request, res : express$Response) => Promise<T>) : (req : express$Request, res : express$Response) => Promise<void> {
+type HandlerOptionsType = {
+    log? : boolean
+};
+
+export function handler<T : Object>(fn : (req : express$Request, res : express$Response) => Promise<T>, opts : HandlerOptionsType = {}) : (req : express$Request, res : express$Response) => Promise<void> {
     return async (req : express$Request, res : express$Response) => {
         let uuid = uuidv4();
 
         try {
-            console.log(uuid, req.originalUrl, req.body);
+            if (opts.log) {
+                console.log(uuid, req.originalUrl, req.body);
+            }
             res.writeHead(200, { 'content-type': 'application/json' });
             res.write('   ');
             let result = await fn(req, res);
@@ -85,4 +91,56 @@ export function buffer <T>(method : () => Promise<T>) : () => Promise<T> {
         nextResult = method();
         return await (result || nextResult);
     };
+}
+
+export function eventEmitter <T>() : { publish : (T) => void, listen : ((T) => void) => { cancel : () => void } } {
+
+    let listeners = [];
+
+    return {
+        publish: (data) => {
+            for (let listener of listeners) {
+                listener(data);
+            }
+        },
+
+        listen: (listener) => {
+            listeners.push(listener);
+
+            return {
+                cancel: () => {
+                    listeners.splice(listeners.indexOf(listener), 1);
+                }
+            };
+        }
+    };
+}
+
+export function debounce(method : () => mixed, delay : number) : () => void {
+    let timeout;
+    return function debounceWrapper() {
+        clearTimeout(timeout);
+        timeout = setTimeout(() => method.apply(this, arguments), delay);
+    };
+}
+
+type PromiseHandlerOptions<T> = {
+    resolve : (T) => void,
+    reject : (mixed) => void,
+    run : (() => Promise<void>) => Promise<void>
+};
+
+export function promise<T>(promiseHandler : (PromiseHandlerOptions<T>) => void) : Promise<T> {
+    return new Promise((resolve, reject) => {
+
+        let run = async (method) => {
+            try {
+                await method();
+            } catch (err) {
+                reject(err);
+            }
+        };
+
+        promiseHandler({ resolve, reject, run });
+    });
 }

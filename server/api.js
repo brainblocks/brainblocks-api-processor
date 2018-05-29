@@ -7,7 +7,7 @@ import jwt from 'jsonwebtoken';
 import base64 from 'base-64';
 
 import { SECRET, SUPPORTED_CURRENCIES } from './config';
-import { waitForBalance, accountCreate, getTotalReceived, getLatestTransaction, accountHistory, isAccountValid } from './lib/rai';
+import { waitForBalance, accountCreate, getTotalReceived, getLatestTransaction, accountHistory, isAccountValid, nodeEvent } from './lib/rai';
 import { handler, ValidationError } from './lib/util';
 import { toRai } from './lib/coinmarketcap';
 import { TRANSACTION_STATUS } from './constants';
@@ -18,6 +18,7 @@ const ROOT_DIR = join(__dirname, '..');
 export let app = express();
 
 app.use(express.urlencoded());
+app.use(express.json());
 app.use('/static', express.static(`${ __dirname  }/../static`));
 
 app.get('/', (req : express$Request, res : express$Response) => res.sendFile(join(ROOT_DIR, 'static/index.htm')));
@@ -182,3 +183,32 @@ app.get('/api/process/:account', handler(async (req : express$Request) => {
         status: 'success'
     };
 }));
+
+function mapCallbackData(data : mixed) : { hash : string, block : { link_as_account : string } } {
+
+    // $FlowFixMe
+    let { hash, block } = data;
+
+    if (!hash) {
+        throw new Error(`Expected body.hash`);
+    }
+
+    if (!block) {
+        throw new Error(`Expected body.hash`);
+    }
+
+    block = JSON.parse(block);
+
+    return { hash, block };
+}
+
+app.all('/nano/callback', handler(async (req : express$Request) => {
+
+    let data = mapCallbackData(req.body);
+
+    nodeEvent.publish(data);
+
+    return await {
+        status: 'success'
+    };
+}, { log: false }));

@@ -4,7 +4,7 @@ import request from 'request-promise';
 
 import { RAI_SERVER, REPRESENTATIVE } from '../config';
 
-import { wait, noop, buffer } from './util';
+import { wait, noop, buffer, eventEmitter, debounce, promise } from './util';
 
 export async function raiAction<R : Object>(action : string, args : Object = {}) : Promise<R> {
 
@@ -168,7 +168,7 @@ export async function getPending(account : string) : Promise<Array<string>> {
     })).blocks;
 }
 
-export async function blockInfo(block : string) : Promise<{ amount : number, contents : { source : string }, block_account : string }> {
+export async function blockInfo(block : string) : Promise<{ amount : number, contents : { source : string, link_as_account : string }, block_account : string }> {
     let result = (await raiAction('blocks_info', {
         hashes: [ block ]
     })).blocks[block];
@@ -308,6 +308,23 @@ export async function getLatestTransaction(account : string) : Promise<{ send_bl
     return { send_block, sender };
 }
 
+export let nodeEvent = eventEmitter();
+
+let nodeEventsActive = false;
+
+let activateNodeEvents = () => {
+    nodeEventsActive = true;
+};
+
+let deactivateNodeEvents = debounce(() => {
+    nodeEventsActive = false;
+}, 30 * 1000);
+
+nodeEvent.listen(() => {
+    activateNodeEvents();
+    deactivateNodeEvents();
+});
+
 type WaitForBalance = {
     account : string,
     amount : number,
@@ -316,7 +333,44 @@ type WaitForBalance = {
     onCancel : (Function) => void
 };
 
-export async function waitForBalance({ account, amount, timeout = 120000, delay = 5000, onCancel = noop } : WaitForBalance) : Promise<{ balance : number, pending : number }> {
+export async function waitForBalanceViaCallback({ account, amount, timeout = 120000, onCancel = noop } : WaitForBalance) : Promise<{ balance : number, pending : number }> {
+    return await promise(({ resolve, run }) => {
+        let timeoutHandle;
+        let listener;
+
+        let cancel = async () => {
+            clearTimeout(timeoutHandle);
+            listener.cancel();
+            resolve(await getBalance(account));
+        };
+
+        timeoutHandle = setTimeout(cancel, timeout);
+
+        listener = nodeEvent.listen(data => {
+            run(async () => {
+                if (data.block.link_as_account === account) {
+                    let block = await blockInfo(data.hash);
+    
+                    if (block.contents.link_as_account !== account) {
+                        throw new Error(`Callback account does not match`);
+                    }
+    
+                    let { balance, pending } = await getBalance(account);
+    
+                    if ((balance + pending) >= amount) {
+                        clearTimeout(timeoutHandle);
+                        listener.cancel();
+                        resolve({ balance, pending });
+                    }
+                }
+            });
+        });
+
+        onCancel(cancel);
+    });
+}
+
+export async function waitForBalanceViaPoll({ account, amount, timeout = 120000, delay = 5000, onCancel = noop } : WaitForBalance) : Promise<{ balance : number, pending : number }> {
 
     let start = Date.now();
     let cancelled = false;
@@ -348,6 +402,13 @@ export async function waitForBalance({ account, amount, timeout = 120000, delay 
     return await getBalance(account);
 }
 
+export async function waitForBalance({ account, amount, timeout = 120000, delay = 5000, onCancel = noop } : WaitForBalance) : Promise<{ balance : number, pending : number }> {
+    if (nodeEventsActive) {
+        return await waitForBalanceViaCallback({ account, amount, timeout, onCancel });
+    } else {
+        return await waitForBalanceViaPoll({ account, amount, timeout, delay, onCancel });
+    }
+}
 
 export async function recoverAndRefundAccount(privateKey : string) : Promise<void> {
     await refundAccount(privateKey);
