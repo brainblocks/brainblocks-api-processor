@@ -87,11 +87,23 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/fetch/2.0.3/fetch.min.js"></script>
 
     <script>
+        document.body.appendChild(brainblocks.buttonTemplate({ props: window.xprops }));
+    </script>
+
+    <img id="loading-spinner" class="loading-spinner" src="data:image/svg+xml;base64,PHN2ZyB4bWxuczpzdmc9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIiB2ZXJzaW9uPSIxLjAiIHdpZHRoPSIyNXB4IiBoZWlnaHQ9IjI1cHgiIHZpZXdCb3g9IjAgMCAxMjggMTI4IiB4bWw6c3BhY2U9InByZXNlcnZlIj48Zz48cGF0aCBkPSJNNzguNzUgMTYuMThWMS41NmE2NC4xIDY0LjEgMCAwIDEgNDcuNyA0Ny43SDExMS44YTQ5Ljk4IDQ5Ljk4IDAgMCAwLTMzLjA3LTMzLjA4ek0xNi40MyA0OS4yNUgxLjhhNjQuMSA2NC4xIDAgMCAxIDQ3LjctNDcuN1YxNi4yYTQ5Ljk4IDQ5Ljk4IDAgMCAwLTMzLjA3IDMzLjA3em0zMy4wNyA2Mi4zMnYxNC42MkE2NC4xIDY0LjEgMCAwIDEgMS44IDc4LjVoMTQuNjNhNDkuOTggNDkuOTggMCAwIDAgMzMuMDcgMzMuMDd6bTYyLjMyLTMzLjA3aDE0LjYyYTY0LjEgNjQuMSAwIDAgMS00Ny43IDQ3Ljd2LTE0LjYzYTQ5Ljk4IDQ5Ljk4IDAgMCAwIDMzLjA4LTMzLjA3eiIgZmlsbD0iIzgxY2RmMSIgZmlsbC1vcGFjaXR5PSIxIi8+PGFuaW1hdGVUcmFuc2Zvcm0gYXR0cmlidXRlTmFtZT0idHJhbnNmb3JtIiB0eXBlPSJyb3RhdGUiIGZyb209Ii05MCA2NCA2NCIgdG89IjAgNjQgNjQiIGR1cj0iNDAwbXMiIHJlcGVhdENvdW50PSJpbmRlZmluaXRlIj48L2FuaW1hdGVUcmFuc2Zvcm0+PC9nPjwvc3ZnPg==" />
+
+    <div id="brainblocks-checkout">
+        <div id="brainblocks-checkout-qr"></div>
+        <textarea id="brainblocks-checkout-account" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" readonly></textarea>
+        <div id="brainblocks-copy"><button>copy</button></div>
+        <div id="brainblocks-progress-bar"></div>
+        <div id="brainblocks-progress-time"></div>
+    </div>
+
+    <script>
         (function() {
             window.LOG_LEVEL = 'warn';
             var WAIT_TIME = 5 * 60;
-
-            document.body.appendChild(brainblocks.buttonTemplate({ props: window.xprops }));
 
              function objToQuery(obj) {
                 var str = [];
@@ -159,6 +171,14 @@
                 });
             }
 
+            var button = document.querySelector('.brainblocks-button');
+            var checkout = document.querySelector('#brainblocks-checkout');
+            var loader = document.querySelector('#loading-spinner');
+            var qrcontainer = document.querySelector('#brainblocks-checkout-qr');
+            var accountcontainer = document.querySelector('#brainblocks-checkout-account');
+            var progressBar = document.querySelector('#brainblocks-progress-bar');
+            var progressTime = document.querySelector('#brainblocks-progress-time');
+
             function openButton() {
 
                 if (checkoutActive) {
@@ -166,14 +186,6 @@
                 }
 
                 checkoutActive = true;
-
-                var button = document.querySelector('.brainblocks-button');
-                var checkout = document.querySelector('#brainblocks-checkout');
-                var loader = document.querySelector('#loading-spinner');
-                var qrcontainer = document.querySelector('#brainblocks-checkout-qr');
-                var accountcontainer = document.querySelector('#brainblocks-checkout-account');
-                var progressBar = document.querySelector('#brainblocks-progress-bar');
-                var progressTime = document.querySelector('#brainblocks-progress-time');
 
                 qrcontainer.innerHTML = '';
                 accountcontainer.innerHTML = '';
@@ -321,16 +333,6 @@
             }
         })();
     </script>
-
-    <img id="loading-spinner" class="loading-spinner" src="data:image/svg+xml;base64,PHN2ZyB4bWxuczpzdmc9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIiB2ZXJzaW9uPSIxLjAiIHdpZHRoPSIyNXB4IiBoZWlnaHQ9IjI1cHgiIHZpZXdCb3g9IjAgMCAxMjggMTI4IiB4bWw6c3BhY2U9InByZXNlcnZlIj48Zz48cGF0aCBkPSJNNzguNzUgMTYuMThWMS41NmE2NC4xIDY0LjEgMCAwIDEgNDcuNyA0Ny43SDExMS44YTQ5Ljk4IDQ5Ljk4IDAgMCAwLTMzLjA3LTMzLjA4ek0xNi40MyA0OS4yNUgxLjhhNjQuMSA2NC4xIDAgMCAxIDQ3LjctNDcuN1YxNi4yYTQ5Ljk4IDQ5Ljk4IDAgMCAwLTMzLjA3IDMzLjA3em0zMy4wNyA2Mi4zMnYxNC42MkE2NC4xIDY0LjEgMCAwIDEgMS44IDc4LjVoMTQuNjNhNDkuOTggNDkuOTggMCAwIDAgMzMuMDcgMzMuMDd6bTYyLjMyLTMzLjA3aDE0LjYyYTY0LjEgNjQuMSAwIDAgMS00Ny43IDQ3Ljd2LTE0LjYzYTQ5Ljk4IDQ5Ljk4IDAgMCAwIDMzLjA4LTMzLjA3eiIgZmlsbD0iIzgxY2RmMSIgZmlsbC1vcGFjaXR5PSIxIi8+PGFuaW1hdGVUcmFuc2Zvcm0gYXR0cmlidXRlTmFtZT0idHJhbnNmb3JtIiB0eXBlPSJyb3RhdGUiIGZyb209Ii05MCA2NCA2NCIgdG89IjAgNjQgNjQiIGR1cj0iNDAwbXMiIHJlcGVhdENvdW50PSJpbmRlZmluaXRlIj48L2FuaW1hdGVUcmFuc2Zvcm0+PC9nPjwvc3ZnPg==" />
-
-    <div id="brainblocks-checkout">
-        <div id="brainblocks-checkout-qr"></div>
-        <textarea id="brainblocks-checkout-account" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" readonly></textarea>
-        <div id="brainblocks-copy"><button>copy</button></div>
-        <div id="brainblocks-progress-bar"></div>
-        <div id="brainblocks-progress-time"></div>
-    </div>
 
     <script src="//static.getclicky.com/js" type="text/javascript"></script>
     <script type="text/javascript">try{ clicky.init(101095092); }catch(e){}</script>
