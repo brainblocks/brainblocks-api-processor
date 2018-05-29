@@ -78,11 +78,11 @@ export function noop() {
     // pass
 }
 
-export function buffer(method) {
-    let nextResult = method();
+export function buffer <T>(method : () => Promise<T>) : () => Promise<T> {
+    let nextResult;
     return async () => {
         let result = nextResult;
         nextResult = method();
-        return await result;
-    }
+        return await (result || nextResult);
+    };
 }

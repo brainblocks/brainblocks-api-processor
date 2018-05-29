@@ -4,7 +4,7 @@ import { raven } from './lib/raven';
 import { postQuery } from './lib/postgres';
 import { wait } from './lib/util';
 import { TRANSACTION_STATUS } from './constants';
-import { processTransaction, refundTransaction, recoverAndRefundTransaction } from './transaction';
+import { processTransaction, refundTransaction } from './transaction';
 
 const REFUND_PERIOD = '1 day';
 

@@ -64,23 +64,55 @@ export async function raiAction<R : Object>(action : string, args : Object = {})
     return data;
 }
 
-export async function blockCreate({ type, key, account, representative, source }) : Promise<{}> {
+
+export async function accountHistory(account : string) : Promise<Array<{ hash : string, type : string, amount : string, account : string }>> {
+    return (await raiAction('account_history', {
+        account,
+        count:   '100'
+    })).history || [];
+}
+
+export async function getReceived(account : string) : Promise<Array<{ hash : string, type : string, amount : string, account : string }>> {
+    let history = await accountHistory(account);
+    return history.filter(entry => entry.type === 'receive');
+}
+
+export async function getSent(account : string) : Promise<Array<{ hash : string, type : string, amount : string, account : string }>> {
+    let history = await accountHistory(account);
+    return history.filter(entry => entry.type === 'send');
+}
+
+export async function getLastReceived(account : string) : Promise<{ hash : string, type : string, amount : string, account : string }> {
+    return (await getReceived(account))[0];
+}
+
+export async function getLastSent(account : string) : Promise<{ hash : string, type : string, amount : string, account : string }> {
+    return (await getSent(account))[0];
+}
+
+export async function blockCreate({ type, key, account, representative, source } : { type : string, key : string, account : string, representative : string, source : string }) : Promise<{ hash : string, block : string }> {
     return await raiAction('block_create', { type, key, account, representative, source });
 }
 
-export async function getLatestBlock(account : string, key : string) {
+export async function getLatestBlock(account : string) : Promise<string> {
     let history = await accountHistory(account);
     return history && history[0] && history[0].hash;
 }
 
-export async function blockCreateSend({ key, account, destination, amount }) : Promise<{}> {
+export async function blockCreateSend({ key, account, destination, amount } : { key : string, account : string, destination : string, amount : string }) : Promise<{ hash : string, block : string }> {
     let { hash, block } = await raiAction('block_create', { type: 'send', key, account, destination, amount });
     block = JSON.parse(block);
     return { hash, block };
 }
 
-export async function blockCreateReceive({ key, account, source }) : Promise<{}> {
-    let previous = await getLatestBlock(account, key);
+export async function blockCreateOpen({ key, account, source } : { key : string, account : string, source : string }) : Promise<{ hash : string, block : string }> {
+    let { hash, block } = await raiAction('block_create', { type: 'open', key, account, representative: REPRESENTATIVE, source });
+    block = JSON.parse(block);
+    return { hash, block };
+}
+
+export async function blockCreateReceive({ key, account, source } : { key : string, account : string, source : string }) : Promise<{ hash : string, block : string }> {
+    let previous = await getLatestBlock(account);
 
     if (!previous) {
         let { hash, block } = await blockCreateOpen({ key, account, source });
@@ -90,12 +122,6 @@ export async function blockCreateReceive({ key, account, source }) : Promise<{}>
         block = JSON.parse(block);
         return { hash, block };
     }
-}
-
-export async function blockCreateOpen({ key, account, source }) : Promise<{}> {
-    let { hash, block } = await raiAction('block_create', { type: 'open', key, account, representative: REPRESENTATIVE, source });
-    block = JSON.parse(block);
-    return { hash, block };
 }
 
 export async function raiToRaw(rai : number) : Promise<string> {
@@ -121,7 +147,7 @@ export let accountCreate = buffer(async () : Promise<{ account : string, private
     return { account, privateKey, publicKey };
 });
 
-export async function getRawBalance(account : string) : Promise<{ balance : number, pending : number }> {
+export async function getRawBalance(account : string) : Promise<{ balance : string, pending : string }> {
     let { balance, pending } = await raiAction('account_balance', { account });
     return { balance, pending };
 }
@@ -153,78 +179,29 @@ export async function blockInfo(block : string) : Promise<{ amount : number, con
     return result;
 }
 
-export async function receive(key : string, sendBlock : string) : Promise<{}> {
+export async function keyExpand(key : string) : Promise<{ private : string, public : string, account : string }> {
+    return await raiAction('key_expand', { key });
+}
+
+export async function keyToAccount(key : string) : Promise<string> {
+    let { account } = await keyExpand(key);
+    return account;
+}
+
+export async function process(block : string) : Promise<string> {
+    block = JSON.stringify(block);
+    let { hash } = await raiAction('process', { block });
+    return hash;
+}
+
+export async function receive(key : string, sendBlock : string) : Promise<void> {
     let { block: receiveBlock } = await blockCreateReceive({
         key,
         account: await keyToAccount(key),
         source:  sendBlock
     });
 
-    return await process(receiveBlock);
-}
-
-export async function keyExpand(key : string) {
-    return await raiAction('key_expand', { key });
-}
-
-export async function keyToAccount(key : string) {
-    let { account } = await keyExpand(key);
-    return account;
-}
-
-export async function process(block) {
-    block = JSON.stringify(block);
-    let { hash } = await raiAction('process', { block });
-    return hash;
-}
-
-export async function send(key : string, amount : number, destination : string) : Promise<{}> {
-
-    let { block } = await blockCreateSend({
-        key,
-        destination,
-        account:     await keyToAccount(key),
-        amount:      await raiToRaw(amount)
-    });
-
-    return await process(block);
-}
-
-export async function receiveAllPending(key : string) : Promise<{ balance : number, pending : number }> {
-    let account = await keyToAccount(key);
-    let blocks = await getPending(account);
-
-    for (let block of blocks) {
-        await receive(key, block);
-    }
-
-    let { balance, pending } = await getBalance(account);
-    return { balance, pending };
-}
-
-export async function accountHistory(account : string) : Promise<Array<{ hash : string, type : string, amount : string, account : string }>> {
-    return (await raiAction('account_history', {
-        account,
-        count:   '100'
-    })).history || [];
-}
-
-export async function getReceived(account : string) : Promise<Array<{ hash : string, type : string, amount : string, account : string }>> {
-    let history = await accountHistory(account);
-    return history.filter(entry => entry.type === 'receive');
-}
-
-export async function getSent(account : string) : Promise<Array<{ hash : string, type : string, amount : string, account : string }>> {
-    let history = await accountHistory(account);
-    return history.filter(entry => entry.type === 'send');
-}
-
-export async function getLastReceived(account : string) : Promise<{ hash : string, type : string, amount : string, account : string }> {
-    return (await getReceived(account))[0];
-}
-
-export async function getLastSent(account : string) : Promise<{ hash : string, type : string, amount : string, account : string }> {
-    return (await getSent(account))[0];
+    await process(receiveBlock);
 }
 
 export async function getTotalReceived(account : string) : Promise<number> {
@@ -254,6 +231,30 @@ export async function getTotalReceived(account : string) : Promise<number> {
     let total = totals.reduce((a, b) => a + b, 0);
 
     return total;
+}
+
+export async function send(key : string, amount : number, destination : string) : Promise<void> {
+
+    let { block } = await blockCreateSend({
+        key,
+        destination,
+        account:     await keyToAccount(key),
+        amount:      await raiToRaw(amount)
+    });
+
+    await process(block);
+}
+
+export async function receiveAllPending(key : string) : Promise<{ balance : number, pending : number }> {
+    let account = await keyToAccount(key);
+    let blocks = await getPending(account);
+
+    for (let block of blocks) {
+        await receive(key, block);
+    }
+
+    let { balance, pending } = await getBalance(account);
+    return { balance, pending };
 }
 
 export async function refundAccount(key : string) : Promise<void> {

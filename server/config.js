@@ -1,8 +1,6 @@
 /* @flow */
 
 export const SERVER_PORT = 8000;
-//set to DigitalOcean Processing Node Private IP: 10.136.7.198
-export const RAI_SERVER = 'http://[10.136.7.198]:7076';
 export const SECRET = '***REMOVED***';
 
 export let DATABASE;
@@ -30,6 +28,16 @@ if (process.env.NODE_ENV === 'development') {
     };
 }
 
+export let RAI_SERVER;
+
+if (process.env.NODE_ENV === 'development') {
+    RAI_SERVER = 'http://127.0.0.1:7076';
+} else if (process.env.NODE_ENV === 'test') {
+    RAI_SERVER = 'http://127.0.0.1:7070';
+} else {
+    // set to DigitalOcean Processing Node Private IP: 10.136.7.198
+    RAI_SERVER = 'http://[10.136.7.198]:7076';
+}
 
 export const SUPPORTED_CURRENCIES = [
     'aud',
