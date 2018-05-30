@@ -35,15 +35,21 @@ export async function createTransaction({ status = TRANSACTION_STATUS.CREATED, d
 }
 
 export async function getTransaction(id : string) : Promise<TransactionType> {
-    return await postSelectID('transaction', id, TRANSACTION_FIELDS);
+    let transaction = await postSelectID('transaction', id, TRANSACTION_FIELDS);
+    transaction.amount_rai = parseInt(transaction.amount_rai, 10);
+    return transaction;
 }
 
 export async function getTransactionByAccount(account : string) : Promise<TransactionType> {
-    return await postSelectOne('transaction', { account }, TRANSACTION_FIELDS);
+    let transaction = await postSelectOne('transaction', { account }, TRANSACTION_FIELDS);
+    transaction.amount_rai = parseInt(transaction.amount_rai, 10);
+    return transaction;
 }
 
 export async function getTransactionByDestination(destination : string) : Promise<TransactionType> {
-    return await postSelectOne('transaction', { destination }, TRANSACTION_FIELDS);
+    let transaction = await postSelectOne('transaction', { destination }, TRANSACTION_FIELDS);
+    transaction.amount_rai = parseInt(transaction.amount_rai, 10);
+    return transaction;
 }
 
 export async function setTransactionStatus(id : string, status : string) : Promise<void> {
