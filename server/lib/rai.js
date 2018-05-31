@@ -1,6 +1,7 @@
 /* @flow */
 
 import request from 'request-promise';
+import bigInt from 'big-integer';
 
 import { RAI_SERVER, REPRESENTATIVE } from '../config';
 
@@ -64,6 +65,19 @@ export async function raiAction<R : Object>(action : string, args : Object = {})
     return data;
 }
 
+export async function raiToRaw(rai : number) : Promise<string> {
+    if (rai === 0) {
+        return '0';
+    }
+    return (await raiAction('rai_to_raw', { amount: rai.toString() })).amount;
+}
+
+export async function rawToRai(raw : string) : Promise<number> {
+    if (raw === '0') {
+        return 0;
+    }
+    return parseInt((await raiAction('rai_from_raw', { amount: raw })).amount, 10);
+}
 
 export async function accountHistory(account : string) : Promise<Array<{ hash : string, type : string, amount : string, account : string }>> {
     return (await raiAction('account_history', {
@@ -99,43 +113,55 @@ export async function getLatestBlock(account : string) : Promise<string> {
     return history && history[0] && history[0].hash;
 }
 
+export async function getAccountInfo(account : string) : Promise<{ balance : string, frontier : string }> {
+    return await raiAction('account_info', { account });
+}
+
 export async function blockCreateSend({ key, account, destination, amount } : { key : string, account : string, destination : string, amount : string }) : Promise<{ hash : string, block : string }> {
-    let { hash, block } = await raiAction('block_create', { type: 'send', key, account, destination, amount });
+
+    let { frontier, balance } = await getAccountInfo(account);
+    let newBalance = bigInt(balance).subtract(amount).toString();
+
+    let { hash, block } = await raiAction('block_create', {
+        type:           'state',
+        representative: REPRESENTATIVE,
+        link:           destination,
+        previous:       frontier,
+        balance:        newBalance,
+        key,
+        account
+    });
+
     block = JSON.parse(block);
     return { hash, block };
 }
 
-export async function blockCreateOpen({ key, account, source } : { key : string, account : string, source : string }) : Promise<{ hash : string, block : string }> {
-    let { hash, block } = await raiAction('block_create', { type: 'open', key, account, representative: REPRESENTATIVE, source });
-    block = JSON.parse(block);
-    return { hash, block };
-}
-
-export async function blockCreateReceive({ key, account, source } : { key : string, account : string, source : string }) : Promise<{ hash : string, block : string }> {
+export async function blockCreateReceive({ key, account, source, amount } : { key : string, account : string, source : string, amount : string }) : Promise<{ hash : string, block : string }> {
     let previous = await getLatestBlock(account);
 
-    if (!previous) {
-        let { hash, block } = await blockCreateOpen({ key, account, source });
-        return { hash, block };
+    let newBalance;
+
+    if (previous) {
+        let { balance } = await getAccountInfo(account);
+        newBalance = bigInt(balance).add(amount).toString();
     } else {
-        let { hash, block } = await raiAction('block_create', { type: 'receive', key, account, source });
-        block = JSON.parse(block);
-        return { hash, block };
+        newBalance = amount;
+        previous = '0';
     }
-}
 
-export async function raiToRaw(rai : number) : Promise<string> {
-    if (rai === 0) {
-        return '0';
-    }
-    return (await raiAction('rai_to_raw', { amount: rai.toString() })).amount;
-}
+    let { hash, block } = await raiAction('block_create', {
+        type:           'state',
+        representative: REPRESENTATIVE,
+        link:           source,
+        balance:        newBalance,
+        previous,
+        key,
+        account
+    });
 
-export async function rawToRai(raw : string) : Promise<number> {
-    if (raw === '0') {
-        return 0;
-    }
-    return parseInt((await raiAction('rai_from_raw', { amount: raw })).amount, 10);
+    block = JSON.parse(block);
+
+    return { hash, block };
 }
 
 export async function isAccountValid(account : string) : Promise<boolean> {
@@ -168,7 +194,7 @@ export async function getPending(account : string) : Promise<Array<string>> {
     })).blocks;
 }
 
-export async function blockInfo(block : string) : Promise<{ amount : number, contents : { source : string, link_as_account : string }, block_account : string }> {
+export async function blockInfo(block : string) : Promise<{ amount : number, contents : { source : string, link_as_account : string, link : string, account : string }, block_account : string }> {
     let result = (await raiAction('blocks_info', {
         hashes: [ block ]
     })).blocks[block];
@@ -195,10 +221,15 @@ export async function process(block : string) : Promise<string> {
 }
 
 export async function receive(key : string, sendBlock : string) : Promise<void> {
+    let info = (await raiAction('blocks_info', {
+        hashes: [ sendBlock ]
+    })).blocks[sendBlock];
+
     let { block: receiveBlock } = await blockCreateReceive({
         key,
         account: await keyToAccount(key),
-        source:  sendBlock
+        source:  sendBlock,
+        amount:  info.amount
     });
 
     await process(receiveBlock);
@@ -266,10 +297,13 @@ export async function refundAccount(key : string) : Promise<void> {
 
     let account = await keyToAccount(key);
     let received = await getReceived(account);
+    received.reverse();
 
     for (let transaction of received) {
         let refundAmount = Math.min(balance, await rawToRai(transaction.amount));
-        await send(key, refundAmount, transaction.account);
+        let receiveBlock = await blockInfo(transaction.hash);
+        let sendBlock = await blockInfo(receiveBlock.contents.link);
+        await send(key, refundAmount, sendBlock.contents.account);
         balance -= refundAmount;
 
         if (!balance) {

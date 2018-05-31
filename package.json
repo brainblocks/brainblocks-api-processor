@@ -20,6 +20,7 @@
     "amqplib": "^0.5.2",
     "async-exit-hook": "^2.0.1",
     "base-64": "^0.1.0",
+    "big-integer": "^1",
     "child-process-promise": "^2.2.1",
     "exit-hook": "^1.1.1",
     "express": "^4.16.2",
