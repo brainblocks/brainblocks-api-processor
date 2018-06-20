@@ -122,7 +122,18 @@
 
             var checkoutActive = false;
 
+            var button = document.querySelector('.brainblocks-button');
+            var checkout = document.querySelector('#brainblocks-checkout');
+            var loader = document.querySelector('#loading-spinner');
+            var qrcontainer = document.querySelector('#brainblocks-checkout-qr');
+            var accountcontainer = document.querySelector('#brainblocks-checkout-account');
+            var progressBar = document.querySelector('#brainblocks-progress-bar');
+            var progressTime = document.querySelector('#brainblocks-progress-time');
+            var copyButton = document.querySelector('#brainblocks-copy');
+
             function closeButton() {
+                copyButton.style.display = 'none';
+                window.onbeforeunload = function() {};
                 checkoutActive = false;
                 window.xchild.resize(window.innerWidth, 50);
                 document.querySelector('.brainblocks-button').style.height = '50px';
@@ -133,6 +144,7 @@
                 document.body.classList.add('brainblocks-checkout-active');
                 window.xchild.resize(window.innerWidth, 320);
                 document.querySelector('.brainblocks-button').style.height = '320px';
+                copyButton.style.display = 'block';
             }
 
             function api(method, url, data) {
@@ -171,19 +183,17 @@
                 });
             }
 
-            var button = document.querySelector('.brainblocks-button');
-            var checkout = document.querySelector('#brainblocks-checkout');
-            var loader = document.querySelector('#loading-spinner');
-            var qrcontainer = document.querySelector('#brainblocks-checkout-qr');
-            var accountcontainer = document.querySelector('#brainblocks-checkout-account');
-            var progressBar = document.querySelector('#brainblocks-progress-bar');
-            var progressTime = document.querySelector('#brainblocks-progress-time');
-
             function openButton() {
 
                 if (checkoutActive) {
                     return;
                 }
+
+                window.onbeforeunload = function(event) {
+                    var message = 'WARNING: if you have sent any nano, by closing this window your transaction will be cancelled and your nano will be refunded. Your payment will not be completed.';
+                    event.returnValue = message;
+                    return message;
+                };
 
                 checkoutActive = true;
 
@@ -223,7 +233,7 @@
                     });
                     qrcontainer.innerHTML = qrcode.svg();
 
-                    document.querySelector('#brainblocks-copy').addEventListener('click', function() {
+                    copyButton.addEventListener('click', function() {
                         accountcontainer.focus();
                         accountcontainer.select();
 
@@ -239,7 +249,8 @@
                         accountcontainer.select();
                     });
 
-                    accountcontainer.innerHTML = json.account;
+                    accountcontainer.innerText = json.account;
+                    accountcontainer.style.height = 'auto';
 
                     setTimeout(function() {
                         checkout.style.opacity = 1;
@@ -272,14 +283,17 @@
 
                                 progressBar.style.width = 0;
                                 progressTime.innerText = '';
-                                accountcontainer.innerText = 'Payment successful!';
+                                accountcontainer.innerText = 'Payment successful! Please do not close your browser window while we return you to the merchant site';
+                                accountcontainer.style.height = '50px';
+                                copyButton.style.display = 'none';
 
                                 qrcontainer.innerHTML = '<img src="/static/img/check.svg">';
+
+                                window.xprops.onPayment(transfer);
                                 
                                 setTimeout(function() {
                                     closeButton();
-                                    return window.xprops.onPayment(transfer);
-                                }, 2000);
+                                }, 8000);
                             } else {
                                 closeButton();
                             }
