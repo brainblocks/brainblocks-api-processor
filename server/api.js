@@ -40,7 +40,7 @@ app.post('/api/session', handler(async (req : express$Request) => {
         throw new ValidationError(`Expected 'destination' to be present in request body`);
     }
 
-    if (!destination.match(/^xrb_[a-z0-9]+$/)) {
+    if (!destination.match(/((?:xrb_[13][a-km-zA-HJ-NP-Z0-9]{59})|(?:nano_[13][a-km-zA-HJ-NP-Z0-9]{59}))/)) {
         throw new ValidationError(`Invalid destination: ${ destination }`);
     }
 
