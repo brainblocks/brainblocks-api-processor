@@ -121,6 +121,7 @@
             }
 
             var checkoutActive = false;
+            var interval;
 
             var button = document.querySelector('.brainblocks-button');
             var checkout = document.querySelector('#brainblocks-checkout');
@@ -132,6 +133,7 @@
             var copyButton = document.querySelector('#brainblocks-copy');
 
             function closeButton() {
+                clearInterval(interval);
                 copyButton.style.display = 'none';
                 window.onbeforeunload = function() {};
                 checkoutActive = false;
@@ -260,10 +262,11 @@
                     var time = WAIT_TIME * 1000;
                     var start = Date.now();
 
-                    var interval = setInterval(function() {
+                    interval = setInterval(function() {
                         var elapsed = (Date.now() - start);
 
                         if (elapsed > time) {
+                            alert('Your payment session timed out. Any nano sent will be automatically refunded. Please try again');
                             closeButton();
                             return clearInterval(interval);
                         }
@@ -283,7 +286,7 @@
 
                                 progressBar.style.width = 0;
                                 progressTime.innerText = '';
-                                accountcontainer.innerText = 'Payment successful! Please do not close your browser window while we return you to the merchant site';
+                                accountcontainer.innerText = 'Payment received! Please do not close your browser window while we finalize the processing of your payment';
                                 accountcontainer.style.height = '50px';
                                 copyButton.style.display = 'none';
 
@@ -293,8 +296,10 @@
                                 
                                 setTimeout(function() {
                                     closeButton();
-                                }, 8000);
+                                }, 5000);
                             } else {
+                                clearInterval(interval);
+                                alert('Your payment session timed out. Any nano sent will be automatically refunded. Please try again');
                                 closeButton();
                             }
                         }).catch(function(err) {
@@ -303,6 +308,8 @@
                         });
                     
                 }).catch(function(err) {
+                    clearInterval(interval);
+                    alert('There was a problem processing your payment. Any nano sent will be automatically refunded. Please try again');
                     closeButton();
                     throw err;
                 });
