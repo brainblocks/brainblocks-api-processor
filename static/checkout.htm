@@ -56,7 +56,9 @@
 
     <br>
     <br>
-    
+    <center><div style="color: red;"><h2>Do Not Close This Window</h2></div></center>
+    <br>
+
     <div id="nano-button"></div>
 
     <script src="https://brainblocks.io/brainblocks.min.js"></script>
@@ -154,9 +156,14 @@
 
             }, '#nano-button');
         })();
+    </script>
 
-
-
+    <script>
+	window.onbeforeunload = function(e) {
+	  var dialogText = "Are you sure you want to close this window? Closing this window will prevent the payment from completing.";
+	  e.returnValue = dialogText;
+	  return dialogText;
+	};
     </script>
 
 </div>
