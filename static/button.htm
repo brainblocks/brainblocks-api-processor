@@ -273,9 +273,15 @@
 
                         var perc = ((elapsed / time) * 100).toFixed(2);
                         var remaining = parseInt(Math.floor(((time - elapsed) / 1000)));
+                        var minutes = Math.floor(remaining / 60);
                         
                         progressBar.style.width = (perc + '%');
-                        progressTime.innerText = (remaining + ' seconds remaining');
+                        
+                        if (minutes > 1) {
+                            progressTime.innerText = (minutes + ':' + remaining + ' seconds remaining');
+                        } else {
+                            progressTime.innerText = (remaining + ' seconds remaining');
+                        }
                     }, 50);
 
                     return transfer(json.token)
