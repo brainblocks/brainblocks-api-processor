@@ -274,13 +274,14 @@
                         var perc = ((elapsed / time) * 100).toFixed(2);
                         var remaining = parseInt(Math.floor(((time - elapsed) / 1000)));
                         var minutes = Math.floor(remaining / 60);
+                        var seconds = remaining % 60;
                         
                         progressBar.style.width = (perc + '%');
                         
-                        if (minutes > 1) {
-                            progressTime.innerText = (minutes + ':' + remaining + ' seconds remaining');
+                        if (minutes >= 1) {
+                            progressTime.innerText = (minutes + ' minutes and ' + seconds + ' seconds remaining');
                         } else {
-                            progressTime.innerText = (remaining + ' seconds remaining');
+                            progressTime.innerText = (seconds + ' seconds remaining');
                         }
                     }, 50);
 
