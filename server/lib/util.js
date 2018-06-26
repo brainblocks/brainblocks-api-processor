@@ -144,3 +144,60 @@ export function promise<T>(promiseHandler : (PromiseHandlerOptions<T>) => void) 
         promiseHandler({ resolve, reject, run });
     });
 }
+
+let memoizedFunctions = [];
+
+export function memoize<R : mixed, A : Array<*>> (method : (...args: A) => Promise<R> | R) : ((...args: A) => Promise<R> | R) {
+
+    let cache: { [key : string] : Promise<R> | R } = {};
+
+    let resultFunction = function memoizedFunction(...args : A) : Promise<R> | R {
+
+        let key: string;
+
+        try {
+            key = JSON.stringify(Array.prototype.slice.call(args));
+        } catch (err) {
+            throw new Error(`Arguments not serializable -- can not be used to memoize`);
+        }
+
+        if (!cache[key]) {
+            cache[key] = method(...args);
+        }
+
+        if (cache[key] && typeof cache[key].then === 'function' && typeof cache[key].catch === 'function') {
+            cache[key].catch(() => {
+                delete cache[key];
+            });
+        }
+
+        return cache[key];
+    };
+
+    resultFunction.clear = () => {
+        cache = {};
+    };
+
+    memoizedFunctions.push(resultFunction);
+
+    return resultFunction;
+}
+
+memoize.clear = () => {
+    memoizedFunctions.forEach(fn => fn.clear());
+};
+
+
+export function memoizePromise<R : mixed, A : Array<*>> (method : (...args: A) => Promise<R>) : ((...args: A) => Promise<R>) {
+    let resultFunction = memoize((...args : A) => {
+        let result = method(...args);
+
+        // eslint-disable-next-line promise/catch-or-return
+        result.then(resultFunction.clear, resultFunction.clear);
+
+        return result;
+    });
+
+    // $FlowFixMe
+    return resultFunction;
+}

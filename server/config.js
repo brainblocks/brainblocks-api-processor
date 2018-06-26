@@ -70,6 +70,7 @@ export const SUPPORTED_CURRENCIES = [
     'thb',
     'try',
     'usd',
+    'vnd',
     'twd',
     'zar'
 ];

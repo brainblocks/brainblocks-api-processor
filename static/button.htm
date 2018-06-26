@@ -164,7 +164,7 @@
                 return fetch(url, req).then(function(res) {
                     return res.json();
                 }).then(function(data) {
-                    if (data.status !== 'success') {
+                    if (data.status !== 'success' && data.status !== 'expired') {
                         throw new Error('Api ' + url + ' status: ' + data.status);
                     }
                     return data;
