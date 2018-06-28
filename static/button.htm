@@ -299,6 +299,7 @@
 
                                 qrcontainer.innerHTML = '<img src="/static/img/check.svg">';
 
+                                window.onbeforeunload = function() {};
                                 window.xprops.onPayment(transfer);
                                 
                                 setTimeout(function() {
