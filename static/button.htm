@@ -144,8 +144,8 @@
 
             function showButton() {
                 document.body.classList.add('brainblocks-checkout-active');
-                window.xchild.resize(window.innerWidth, 320);
-                document.querySelector('.brainblocks-button').style.height = '320px';
+                window.xchild.resize(window.innerWidth, 380);
+                document.querySelector('.brainblocks-button').style.height = '380px';
                 copyButton.style.display = 'block';
             }
 
@@ -279,9 +279,9 @@
                         progressBar.style.width = (perc + '%');
                         
                         if (minutes >= 1) {
-                            progressTime.innerText = (minutes + ' minutes and ' + seconds + ' seconds remaining');
+                            progressTime.innerHTML = (minutes + ' minutes and ' + seconds + ' seconds remaining.<br><br><b>Please do not send funds directly from exchanges.</b>');
                         } else {
-                            progressTime.innerText = (seconds + ' seconds remaining');
+                            progressTime.innerHTML = (seconds + ' seconds remaining.<br><br><b>Please do not send funds directly from exchanges.</b>');
                         }
                     }, 50);
 
