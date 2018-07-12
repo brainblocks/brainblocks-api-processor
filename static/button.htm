@@ -341,8 +341,8 @@
                 }, 50)
             }
 
-            if (window.xprops.payment.currency !== 'rai') {
-                api('get', '/api/exchange/' + window.xprops.payment.currency + '/' + window.xprops.payment.amount + '/rai')
+            function populateRai(props) {
+                api('get', '/api/exchange/' + props.payment.currency + '/' + props.payment.amount + '/rai')
                     .then(function(data) {
                         var currency = '';
 
@@ -360,6 +360,16 @@
                         document.querySelector('#pay-currency').innerText = currency;
                     });
             }
+
+            if (window.xprops.payment.currency !== 'rai') {
+                populateRai(window.xprops);
+            }
+
+            window.xchild.onProps(function (props) {
+                if (props.payment.currency !== 'rai') {
+                    populateRai(props);
+                }
+            });
         })();
     </script>
 
