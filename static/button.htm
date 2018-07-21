@@ -85,6 +85,7 @@
     <script src="/brainblocks.min.js"></script>
     <script src="https://cdn.rawgit.com/papnkukn/qrcode-svg/e4889213/dist/qrcode.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/fetch/2.0.3/fetch.min.js"></script>
+    <script src="https://unpkg.com/clipboard@2.0.0/dist/clipboard.min.js"></script>
 
     <script>
         document.body.appendChild(brainblocks.buttonTemplate({ props: window.xprops }));
@@ -95,7 +96,7 @@
     <div id="brainblocks-checkout">
         <div id="brainblocks-checkout-qr"></div>
         <textarea id="brainblocks-checkout-account" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" readonly></textarea>
-        <div id="brainblocks-copy"><button>copy</button></div>
+        <button id="brainblocks-copy" data-clipboard-action="copy" data-clipboard-target="#brainblocks-checkout-account">Copy Address</button>
         <div id="brainblocks-progress-bar"></div>
         <div id="brainblocks-progress-time"></div>
     </div>
@@ -234,17 +235,9 @@
                         padding: 1
                     });
                     qrcontainer.innerHTML = qrcode.svg();
-
-                    copyButton.addEventListener('click', function() {
-                        accountcontainer.focus();
-                        accountcontainer.select();
-
-                        try {
-                            document.execCommand('copy');
-                        } catch(err) {
-                            console.warn('Can not copy text:', err);
-                        }
-                    });
+                    
+                    //initialize copy function
+                    new ClipboardJS('#brainblocks-copy');
 
                     accountcontainer.addEventListener('click', function() {
                         accountcontainer.focus();
