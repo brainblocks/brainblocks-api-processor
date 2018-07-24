@@ -313,7 +313,7 @@ export let nodeEvent = eventEmitter();
 let nodeEventsActive = false;
 
 let activateNodeEvents = () => {
-    nodeEventsActive = true;
+    // nodeEventsActive = true;
 };
 
 let deactivateNodeEvents = debounce(() => {

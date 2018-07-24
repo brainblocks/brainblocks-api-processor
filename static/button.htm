@@ -162,14 +162,17 @@
                     req.body = objToQuery(data);
                 }
 
-                return fetch(url, req).then(function(res) {
-                    return res.json();
-                }).then(function(data) {
-                    if (data.status !== 'success' && data.status !== 'expired') {
-                        throw new Error('Api ' + url + ' status: ' + data.status);
-                    }
-                    return data;
-                });
+                return fetch(url, req)
+                    .then(function(res) {
+                        return res.json().then(function(data) {
+                            if (data.status !== 'success' && data.status !== 'expired') {
+                                let err = new Error('Api ' + url + ' status: ' + data.status);
+                                err.res = res;
+                                throw err;
+                            }
+                            return data;
+                        });
+                    })
             }
 
             function createSession(destination, amount, currency) {
@@ -180,9 +183,45 @@
                 });
             }
 
-            function transfer(token) {
+            function sleep(time) {
+                return new Promise(function(resolve) {
+                    setTimeout(resolve, time);
+                });
+            }
+
+            function transfer(token, time, attempts) {
+                let startTime = Date.now();
+
+                if (typeof time === 'undefined') {
+                    time = WAIT_TIME * 1000;
+                }
+
+                if (typeof attempts === 'undefined') {
+                    attempts = 1;
+                }
+
                 return api('post', '/api/session/' + token + '/transfer', {
-                    time: WAIT_TIME
+                    time: time
+                }).catch(function(err) {
+                    if (err.res) {
+                        throw err;
+                    }
+
+                    if (attempts >= 5) {
+                        throw err;
+                    }
+
+                    return sleep(1000 * Math.pow(2, (attempts - 1))).then(function() {
+
+                        let elapsed = Date.now() - startTime;
+                        time -= elapsed;
+                        
+                        if (time < 5000) {
+                            throw err;
+                        }
+
+                        return transfer(token, time, attempts + 1);
+                    });
                 });
             }
 
