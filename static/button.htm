@@ -18,6 +18,18 @@
             transition: all 0.5s ease-in-out;
         }
 
+        #brainblocks-inner {
+            height: 330px;
+            margin-top: 10px;
+            margin-left: 25px;
+            margin-right: 25px;
+            overflow: hidden;
+            border-collapse: separate; 
+            border-radius: 20px;
+            background-color: #fff;
+            position: relative;
+        }
+
         #loading-spinner {
             margin-top: 40px;
             width: 100px;
@@ -26,29 +38,42 @@
         }
 
         #brainblocks-checkout-qr {
-            margin-top: 15px;
+            margin-top: 10px;
             margin-bottom: 10px;
-            height: 120px;
-            width: 120px;
+            height: 175px;
+            width: 175px;
             display: inline-block;
         }
 
         #brainblocks-copy {
-            margin: 0 auto;
+            background-color: #DBDBDB;
+            border: none;
+            color: black;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+            width: 100%;
+            max-height: 50px;
+            z-index: 1;
+            position: absolute;
+            bottom: 0px;
+            height: 40px;
         }
 
         #brainblocks-checkout-account {
             font-family: monospace;
             word-wrap: break-word;
-            width: 90%;
+            width: 100%;
+            height: 100%;
             display: inline-block;
-            font-size: 12px;
-            height: auto;
+            font-size: 10px;
             line-height: 14px;
-            margin: 6px 0;
             border: none;
             overflow: auto;
             outline: none;
+            padding-left: 20px;
+            padding-right: 20px;
 
             -webkit-box-shadow: none;
             -moz-box-shadow: none;
@@ -60,19 +85,66 @@
         }
 
         #brainblocks-progress-bar {
-            margin-top: 5px;
-            height: 6px;
-            border-radius: 3px;
-            background-color: #4A899D;
-            width: 0px;
+            margin-top: 0px;
+            height: 100%;
+            width: 100%;
+            background-color: #348BA0;
+            z-index: 1;
+        }
+
+        #brainblocks-progress {
+            margin-top: 0px;
+            background-color: #9BDDF7;
+            width: 100%;
+            height: 50px;
+            z-index: 0;
         }
 
         #brainblocks-progress-time {
+            color: #fff;
+            position: relative;
+            width: 100%;
             font-size: 12px;
-            padding: 0;
-            margin: 0;
             line-height: 16px;
-            margin-top: 5px;
+            z-index: 2;
+            margin: -31px auto;
+        }
+
+        #brainblocks-powered {
+            font-size: 10px;
+            margin: 0 auto;
+            z-index: 1px;
+        }
+
+        #copy-logo {
+            vertical-align: middle;
+            width: 18px;
+            height: 18px;
+            margin-right: 10px;
+        }
+
+        #copy-text {
+            vertical-align: middle;
+            margin: 0 auto;
+        }
+
+        #warn-exchange {
+        	  margin: 0 auto;
+        	  margin-left: 10px;
+        	  margin-right: 10px;
+        	  margin-top: 5px;
+        	  font-size: 10px;
+        	  line-height: 12px;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+            overflow: none;
+        }
+
+        #powered-logo {
+            vertical-align: middle;
+            width: 20px;
+            height: 20px;
+            margin-right: 10px;
         }
 
         .brainblocks-checkout-active .brainblocks-button {
@@ -83,8 +155,8 @@
 
 <body>
     <script src="/brainblocks.min.js"></script>
-    <script src="https://cdn.rawgit.com/papnkukn/qrcode-svg/e4889213/dist/qrcode.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/fetch/2.0.3/fetch.min.js"></script>
+    <script src="https://unpkg.com/qr-logo"></script>
     <script src="https://unpkg.com/clipboard@2.0.0/dist/clipboard.min.js"></script>
 
     <script>
@@ -94,11 +166,31 @@
     <img id="loading-spinner" class="loading-spinner" src="data:image/svg+xml;base64,PHN2ZyB4bWxuczpzdmc9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIiB2ZXJzaW9uPSIxLjAiIHdpZHRoPSIyNXB4IiBoZWlnaHQ9IjI1cHgiIHZpZXdCb3g9IjAgMCAxMjggMTI4IiB4bWw6c3BhY2U9InByZXNlcnZlIj48Zz48cGF0aCBkPSJNNzguNzUgMTYuMThWMS41NmE2NC4xIDY0LjEgMCAwIDEgNDcuNyA0Ny43SDExMS44YTQ5Ljk4IDQ5Ljk4IDAgMCAwLTMzLjA3LTMzLjA4ek0xNi40MyA0OS4yNUgxLjhhNjQuMSA2NC4xIDAgMCAxIDQ3LjctNDcuN1YxNi4yYTQ5Ljk4IDQ5Ljk4IDAgMCAwLTMzLjA3IDMzLjA3em0zMy4wNyA2Mi4zMnYxNC42MkE2NC4xIDY0LjEgMCAwIDEgMS44IDc4LjVoMTQuNjNhNDkuOTggNDkuOTggMCAwIDAgMzMuMDcgMzMuMDd6bTYyLjMyLTMzLjA3aDE0LjYyYTY0LjEgNjQuMSAwIDAgMS00Ny43IDQ3Ljd2LTE0LjYzYTQ5Ljk4IDQ5Ljk4IDAgMCAwIDMzLjA4LTMzLjA3eiIgZmlsbD0iIzgxY2RmMSIgZmlsbC1vcGFjaXR5PSIxIi8+PGFuaW1hdGVUcmFuc2Zvcm0gYXR0cmlidXRlTmFtZT0idHJhbnNmb3JtIiB0eXBlPSJyb3RhdGUiIGZyb209Ii05MCA2NCA2NCIgdG89IjAgNjQgNjQiIGR1cj0iNDAwbXMiIHJlcGVhdENvdW50PSJpbmRlZmluaXRlIj48L2FuaW1hdGVUcmFuc2Zvcm0+PC9nPjwvc3ZnPg==" />
 
     <div id="brainblocks-checkout">
-        <div id="brainblocks-checkout-qr"></div>
-        <textarea id="brainblocks-checkout-account" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" readonly></textarea>
-        <button id="brainblocks-copy" data-clipboard-action="copy" data-clipboard-target="#brainblocks-checkout-account">Copy</button>
-        <div id="brainblocks-progress-bar"></div>
-        <div id="brainblocks-progress-time"></div>
+        <div id="brainblocks-inner">
+
+            <div id="brainblocks-progress">
+                <div id="brainblocks-progress-bar"></div>
+                <div id="brainblocks-progress-time"></div>
+            </div>
+
+            <img id="brainblocks-checkout-qr" src="">
+
+            <textarea id="brainblocks-checkout-account" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" readonly></textarea>
+
+            <button id="brainblocks-copy" data-clipboard-action="copy" data-clipboard-target="#brainblocks-checkout-account">
+                <img id="copy-logo" src="/static/img/copy.svg">
+                <span id="copy-text">Copy Address</span>
+            </button>
+        </div>
+
+        <div id="warn-exchange">
+        	<b>Please do not send funds directly from exchanges.</b>
+        </div>
+
+        <div id="brainblocks-powered">
+            <img id="powered-logo" src="/static/img/brainblocks_logo.svg">
+            <span>Powered By BrainBlocks</span>
+        </div>
     </div>
 
     <script>
@@ -145,8 +237,8 @@
 
             function showButton() {
                 document.body.classList.add('brainblocks-checkout-active');
-                window.xchild.resize(window.innerWidth, 380);
-                document.querySelector('.brainblocks-button').style.height = '380px';
+                window.xchild.resize(window.innerWidth, 460);
+                document.querySelector('.brainblocks-button').style.height = '460px';
                 copyButton.style.display = 'block';
             }
 
@@ -239,7 +331,7 @@
 
                 checkoutActive = true;
 
-                qrcontainer.innerHTML = '';
+                qrcontainer.src = '';
                 accountcontainer.innerHTML = '';
                 progressTime.innerHTML = '';
                 progressBar.style.width = '0px';
@@ -267,13 +359,11 @@
 
                     document.querySelector('#pay-amount').innerText = amount;
 
-                    var qrcode = new QRCode({
-                        content: "xrb:" + json.account + "?amount=" + json.amount_rai + "000000000000000000000000",
-                        width: 120,
-                        height: 120,
-                        padding: 1
+                    // generate payment QR code
+                    var qr = new QRLogo.default("/static/img/brainblocks_logo.svg");
+                    qr.generate("xrb:" + json.account + "?amount=" + json.amount_rai + "000000000000000000000000", {}, 1.4, 0.7).then(function (image) {
+                        qrcontainer.src = image;
                     });
-                    qrcontainer.innerHTML = qrcode.svg();
                     
                     //initialize copy function
                     new ClipboardJS('#brainblocks-copy');
@@ -310,10 +400,24 @@
                         
                         progressBar.style.width = (perc + '%');
                         
-                        if (minutes >= 1) {
-                            progressTime.innerHTML = (minutes + ' minutes and ' + seconds + ' seconds remaining.<br><br><b>Please do not send funds directly from exchanges.</b>');
+                        if (minutes <= 1) {
+                            if (seconds < 10) {
+                                progressTime.innerHTML = ('00:0' + seconds + ' Waiting for payment');
+                            } else {
+                                progressTime.innerHTML = ('00:' + seconds + ' Waiting for payment');
+                            }
+                        } else if (minutes < 10) {
+                            if (seconds < 10) {
+                                progressTime.innerHTML = ('0' + minutes + ':0' + seconds + ' Waiting for payment');
+                            } else { 
+                                progressTime.innerHTML = ('0' + minutes + ':' + seconds + ' Waiting for payment');
+                            }
                         } else {
-                            progressTime.innerHTML = (seconds + ' seconds remaining.<br><br><b>Please do not send funds directly from exchanges.</b>');
+                            if (seconds < 10) {
+                                progressTime.innerHTML = (minutes + ':0' + seconds + ' Waiting for payment');
+                            } else {
+                                progressTime.innerHTML = (minutes + ':' + seconds + ' Waiting for payment');
+                            }
                         }
                     }, 50);
 
@@ -329,7 +433,7 @@
                                 accountcontainer.style.height = '50px';
                                 copyButton.style.display = 'none';
 
-                                qrcontainer.innerHTML = '<img src="/static/img/check.svg">';
+                                qrcontainer.src = '/static/img/check.svg';
 
                                 window.onbeforeunload = function() {};
                                 window.xprops.onPayment(transfer);
