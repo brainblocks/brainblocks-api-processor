@@ -129,12 +129,12 @@
         }
 
         #warn-exchange {
-        	  margin: 0 auto;
-        	  margin-left: 10px;
-        	  margin-right: 10px;
-        	  margin-top: 5px;
-        	  font-size: 10px;
-        	  line-height: 12px;
+        	margin: 0 auto;
+        	margin-left: 10px;
+        	margin-right: 10px;
+        	margin-top: 5px;
+        	font-size: 10px;
+        	line-height: 12px;
             word-wrap: break-word;
             overflow-wrap: break-word;
             overflow: none;
@@ -223,6 +223,7 @@
             var accountcontainer = document.querySelector('#brainblocks-checkout-account');
             var progressBar = document.querySelector('#brainblocks-progress-bar');
             var progressTime = document.querySelector('#brainblocks-progress-time');
+            var progress = document.querySelector('#brainblocks-progress');
             var copyButton = document.querySelector('#brainblocks-copy');
 
             function closeButton() {
@@ -335,6 +336,7 @@
                 accountcontainer.innerHTML = '';
                 progressTime.innerHTML = '';
                 progressBar.style.width = '0px';
+                progress.style.backgroundColor = "#9BDDF7";
 
                 showButton();
 
@@ -428,7 +430,8 @@
                             if (transfer.status === 'success') {
 
                                 progressBar.style.width = 0;
-                                progressTime.innerText = '';
+                                progress.style.backgroundColor = "#40AE49";
+                                progressTime.innerText = 'Payment received!';
                                 accountcontainer.innerText = 'Payment received! Please do not close your browser window while we finalize your payment';
                                 accountcontainer.style.height = '50px';
                                 copyButton.style.display = 'none';
@@ -493,7 +496,7 @@
 
                         document.querySelector('.pay-text').innerText = 'Pay ';
                         document.querySelector('#pay-amount').innerText = amount;
-                        document.querySelector('#pay-currency').innerText = currency;
+                        document.querySelector('#pay-currency').innerText = 'NANO';
                     });
             }
 
