@@ -29,7 +29,7 @@ CREATE TABLE transaction(
    public       VARCHAR(100)                 NOT NULL CHECK (public <> ''),
    destination  VARCHAR(100)                 NOT NULL CHECK (destination <> ''),
    amount       VARCHAR(30)                  NOT NULL CHECK (amount <> ''),
-   amount_rai   INTEGER                      NOT NULL CHECK (amount_rai > 0),
+   amount_rai   BIGINT                      NOT NULL CHECK (amount_rai > 0),
    currency     VARCHAR(5)                   NOT NULL CHECK (currency <> '')
 );
 
