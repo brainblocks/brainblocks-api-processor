@@ -7,4 +7,4 @@ require('babel-register');
 let { app, SERVER_PORT } = require('./server');
 
 app.listen(SERVER_PORT);
-console.log(`brainblocks server listening on http://localhost:${ SERVER_PORT }`);
+console.log(`brainblocks server listening on http://127.0.0.1:${ SERVER_PORT }`);
