@@ -1,4 +1,6 @@
 /* @flow */
+/* global express$Request */
+/* global express$Response */
 
 import { join } from 'path';
 
@@ -63,7 +65,7 @@ app.post('/api/session', handler(async (req : express$Request) => {
     if (!await isAccountValid(destination)) {
         throw new ValidationError(`Destination account is invalid`);
     }
-    
+
     let { account, privateKey, publicKey } = await accountCreate();
 
     let id = await createTransaction({ status: TRANSACTION_STATUS.CREATED, destination, amount, amount_rai, account, currency, privateKey, publicKey });
@@ -112,7 +114,7 @@ app.get('/api/session/:token/verify', handler(async (req : express$Request) => {
 
     let { token } = req.params;
     token = token.replace(/=/g, ''); // eslint-disable-line no-div-regex
-    
+
     // $FlowFixMe
     let { id } = jwt.verify(base64.decode(token), SECRET);
     let { account, destination, amount, currency, amount_rai } = await getTransaction(id);
@@ -131,7 +133,7 @@ app.get('/api/session/:token/verify', handler(async (req : express$Request) => {
 }));
 
 app.get('/api/exchange/:currency/:amount/rai', handler(async (req : express$Request) => {
-    
+
     let { currency, amount } = req.params;
 
     if (SUPPORTED_CURRENCIES.indexOf(currency) === -1) {
@@ -151,7 +153,7 @@ app.get('/api/exchange/:currency/:amount/rai', handler(async (req : express$Requ
 }));
 
 app.get('/api/refund/:account', handler(async (req : express$Request) => {
-    
+
     let { account } = req.params;
 
     if (!account) {
@@ -168,7 +170,7 @@ app.get('/api/refund/:account', handler(async (req : express$Request) => {
 }));
 
 app.get('/api/process/:account', handler(async (req : express$Request) => {
-    
+
     let { account } = req.params;
 
     if (!account) {

@@ -1,4 +1,6 @@
 /* @flow */
+/* global express$Request */
+/* global express$Response */
 
 import uuidv4 from 'uuid/v4';
 import { TokenExpiredError, JsonWebTokenError } from 'jsonwebtoken';
@@ -74,7 +76,7 @@ export async function request<R : Object, T : Object>({ method, uri, json } : { 
     if (res.statusCode !== 200) {
         throw new Error(`Expected 200 status code from request to ${ uri }, got ${ res.statusCode }`);
     }
-    
+
     let data = JSON.parse(res.body);
 
     return data;
@@ -149,11 +151,11 @@ let memoizedFunctions = [];
 
 export function memoize<R : mixed, A : Array<*>> (method : (...args: A) => Promise<R> | R) : ((...args: A) => Promise<R> | R) {
 
-    let cache: { [key : string] : Promise<R> | R } = {};
+    let cache : { [key : string] : Promise<R> | R } = {};
 
     let resultFunction = function memoizedFunction(...args : A) : Promise<R> | R {
 
-        let key: string;
+        let key : string;
 
         try {
             key = JSON.stringify(Array.prototype.slice.call(args));

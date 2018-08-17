@@ -6,3 +6,4 @@ static/js/brainblocks.min.js
 static/woocommerce-gateway-brainblocks.zip
 flow-typed
 coverage
+npm-debug.log
