@@ -11,8 +11,8 @@ if [[ "$db" != $test_db ]]; then
     read -p "THIS WILL DELETE THE $db DATABASE. LAST CHANCE. Press enter to continue"
 fi
 
-dropdb "$db" || echo "$db database does not exist"
-createdb "$db"
+dropdb -h localhost "$db" || echo "$db database does not exist"
+createdb -h localhost "$db"
 
 echo "
 
@@ -45,4 +45,4 @@ CREATE TRIGGER update_transaction_modtime
     BEFORE UPDATE ON transaction
     FOR EACH ROW EXECUTE PROCEDURE update_modified_column();
 
-" | psql "$db";
+" | psql -h localhost "$db";
