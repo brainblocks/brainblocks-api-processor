@@ -20,7 +20,7 @@ test('Should run a successful transaction in chrome', async () => {
 
     let tokenPromise = page.evaluate(() => {
         return new Promise((resolve, reject) => {
-            window.brainblocks.Button.render({
+            return window.brainblocks.Button.render({
                 env:     'local',
                 payment: {
                     destination: 'xrb_1brainb3zz81wmhxndsbrjb94hx3fhr1fyydmg6iresyk76f3k7y7jiazoji',
