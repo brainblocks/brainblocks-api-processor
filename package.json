@@ -32,7 +32,7 @@
     "uuid": "^3.1.0"
   },
   "devDependencies": {
-    "grumbler-scripts": "^2.0.18",
+    "grumbler-scripts": "^2.0.63",
     "rabbot": "^1.1.0",
     "request": "^2.83.0",
     "request-promise": "^4.2.2",
