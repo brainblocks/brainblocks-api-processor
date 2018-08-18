@@ -9,6 +9,10 @@ jest.setTimeout(60000); // eslint-disable-line no-undef
 
 test('Should run a successful transaction in chrome', async () => {
 
+    if (process.env.CI) {
+        return;
+    }
+
     let browser = await puppeteer.launch();
     let page = await browser.newPage();
     await page.goto(`${ URL }/blank`);
