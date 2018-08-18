@@ -5,6 +5,8 @@ import fetch from 'node-fetch';
 
 import { URL } from '../config';
 
+jest.setTimeout(60000)
+
 test('Should run a successful transaction in chrome', async () => {
 
     let browser = await puppeteer.launch();
