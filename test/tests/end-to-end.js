@@ -5,7 +5,7 @@ import fetch from 'node-fetch';
 
 import { URL } from '../config';
 
-jest.setTimeout(60000)
+jest.setTimeout(60000); // eslint-disable-line no-undef
 
 test('Should run a successful transaction in chrome', async () => {
 
