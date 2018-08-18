@@ -11,7 +11,7 @@
     "flow-typed": "flow-typed install",
     "flow": "flow",
     "lint": "eslint server/ test/ *.js",
-    "jest": "jest test --env=node --no-cache --coverage --verbose --runInBand --silent"
+    "jest": "npm run db-setup brainblocks-test && jest test --env=node --no-cache --coverage --verbose --runInBand --silent"
   },
   "author": "",
   "license": "ISC",
