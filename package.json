@@ -11,6 +11,7 @@
     "flow-typed": "flow-typed install",
     "flow": "flow",
     "lint": "eslint server/ test/ *.js",
+    "checkdb": "NODE_ENV=test babel-node ./testdb.js",
     "jest": "npm run db-setup brainblocks-test && jest test --env=node --no-cache --coverage --verbose --runInBand --silent"
   },
   "author": "",
