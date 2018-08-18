@@ -18,20 +18,23 @@ test('Should run a successful transaction in chrome', async () => {
     await page.waitFor('#nano-button');
     await page.addScriptTag({ url: 'https://brainblocks.io/brainblocks.min.js' });
 
+    await page.evaluate(() => {
+        return window.brainblocks.Button.render({
+            env:     'local',
+            payment: {
+                destination: 'xrb_1brainb3zz81wmhxndsbrjb94hx3fhr1fyydmg6iresyk76f3k7y7jiazoji',
+                currency:    'rai',
+                amount:      '1'
+            },
+            onPayment(data) {
+                window.resolveOnPayment(data.token);
+            }
+        }, '#nano-button');
+    });
+
     let tokenPromise = page.evaluate(() => {
-        return new Promise((resolve, reject) => {
-            return window.brainblocks.Button.render({
-                env:     'local',
-                payment: {
-                    destination: 'xrb_1brainb3zz81wmhxndsbrjb94hx3fhr1fyydmg6iresyk76f3k7y7jiazoji',
-                    currency:    'rai',
-                    amount:      '1'
-                },
-                onError: reject,
-                onPayment(data) {
-                    resolve(data.token);
-                }
-            }, '#nano-button');
+        return new Promise((resolve) => {
+            window.resolveOnPayment = resolve;
         });
     });
 
