@@ -194,7 +194,6 @@ export function memoizePromise<R : mixed, A : Array<*>> (method : (...args: A) =
     let resultFunction = memoize((...args : A) => {
         let result = method(...args);
 
-        // eslint-disable-next-line promise/catch-or-return
         result.then(resultFunction.clear, resultFunction.clear);
 
         return result;
