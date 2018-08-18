@@ -20,10 +20,10 @@ if (process.env.NODE_ENV === 'development') {
     };
 } else if (process.env.NODE_ENV === 'test') {
     DATABASE = {
-        HOST:     'test.brainblocks.io',
-        NAME:     'brainblocks_test',
-        USER:     'brainblocks_test',
-        PASSWORD: 'testing'
+        HOST:     'localhost',
+        NAME:     'brainblocks-test',
+        USER:     '',
+        PASSWORD: ''
     };
 } else {
     DATABASE = {
@@ -39,7 +39,7 @@ export let RAI_SERVER;
 if (process.env.NODE_ENV === 'development') {
     RAI_SERVER = 'http://127.0.0.1:7076';
 } else if (process.env.NODE_ENV === 'test') {
-    RAI_SERVER = 'http://test.brainblocks.io:7076';
+    RAI_SERVER = 'http://127.0.0.1:7070';
 } else {
     // set to DigitalOcean Processing Node Private IP: 10.136.7.198
     RAI_SERVER = 'http://[10.136.7.198]:7076';
