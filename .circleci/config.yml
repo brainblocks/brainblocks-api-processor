@@ -22,7 +22,7 @@ jobs:
       - run:
           name: install-npm
           command: npm install
-      - run: sudo apt-get install postgresql-client
+      - run: sudo apt-get install postgresql postgresql-client
       - save_cache:
           key: dependency-cache-{{ checksum "package.json" }}
           paths:
