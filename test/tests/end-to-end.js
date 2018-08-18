@@ -15,10 +15,16 @@ test('Should run a successful transaction in chrome', async () => {
 
     await page.setContent(`<div id="nano-button"></div>`);
 
+    let pageErr;
+
+    page.on('pageerror', (err) => {
+        pageErr = err;
+    });
+
     await page.waitFor('#nano-button');
     await page.addScriptTag({ url: 'https://brainblocks.io/brainblocks.min.js' });
 
-    await page.evaluate(() => {
+    let renderPromise = page.evaluate(() => {
         return window.brainblocks.Button.render({
             env:     'local',
             payment: {
@@ -38,6 +44,12 @@ test('Should run a successful transaction in chrome', async () => {
         });
     });
 
+    if (pageErr) {
+        throw pageErr;
+    }
+
+    await renderPromise;
+
     await page.waitFor('iframe[name^=xcomponent__brainblocks_button]');
     
     let frame = page.frames().find(f => f.name().match(/^xcomponent__brainblocks_button/));
@@ -45,7 +57,7 @@ test('Should run a successful transaction in chrome', async () => {
     if (!frame) {
         throw new Error(`Can not find nano button frame`);
     }
-
+    
     await frame.waitFor('.brainblocks-button');
     await frame.click('.brainblocks-button');
 
