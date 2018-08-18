@@ -13,14 +13,14 @@ export let DATABASE;
 
 if (process.env.NODE_ENV === 'development') {
     DATABASE = {
-        HOST:     'localhost',
+        HOST:     '127.0.0.1',
         NAME:     'brainblocks',
         USER:     '',
         PASSWORD: ''
     };
 } else if (process.env.NODE_ENV === 'test') {
     DATABASE = {
-        HOST:     'localhost',
+        HOST:     '127.0.0.1',
         NAME:     'brainblocks-test',
         USER:     '',
         PASSWORD: ''
