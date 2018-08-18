@@ -22,7 +22,7 @@ if (process.env.NODE_ENV === 'development') {
     DATABASE = {
         HOST:     '127.0.0.1',
         NAME:     'brainblocks-test',
-        USER:     '',
+        USER:     process.env.CI ? 'circleci' : '',
         PASSWORD: ''
     };
 } else {
