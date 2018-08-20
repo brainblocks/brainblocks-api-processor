@@ -6,6 +6,8 @@ import { refundAccount, receiveAllPending, send, recoverAndRefundAccount } from 
 
 const TRANSACTION_FIELDS = [ 'id', 'status', 'destination', 'amount', 'amount_rai', 'account', 'currency', 'private', 'public' ];
 
+const PAYPAL_TRANSACTION_FIELDS = [ 'id', 'status', 'amount', 'currency', 'email', 'payment_id' ];
+
 type TransactionType = {
     id : string,
     status : string,
@@ -29,13 +31,41 @@ type PublicTransactionType = {
     publicKey : string
 };
 
+type PayPalTransactionType = {
+    id : string,
+    status : string,
+    amount : string,
+    currency : string,
+    email : string,
+    payment_id : string
+};
+
+type PublicPayPalTransactionType = {
+    status : string,
+    amount : string,
+    currency : string,
+    email : string,
+    payment_id : string
+};
+
 export async function createTransaction({ status = TRANSACTION_STATUS.CREATED, destination, amount, amount_rai, account, currency, privateKey, publicKey } : PublicTransactionType) : Promise<string> {
     let result = await postInsert('transaction', { status, destination, amount, amount_rai, wallet: 'XXXXXXX', account, currency, private: privateKey, public: publicKey });
     return result.id;
 }
 
+export async function createPayPalTransaction({ status = TRANSACTION_STATUS.CREATED, amount, currency, email, payment_id } : PublicPayPalTransactionType) : Promise<string> {
+    let result = await postInsert('paypal_transaction', { status, amount, currency, email, payment_id  });
+    return result.id;
+}
+
 export async function getTransaction(id : string) : Promise<TransactionType> {
     let transaction = await postSelectID('transaction', id, TRANSACTION_FIELDS);
+    transaction.amount_rai = parseInt(transaction.amount_rai, 10);
+    return transaction;
+}
+
+export async function getPayPalTransaction(id : string) : Promise<PayPalTransactionType> {
+    let transaction = await postSelectID('paypal_transaction', id, PAYPAL_TRANSACTION_FIELDS);
     transaction.amount_rai = parseInt(transaction.amount_rai, 10);
     return transaction;
 }
@@ -54,6 +84,10 @@ export async function getTransactionByDestination(destination : string) : Promis
 
 export async function setTransactionStatus(id : string, status : string) : Promise<void> {
     return await postUpdateID('transaction', id, { status });
+}
+
+export async function setPayPalTransactionStatus(id : string, status : string) : Promise<void> {
+    return await postUpdateID('paypal_transaction', id, { status });
 }
 
 export async function processTransaction(id : string) : Promise<void> {

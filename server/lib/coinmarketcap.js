@@ -12,7 +12,6 @@ let getID = memoize(async currency => {
     let listings = await request({ method: 'get', uri: COINMARKETCAP_LISTINGS_URL });
     for (let listing of listings.data) {
         if (listing.symbol.toLowerCase() === currency) {
-            console.warn('woot!!!');
             return listing.id;
         }
     }

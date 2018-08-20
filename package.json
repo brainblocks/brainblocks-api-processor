@@ -27,6 +27,7 @@
     "exit-hook": "^1.1.1",
     "express": "^4.16.2",
     "jsonwebtoken": "^8.1.0",
+    "node-fetch": "^2.2.0",
     "node-loggly-bulk": "^2.2.1",
     "pg": "^7.4.1",
     "raiblocks-client": "^1.0.0",

@@ -6,9 +6,6 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/fetch/2.0.3/fetch.min.js"></script>
     <script src="https://cdn.rawgit.com/papnkukn/qrcode-svg/e4889213/dist/qrcode.min.js"></script>
     <script src="https://unpkg.com/clipboard@2.0.0/dist/clipboard.min.js"></script>
-	<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
-	<script src="https://netdna.bootstrapcdn.com/bootstrap/3.0.0/js/bootstrap.min.js"></script>
-	<link href="https://netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.min.css" rel="stylesheet"/>
 
     <style>
         html, body {
@@ -342,7 +339,7 @@
                     .then(function(res) {
                         return res.json().then(function(data) {
                             if (data.status !== 'success' && data.status !== 'expired') {
-                                let err = new Error('Api ' + url + ' status: ' + data.status);
+                                var err = new Error('Api ' + url + ' status: ' + data.status);
                                 err.res = res;
                                 throw err;
                             }
@@ -366,7 +363,7 @@
             }
 
             function transfer(token, time, attempts) {
-                let startTime = Date.now();
+                var startTime = Date.now();
 
                 if (typeof time === 'undefined') {
                     time = WAIT_TIME * 1000;
@@ -389,7 +386,7 @@
 
                     return sleep(1000 * Math.pow(2, (attempts - 1))).then(function() {
 
-                        let elapsed = Date.now() - startTime;
+                        var elapsed = Date.now() - startTime;
                         time -= elapsed;
                         
                         if (time < 5000) {
@@ -611,5 +608,109 @@
     <script src="//static.getclicky.com/js" type="text/javascript"></script>
     <script type="text/javascript">try{ clicky.init(101095092); }catch(e){}</script>
     <noscript><p><img alt="Clicky" width="1" height="1" src="//in.getclicky.com/101095092ns.gif" /></p></noscript>
+
+    <script src="https://www.paypalobjects.com/api/checkout.min.js"></script>
+
+    <script>
+        (function() {
+            function objToQuery(obj) {
+                var str = [];
+                for(var p in obj)
+                    if (obj.hasOwnProperty(p)) {
+                    str.push(encodeURIComponent(p) + "=" + encodeURIComponent(obj[p]));
+                }
+                return str.join("&");
+            }
+
+            function api(method, url, data) {
+                data = data || {};
+                var req = {
+                    method: method,
+                    headers: { 'content-type': 'application/x-www-form-urlencoded' },
+                    timeout: 10000
+                };
+
+                if (method === 'post') {
+                    req.body = objToQuery(data);
+                }
+
+                return fetch(url, req)
+                    .then(function(res) {
+                        return res.json().then(function(data) {
+                            if (data.status !== 'success' && data.status !== 'expired') {
+                                var err = new Error('Api ' + url + ' status: ' + data.status);
+                                err.res = res;
+                                throw err;
+                            }
+                            return data;
+                        });
+                    })
+            }
+
+            function createPayPalSession(email, amount, currency, payment_id) {
+                return api('post', '/api/paypal/session', {
+                    email:       email,
+                    amount:      amount,
+                    currency:    currency,
+                    payment_id:  payment_id
+                });
+            }
+
+            function executePayPalSession(token, payer_id) {
+                return api('post', '/api/paypal/execute', {
+                    token: token,
+                    payer_id: payer_id
+                });
+            }
+
+            if (window.xprops.payment.paypal_email) {
+                var bbToken;
+
+                var amount = window.xprops.payment.amount;
+                var currency = window.xprops.payment.currency;
+                var email = window.xprops.payment.paypal_email;
+
+                window.xprops.renderPayPal({
+                    style: {
+                        color: 'silver',
+                        layout: 'vertical',
+                        size: 'responsive',
+                        shape: 'rect'
+                    },
+                    client: {
+                        production: '***REMOVED***'
+                    },
+                    commit: true,
+                    payment: function(data, actions) {
+                        return actions.payment.create({
+                            payment: {
+                                transactions: [
+                                    {
+                                        amount: {
+                                            total: amount,
+                                            currency: currency.toUpperCase()
+                                        },
+                                        payee: {
+                                            email: email
+                                        }
+                                    }
+                                ]
+                            }
+                        }).then(function(paymentID) {
+                            return createPayPalSession(email, amount, currency, paymentID).then(function(json) {
+                                bbToken = json.token;
+                                return paymentID;
+                            });
+                        });
+                    },
+                    onAuthorize: function(data) {
+                        return executePayPalSession(bbToken, data.payerID).then(() => {
+                            window.xprops.onPayment({ token: bbToken });
+                        });
+                    }
+                });
+            }
+        })();
+    </script>
 
 </body>

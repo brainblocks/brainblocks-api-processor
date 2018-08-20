@@ -81,4 +81,7 @@ export const SUPPORTED_CURRENCIES = [
     'zar'
 ];
 
+export const PAYPAL_CLIENT = '***REMOVED***';
+export const PAYPAL_SECRET = '***REMOVED***';
+
 export const REPRESENTATIVE = 'xrb_1brainb3zz81wmhxndsbrjb94hx3fhr1fyydmg6iresyk76f3k7y7jiazoji';

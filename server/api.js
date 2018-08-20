@@ -7,13 +7,15 @@ import { join } from 'path';
 import express from 'express';
 import jwt from 'jsonwebtoken';
 import base64 from 'base-64';
+import fetch, { Headers } from 'node-fetch';
 
-import { SECRET, SUPPORTED_CURRENCIES } from './config';
+import { SECRET, SUPPORTED_CURRENCIES, PAYPAL_CLIENT, PAYPAL_SECRET } from './config';
 import { waitForBalance, accountCreate, getTotalReceived, getLatestTransaction, accountHistory, isAccountValid, nodeEvent } from './lib/rai';
 import { handler, ValidationError } from './lib/util';
 import { toRai } from './lib/coinmarketcap';
 import { TRANSACTION_STATUS } from './constants';
-import { createTransaction, getTransaction, setTransactionStatus, recoverAndRefundTransaction, recoverAndProcessTransaction } from './transaction';
+import { createTransaction, createPayPalTransaction, getTransaction, getPayPalTransaction,
+    setTransactionStatus, recoverAndRefundTransaction, recoverAndProcessTransaction, setPayPalTransactionStatus } from './transaction';
 
 const ROOT_DIR = join(__dirname, '..');
 
@@ -69,7 +71,7 @@ app.post('/api/session', handler(async (req : express$Request) => {
     let { account, privateKey, publicKey } = await accountCreate();
 
     let id = await createTransaction({ status: TRANSACTION_STATUS.CREATED, destination, amount, amount_rai, account, currency, privateKey, publicKey });
-    let token = base64.encode(jwt.sign({ id }, SECRET, { expiresIn: '1h' })).replace(/=/g, ''); // eslint-disable-line no-div-regex
+    let token = base64.encode(jwt.sign({ type: 'nano', id }, SECRET, { expiresIn: '1h' })).replace(/=/g, ''); // eslint-disable-line no-div-regex
 
     return { status: 'success', token, account, amount_rai };
 }));
@@ -110,27 +112,140 @@ app.post('/api/session/:token/transfer', handler(async (req : express$Request, r
     return { token, status: 'success' };
 }));
 
+app.post('/api/paypal/session', handler(async (req : express$Request) => {
+
+    // $FlowFixMe
+    let { amount, currency, email, payment_id } = req.body;
+
+    if (!amount || !amount.match(/^\d+(\.\d+)?$/)) { // eslint-disable-line security/detect-unsafe-regex
+        throw new ValidationError(`Expected amount to be a number, got ${ amount }`);
+    }
+
+    if (SUPPORTED_CURRENCIES.indexOf(currency) === -1) {
+        throw new ValidationError(`Expected currency to be one of ${ SUPPORTED_CURRENCIES.join(', ') }, got ${ currency }`);
+    }
+
+    let id = await createPayPalTransaction({ status: TRANSACTION_STATUS.CREATED, amount, currency, email, payment_id });
+    let token = base64.encode(jwt.sign({ type: 'paypal', id }, SECRET, { expiresIn: '1h' })).replace(/=/g, ''); // eslint-disable-line no-div-regex
+
+    return { status: 'success', token };
+}));
+
+app.post('/api/paypal/execute', handler(async (req : express$Request) => {
+
+    // $FlowFixMe
+    let { token, payer_id } = req.body;
+
+    token = token.replace(/=/g, ''); // eslint-disable-line no-div-regex
+
+    // $FlowFixMe
+    let { id } = jwt.verify(base64.decode(token), SECRET);
+
+    let { amount, currency, email, payment_id } = await getPayPalTransaction(id);
+
+    let getPayment = await (await fetch(`https://api.paypal.com/v1/payments/payment/${ payment_id }`, {
+        method:  'GET',
+        headers: new Headers({
+            'Content-type':  'application/json',
+            'Authorization': `Basic ${ Buffer.from(`${ PAYPAL_CLIENT }:${ PAYPAL_SECRET }`).toString('base64') }`
+        })
+    })).json();
+
+    if (getPayment.transactions[0].amount.total !== amount) {
+        throw new Error(`Amount does not match paypal token`);
+    }
+
+    if (getPayment.transactions[0].amount.currency !== currency.toUpperCase()) {
+        throw new Error(`Currency does not match paypal token`);
+    }
+
+    if (getPayment.transactions[0].payee.email !== email) {
+        throw new Error(`Payee does not match paypal payee`);
+    }
+
+    let executePayment = await (await fetch(`https://api.paypal.com/v1/payments/payment/${ payment_id }/execute`, {
+        method:  'POST',
+        headers: new Headers({
+            'Content-type':  'application/json',
+            'Authorization': `Basic ${ Buffer.from(`${ PAYPAL_CLIENT }:${ PAYPAL_SECRET }`).toString('base64') }`
+        }),
+        body: JSON.stringify({
+            payer_id
+        })
+    })).json();
+
+    if (executePayment.state !== 'approved') {
+        throw new Error(`Bad status: ${ executePayment.state }`);
+    }
+
+    await setPayPalTransactionStatus(id, TRANSACTION_STATUS.COMPLETE);
+
+    return { status: 'success' };
+}));
+
 app.get('/api/session/:token/verify', handler(async (req : express$Request) => {
 
     let { token } = req.params;
     token = token.replace(/=/g, ''); // eslint-disable-line no-div-regex
 
     // $FlowFixMe
-    let { id } = jwt.verify(base64.decode(token), SECRET);
-    let { account, destination, amount, currency, amount_rai } = await getTransaction(id);
+    let { id, type = 'nano' } = jwt.verify(base64.decode(token), SECRET);
 
-    let received_rai = Math.min(amount_rai, await getTotalReceived(account));
-    let fulfilled = (received_rai === amount_rai);
+    if (type === 'paypal') {
 
-    let response : Object = { token, destination, currency, amount, amount_rai, received_rai, fulfilled };
+        let { amount, currency, email, payment_id } = await getPayPalTransaction(id);
 
-    if (fulfilled) {
-        let { send_block, sender } = await getLatestTransaction(account);
-        Object.assign(response, { send_block, sender });
+        let getPayment = await (await fetch(`https://api.paypal.com/v1/payments/payment/${ payment_id }`, {
+            method:  'GET',
+            headers: new Headers({
+                'Content-type':  'application/json',
+                'Authorization': `Basic ${ Buffer.from(`${ PAYPAL_CLIENT }:${ PAYPAL_SECRET }`).toString('base64') }`
+            })
+        })).json();
+    
+        if (getPayment.transactions[0].amount.total !== amount) {
+            throw new Error(`Amount does not match paypal token`);
+        }
+    
+        if (getPayment.transactions[0].amount.currency !== currency.toUpperCase()) {
+            throw new Error(`Currency does not match paypal token`);
+        }
+    
+        if (getPayment.transactions[0].payee.email !== email) {
+            throw new Error(`Payee does not match paypal payee`);
+        }
+
+        let fulfilled = (getPayment.state === 'approved');
+
+        return {
+            type,
+            token,
+            currency,
+            amount,
+            email,
+            fulfilled
+        };
+
+    } else if (type === 'nano') {
+
+        let { account, destination, amount, currency, amount_rai } = await getTransaction(id);
+
+        let received_rai = Math.min(amount_rai, await getTotalReceived(account));
+        let fulfilled = (received_rai === amount_rai);
+    
+        let response : Object = { type, token, destination, currency, amount, amount_rai, received_rai, fulfilled };
+    
+        if (fulfilled) {
+            let { send_block, sender } = await getLatestTransaction(account);
+            Object.assign(response, { send_block, sender });
+        }
+    
+        return response;
+    } else {
+        throw new Error(`Unrecognized type: ${ type }`);
     }
-
-    return response;
 }));
+
 
 app.get('/api/exchange/:currency/:amount/rai', handler(async (req : express$Request) => {
 

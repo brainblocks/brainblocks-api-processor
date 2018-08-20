@@ -33,6 +33,17 @@ CREATE TABLE transaction(
    currency     VARCHAR(5)                   NOT NULL CHECK (currency <> '')
 );
 
+CREATE TABLE paypal_transaction(
+   id           UUID                         PRIMARY KEY DEFAULT gen_random_uuid(),
+   created      TIMESTAMP WITH TIME ZONE     DEFAULT now(),
+   modified     TIMESTAMP WITH TIME ZONE     DEFAULT now(),
+   status       VARCHAR(100)                 NOT NULL CHECK (status <> ''),
+   email        VARCHAR(100)                 NOT NULL CHECK (status <> ''),
+   amount       VARCHAR(30)                  NOT NULL CHECK (amount <> ''),
+   currency     VARCHAR(5)                   NOT NULL CHECK (currency <> ''),
+   payment_id   VARCHAR(30)                  NOT NULL CHECK (amount <> '')
+);
+
 CREATE OR REPLACE FUNCTION update_modified_column()   
 RETURNS TRIGGER AS \$\$
 BEGIN
@@ -42,6 +53,10 @@ END;
 \$\$ language 'plpgsql';
 
 CREATE TRIGGER update_transaction_modtime
+    BEFORE UPDATE ON transaction
+    FOR EACH ROW EXECUTE PROCEDURE update_modified_column();
+
+CREATE TRIGGER paypal_transaction_modtime
     BEFORE UPDATE ON transaction
     FOR EACH ROW EXECUTE PROCEDURE update_modified_column();
 
