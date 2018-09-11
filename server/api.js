@@ -84,9 +84,8 @@ app.post('/api/session/:token/transfer', handler(async (req : express$Request, r
     let { time = '120' } = req.body;
 
     token = token.replace(/=/g, ''); // eslint-disable-line no-div-regex
-    
-    //1200
-    time = Math.max(Math.min(parseInt(time, 10), 60), 120) * 1000;
+
+    time = Math.max(Math.min(parseInt(time, 10), 1200), 120) * 1000;
 
     res.setTimeout(Math.floor(time * 1.5));
 
