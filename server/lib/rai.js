@@ -312,18 +312,18 @@ export async function refundAccount(key : string) : Promise<void> {
     }
 }
 
-export async function getSenders(key : string) : Promise<array | void> {
+export async function getSenders(key : string) : Promise<Array<string>> {
     let { balance } = await receiveAllPending(key);
 
     if (!balance) {
-        return;
+        return [ '' ];
     }
 
     let account = await keyToAccount(key);
     let received = await getReceived(account);
     received.reverse();
 
-    var senders = [];
+    let senders = [];
 
     for (let transaction of received) {
         let receiveBlock = await blockInfo(transaction.hash);
