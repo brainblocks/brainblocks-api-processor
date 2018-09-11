@@ -27,6 +27,10 @@ export const TRANSACTION_STATUS = {
     // payments that we might need to refund.
     COMPLETE: 'complete',
 
+    // The transaction has been fully processed. We will wait 100 minutes for any subsequent
+    // payments that we might need to refund.
+    FORCE: 'force',
+
     // The transaction has been purged. We will not wait for any more activity on this account
     PURGED:   'purged'
 };

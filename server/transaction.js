@@ -2,7 +2,7 @@
 
 import { TRANSACTION_STATUS } from './constants';
 import { postInsert, postSelectOne, postSelectID, postUpdateID } from './lib/postgres';
-import { refundAccount, receiveAllPending, send, recoverAndRefundAccount } from './lib/rai';
+import { refundAccount, receiveAllPending, send, recoverAndRefundAccount, getSenders } from './lib/rai';
 
 const TRANSACTION_FIELDS = [ 'id', 'status', 'destination', 'amount', 'amount_rai', 'account', 'currency', 'private', 'public' ];
 
@@ -64,6 +64,14 @@ export async function getTransaction(id : string) : Promise<TransactionType> {
     return transaction;
 }
 
+export async function getSendersForTransaction(id : string) : Promise<array> {
+    let { private: privateKey } = await getTransaction(id);
+    
+    let senders = await getSenders(privateKey);
+
+    return senders;
+}
+
 export async function getPayPalTransaction(id : string) : Promise<PayPalTransactionType> {
     let transaction = await postSelectID('paypal_transaction', id, PAYPAL_TRANSACTION_FIELDS);
     transaction.amount_rai = parseInt(transaction.amount_rai, 10);
@@ -97,6 +105,29 @@ export async function processTransaction(id : string) : Promise<void> {
     await send(privateKey, amount_rai, destination);
     await refundAccount(privateKey);
     await setTransactionStatus(id, TRANSACTION_STATUS.COMPLETE);
+}
+
+export async function forceProcessTransaction(id : string) : Promise<void> {
+    let { private: privateKey, amount_rai, destination } = await getTransaction(id);
+
+    await receiveAllPending(privateKey);
+    await send(privateKey, amount_rai, destination);
+    await refundAccount(privateKey);
+    await setTransactionStatus(id, TRANSACTION_STATUS.FORCE);
+}
+
+export async function checkExchanges(id : string) : Promise<boolean> {
+    let { senders } = await getSendersForTransaction(id);
+
+    let exchage = false;
+
+    for (let sender of senders) {
+        if (exchangeWhitelist.indexOf(sender) > -1) {
+            exchage = true;
+        }
+    }
+
+    return exchage;
 }
 
 export async function refundTransaction(id : string) : Promise<void> {
