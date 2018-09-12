@@ -341,7 +341,7 @@ export async function getLatestSendBlock(account : string) : Promise<string | vo
     if (received.length) {
         let receiveBlock = received[received.length - 1].hash;
         let info = await blockInfo(receiveBlock);
-        return info.contents.source;
+        return info.contents.link;
     }
 
     let pending = await getPending(account);
