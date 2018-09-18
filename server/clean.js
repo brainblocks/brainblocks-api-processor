@@ -2,7 +2,6 @@
 
 import { raven } from './lib/raven';
 import { postQuery } from './lib/postgres';
-import { wait } from './lib/util';
 import { TRANSACTION_STATUS } from './constants';
 import { processTransaction, refundTransaction, forceProcessTransaction, checkExchanges } from './transaction';
 
@@ -52,9 +51,9 @@ export async function cleanTransactions() : Promise<void> {
 
     `, [ TRANSACTION_STATUS.PURGED, TRANSACTION_STATUS.COMPLETE, TRANSACTION_STATUS.PENDING ]);
 
-    // Wait and re-queue event
+    // Immediately re-initialize event
 
-    console.log('Waiting to re-initialize cleanup');
+    console.log('Immediately re-initialize cleanup');
 
-    await wait(5 * 1000);
+    await cleanTransactions();
 }
