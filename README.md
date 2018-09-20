@@ -1,6 +1,6 @@
 # brainblocks-site
 
-Repo for the brainblocks core site and api
+Repo for the brainblocks core platform and api
 
 To setup you local environment, view the guide [here](https://gist.github.com/schenkty/f4b2dcdf6b5c517862ea3940ecd410d4)
 
