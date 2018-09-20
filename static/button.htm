@@ -233,9 +233,7 @@
             </button>
         </div>
 
-<!-- 		<div id="warn-exchange">
-   			Please do not send funds from exchanges.
-        </div>  -->
+<!-- 	<div id="warn-exchange">Please do not send funds from exchanges.</div>  -->
 
         <div id="brainblocks-powered">
             <a href="https://brainblocks.io" target="_blank"><span>Powered by <img id="powered-logo" src="/static/img/brainblocks_symbol.svg">Brainblocks</span></a>
@@ -348,7 +346,7 @@
             }
 
             function createSession(destination, amount, currency) {
-                return api('post', '/api/session', {
+                return api('post', 'https://api.brainblocks.io/api/session', {
                     destination: destination,
                     amount:      amount,
                     currency:    currency
@@ -372,7 +370,7 @@
                     attempts = 1;
                 }
 
-                return api('post', '/api/session/' + token + '/transfer', {
+                return api('post', 'https://api.brainblocks.io/api/session/' + token + '/transfer', {
                     time: time
                 }).catch(function(err) {
                     if (err.res) {
@@ -573,7 +571,7 @@
             }
 
             function populateRai(props) {
-                api('get', '/api/exchange/' + props.payment.currency + '/' + props.payment.amount + '/rai')
+                api('get', 'https://api.brainblocks.io/api/exchange/' + props.payment.currency + '/' + props.payment.amount + '/rai')
                     .then(function(data) {
                         var currency = '';
 
@@ -647,7 +645,7 @@
             }
 
             function createPayPalSession(email, amount, currency, payment_id) {
-                return api('post', '/api/paypal/session', {
+                return api('post', 'https://api.brainblocks.io/api/paypal/session', {
                     email:       email,
                     amount:      amount,
                     currency:    currency,
@@ -656,7 +654,7 @@
             }
 
             function executePayPalSession(token, payer_id) {
-                return api('post', '/api/paypal/execute', {
+                return api('post', 'https://api.brainblocks.io/api/paypal/execute', {
                     token: token,
                     payer_id: payer_id
                 });
