@@ -9,10 +9,10 @@ import jwt from 'jsonwebtoken';
 import base64 from 'base-64';
 import fetch, { Headers } from 'node-fetch';
 
-import { SECRET, SUPPORTED_CURRENCIES, PAYPAL_CLIENT, PAYPAL_SECRET } from './config';
+import { SECRET, PAYPAL_CLIENT, PAYPAL_SECRET } from './config';
 import { waitForBalance, accountCreate, getTotalReceived, getLatestTransaction, accountHistory, isAccountValid, nodeEvent } from './lib/rai';
 import { handler, ValidationError } from './lib/util';
-import { toRai } from './lib/coinmarketcap';
+import { toRai, SUPPORTED_CURRENCIES } from './lib/rateService';
 import { TRANSACTION_STATUS } from './constants';
 import { createTransaction, createPayPalTransaction, getTransaction, getPayPalTransaction,
     setTransactionStatus, recoverAndRefundTransaction, recoverAndProcessTransaction, setPayPalTransactionStatus } from './transaction';

@@ -47,42 +47,6 @@ if (process.env.NODE_ENV === 'development') {
     RAI_SERVER = 'http://[10.136.7.198]:7076';
 }
 
-export const SUPPORTED_CURRENCIES = [
-    'aud',
-    'brl',
-    'cad',
-    'chf',
-    'clp',
-    'cny',
-    'czk',
-    'dkk',
-    'eur',
-    'gbp',
-    'hkd',
-    'huf',
-    'idr',
-    'ils',
-    'inr',
-    'jpy',
-    'krw',
-    'mxn',
-    'myr',
-    'nok',
-    'nzd',
-    'php',
-    'pkr',
-    'pln',
-    'rub',
-    'sek',
-    'sgd',
-    'thb',
-    'try',
-    'usd',
-    'vnd',
-    'twd',
-    'zar'
-];
-
 export const PAYPAL_CLIENT = '***REMOVED***';
 export const PAYPAL_SECRET = '***REMOVED***';
 

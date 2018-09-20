@@ -7,4 +7,5 @@ static/woocommerce-gateway-brainblocks.zip
 flow-typed
 coverage
 npm-debug.log
+.vscode
 .idea
