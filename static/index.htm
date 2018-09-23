@@ -103,7 +103,7 @@
     <script src="/brainblocks.min.js"></script>
     <script>
         brainblocks.Button.render({
-            env: window.location.hostname === '127.0.0.1' ? 'local' : 'production',
+            env: (window.location.hostname === '127.0.0.1' || window.location.hostname === 'localhost') ? 'local' : 'production',
             payment: {
                 destination: 'xrb_1brainb3zz81wmhxndsbrjb94hx3fhr1fyydmg6iresyk76f3k7y7jiazoji',
                 amount: '1000',
