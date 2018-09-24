@@ -205,6 +205,26 @@
         a:active {
             color: rgb(145, 145, 145);
         }
+
+        .or {
+            font-size: 10px;
+            margin: 6px;
+            margin-bottom: 10px;
+            padding: 0;
+            line-height: 10px;
+            color: #bbb;
+        }
+
+        .nanowallet-button {
+            background-color: #040150;
+            color: white;
+            border-radius: 10px;
+            width: 244px;
+            padding: 10px;
+            font-size: 14px;
+            margin-bottom: 5px;
+            cursor: pointer;
+        }
     </style>
 </head>
 
@@ -233,7 +253,11 @@
             </button>
         </div>
 
-<!-- 	<div id="warn-exchange">Please do not send funds from exchanges.</div>  -->
+        <div class="or">— or —</div>
+
+        <button id="nanowallet-button" class="nanowallet-button">
+            Pay with <b>NANOWALLET.IO</b>
+        </button>
 
         <div id="brainblocks-powered">
             <a href="https://brainblocks.io" target="_blank"><span>Powered by <img id="powered-logo" src="/static/img/brainblocks_symbol.svg">Brainblocks</span></a>
@@ -315,8 +339,8 @@
 
             function showButton() {
                 document.body.classList.add('brainblocks-checkout-active');
-                window.xchild.resize(window.innerWidth, 475);
-                document.querySelector('.brainblocks-button').style.height = '475px';
+                window.xchild.resize(window.innerWidth, 530);
+                document.querySelector('.brainblocks-button').style.height = '530px';
                 copyButton.style.display = 'block';
             }
 
@@ -513,27 +537,50 @@
                         }
                     }, 50);
 
+                    var nanoWalletPromise;
+
+                    document.querySelector('#nanowallet-button')
+                        .addEventListener('click', function() {
+                            nanoWalletPromise = new brainblocks.Promise(function(resolve) {
+                                brainblocks.NanoWallet.render({
+                                    token: json.token,
+                                    onComplete: resolve
+                                });
+                            });
+                        });
+
+                    function completePayment(transfer) {
+                        progressBar.style.width = 0;
+                        progress.style.backgroundColor = "#40AE49";
+                        progressTime.innerText = 'Payment received!';
+                        accountcontainer.innerText = 'Payment received! Please do not close your browser window while we finalize your payment';
+                        accountcontainer.style.height = '50px';
+                        copyButton.style.display = 'none';
+
+                        qrcontainer.innerHTML = '<img src="/static/img/check.svg">';
+
+                        window.onbeforeunload = function() {};
+                        window.xprops.onPayment(transfer);
+                        
+                        setTimeout(function() {
+                            closeButton();
+                        }, 5000);
+                    }
+
                     return transfer(json.token)
                         
                         .then(function(transfer) {
                             clearInterval(interval);
                             if (transfer.status === 'success') {
 
-                                progressBar.style.width = 0;
-                                progress.style.backgroundColor = "#40AE49";
-                                progressTime.innerText = 'Payment received!';
-                                accountcontainer.innerText = 'Payment received! Please do not close your browser window while we finalize your payment';
-                                accountcontainer.style.height = '50px';
-                                copyButton.style.display = 'none';
-
-                                qrcontainer.innerHTML = '<img src="/static/img/check.svg">';
-
-                                window.onbeforeunload = function() {};
-                                window.xprops.onPayment(transfer);
+                                if (nanoWalletPromise) {
+                                    nanoWalletPromise.then(function() {
+                                        completePayment(transfer);
+                                    });
+                                } else {
+                                    completePayment(transfer);
+                                }
                                 
-                                setTimeout(function() {
-                                    closeButton();
-                                }, 5000);
                             } else {
                                 clearInterval(interval);
                                 alert('Your payment session timed out. Any nano sent will be automatically refunded. Please try again');
