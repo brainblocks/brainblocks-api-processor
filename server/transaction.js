@@ -157,7 +157,7 @@ export async function forceProcessTransaction(id : string) : Promise<void> {
 
     await send(privateKey, amountToProcess, destination);
     await refundAccount(privateKey);
-    await setTransactionStatus(id, TRANSACTION_STATUS.COMPLETE);
+    await setTransactionStatus(id, TRANSACTION_STATUS.FORCE);
 }
 
 export async function recoverAndProcessTransaction(account : string) : Promise<void> {
