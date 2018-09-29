@@ -2,7 +2,7 @@
 
 import { TRANSACTION_STATUS } from './constants';
 import { postInsert, postSelectOne, postSelectID, postUpdateID } from './lib/postgres';
-import { refundAccount, receiveAllPending, send, recoverAndRefundAccount, getSenders } from './lib/rai';
+import { refundAccount, receiveAllPending, send, recoverAndRefundAccount, getSenders, getBalance } from './lib/rai';
 
 const exchangeWhitelist = [
     'xrb_3jwrszth46rk1mu7rmb4rhm54us8yg1gw3ipodftqtikf5yqdyr7471nsg1k',
@@ -117,15 +117,6 @@ export async function processTransaction(id : string) : Promise<void> {
     await setTransactionStatus(id, TRANSACTION_STATUS.COMPLETE);
 }
 
-export async function forceProcessTransaction(id : string) : Promise<void> {
-    let { private: privateKey, amount_rai, destination } = await getTransaction(id);
-
-    await receiveAllPending(privateKey);
-    await send(privateKey, amount_rai, destination);
-    await refundAccount(privateKey);
-    await setTransactionStatus(id, TRANSACTION_STATUS.FORCE);
-}
-
 export async function checkExchanges(id : string) : Promise<boolean> {
     let { private: privateKey } = await getTransaction(id);
 
@@ -156,7 +147,20 @@ export async function recoverAndRefundTransaction(account : string) : Promise<vo
     await recoverAndRefundAccount(privateKey);
 }
 
+export async function forceProcessTransaction(id : string) : Promise<void> {
+    let { private: privateKey, amount_rai, destination, account } = await getTransaction(id);
+
+    await receiveAllPending(privateKey);
+
+    let { balance } = await getBalance(account);
+    let amountToProcess = Math.min(balance, amount_rai);
+
+    await send(privateKey, amountToProcess, destination);
+    await refundAccount(privateKey);
+    await setTransactionStatus(id, TRANSACTION_STATUS.COMPLETE);
+}
+
 export async function recoverAndProcessTransaction(account : string) : Promise<void> {
     let { id } = await getTransactionByAccount(account);
-    await processTransaction(id);
+    await forceProcessTransaction(id);
 }
