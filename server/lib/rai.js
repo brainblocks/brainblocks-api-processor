@@ -120,14 +120,18 @@ export async function getAccountInfo(account : string) : Promise<{ balance : str
 export async function blockCreateSend({ key, account, destination, amount } : { key : string, account : string, destination : string, amount : string }) : Promise<{ hash : string, block : string }> {
 
     let { frontier, balance } = await getAccountInfo(account);
-    let newBalance = bigInt(balance).subtract(amount).toString();
+    let newBalance = bigInt(balance).subtract(amount);
+
+    if (newBalance.isNegative()) {
+        throw new Error(`Negative balance for send. Original balance: ${ balance } / Amount: ${ amount } / New Balance: ${ newBalance.toString() }`);
+    }
 
     let { hash, block } = await raiAction('block_create', {
         type:           'state',
         representative: REPRESENTATIVE,
         link:           destination,
         previous:       frontier,
-        balance:        newBalance,
+        balance:        newBalance.toString(),
         key,
         account
     });
