@@ -1,0 +1,123 @@
+openapi: "3.0.0"
+info:
+  version: 1.0.0
+  title: Brainblocks API
+  description: This is the documentation for Brainblocks. For more information, please visit [brainblocks.io](brainblocks.io)
+  termsOfService: http://brainblocks.io/terms/
+  contact:
+    name: Brainblocks Team
+    email: ty@brainblocks.io
+    url: http://brainblocks.io
+servers:
+  - url: http://brainblocks.io/api
+paths:
+  /session:
+    post:
+      description: Set up a new payment session. This returns a transaction token which can be used for future API calls.
+      operationId: session
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NewSession'
+      responses:
+        '200':
+          description: pet response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Session'
+        default:
+          description: ValidationError, TokenExpiredError, JsonWebTokenError
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /api/session/{token}/transfer:
+    post:
+      description: Wait for a successful payment. This waits for up to a certain time you may specify, and returns a success as soon as a payment goes through.
+      operationId: session
+      parameters:
+        - name: token
+          in: path
+          description: API token
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NewSessionTransfer'
+      responses:
+        '200':
+          description: pet response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SessionTransfer'
+        default:
+          description: ValidationError, TokenExpiredError, JsonWebTokenError
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+components:
+  schemas:
+    NewSession:
+      required:
+        - amount
+        - currency
+        - destination
+      properties:   
+        amount:
+          type: integer
+          format: int32   
+        currency:
+          type: string 
+        destination:
+          type: string 
+    Session:
+      required:
+        - status
+        - token
+        - account
+        - amount_rai
+      properties:
+        status:
+          type: string
+        token:
+          type: string    
+        account:
+          type: string    
+        amount_rai:
+          type: integer
+          format: int32
+    NewSessionTransfer:
+      required:
+        - time
+      properties:   
+        time:
+          type: integer
+          format: int32   
+    SessionTransfer:
+      required:
+        - status
+        - token
+      properties:
+        status:
+          type: string
+        token:
+          type: string 
+    Error:
+      required:
+        - status
+        - message
+      properties:
+        code:
+          type: boolean
+          default: false
+        message:
+          type: string
