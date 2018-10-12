@@ -23,7 +23,7 @@ paths:
               $ref: '#/components/schemas/NewSession'
       responses:
         '200':
-          description: pet response
+          description: Successful session creation
           content:
             application/json:
               schema:
@@ -64,6 +64,76 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+  /api/session/{token}/verify:
+    get:
+      description: Returns the state of the transaction.
+      operationId: session
+      parameters:
+        - name: token
+          in: path
+          description: API token
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: pet response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokenVerify'
+        default:
+          description: ValidationError, TokenExpiredError, JsonWebTokenError
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /paypal/session:
+    post:
+      description: Set up a new Paypal payment session. This returns a transaction token which can be used for future API calls.
+      operationId: session
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NewPaypalSession'
+      responses:
+        '200':
+          description: Successful session creation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaypalSession'
+        default:
+          description: ValidationError, TokenExpiredError, JsonWebTokenError
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /paypal/execute:
+    post:
+      description: Executes on a payment_id
+      operationId: session
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NewPaypalExecute'
+      responses:
+        '200':
+          description: Successful session creation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaypalExecute'
+        default:
+          description: ValidationError, TokenExpiredError, JsonWebTokenError
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
 components:
   schemas:
     NewSession:
@@ -95,6 +165,78 @@ components:
         amount_rai:
           type: integer
           format: int32
+    
+    NewPaypalSession:
+      required:
+        - amount
+        - currency
+        - email
+        - payment_id
+      properties:   
+        amount:
+          type: integer
+          format: int32   
+        currency:
+          type: string 
+        email:
+          type: string 
+        payment_id:
+          type: string 
+    PaypalSession:
+      required:
+        - status
+        - token
+      properties:
+        status:
+          type: string
+        token:
+          type: string
+          
+    TokenVerify:
+      required:
+        - type
+        - token
+        - destination
+        - currency
+        - amount
+        - amount_rai
+        - received_rai
+        - fulfilled
+      properties:   
+        type:
+          type: string 
+        token:
+          type: string 
+        destination:
+          type: string 
+        currency:
+          type: string 
+        amount_rai:
+          type: integer
+          format: int32   
+        received_rai:
+          type: integer
+          format: int32   
+        fulfilled:
+          type: boolean
+          default: false
+          
+    NewPaypalExecute:
+      required:
+        - token
+        - payer_id
+      properties:
+        token:
+          type: string 
+        payer_id:
+          type: string 
+    PaypalExecute:
+      required:
+        - status
+      properties:
+        status:
+          type: string
+
     NewSessionTransfer:
       required:
         - time
