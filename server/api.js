@@ -8,6 +8,8 @@ import express from 'express';
 import jwt from 'jsonwebtoken';
 import base64 from 'base-64';
 import fetch, { Headers } from 'node-fetch';
+import swaggerUi from 'swagger-ui-express';
+import YAML from 'yamljs';
 
 import { SECRET, PAYPAL_CLIENT, PAYPAL_SECRET } from './config';
 import { waitForBalance, accountCreate, getTotalReceived, getLatestTransaction, accountHistory, isAccountValid, nodeEvent } from './lib/rai';
@@ -18,13 +20,14 @@ import { createTransaction, createPayPalTransaction, getTransaction, getPayPalTr
     setTransactionStatus, recoverAndRefundTransaction, recoverAndProcessTransaction, setPayPalTransactionStatus } from './transaction';
 
 const ROOT_DIR = join(__dirname, '..');
+const swaggerDocument = YAML.load(join(ROOT_DIR, 'server/swagger.yaml'));
 
 export let app = express();
 
 app.use(express.urlencoded());
 app.use(express.json());
 app.use('/static', express.static(`${ __dirname  }/../static`));
-
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 app.get('/', (req : express$Request, res : express$Response) => res.sendFile(join(ROOT_DIR, 'static/index.htm')));
 app.get('/blank', (req : express$Request, res : express$Response) => res.status(200).send(''));
 app.get('/button', (req : express$Request, res : express$Response) => res.sendFile(join(ROOT_DIR, 'static/button.htm')));

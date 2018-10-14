@@ -32,7 +32,9 @@
     "pg": "^7.4.1",
     "raiblocks-client": "^1.0.0",
     "raven": "^2.4.1",
-    "uuid": "^3.1.0"
+    "swagger-ui-express": "^4.0.1",
+    "uuid": "^3.1.0",
+    "yamljs": "^0.3.0"
   },
   "devDependencies": {
     "grumbler-scripts": "^2.0.63",
