@@ -370,7 +370,7 @@ export async function getTotalReceived(account : string) : Promise<BigInt> {
         return amount;
     }));
 
-    let total = totals.reduce((a, b) => b.add(a));
+    let total = totals.reduce((a, b) => b.add(a), toBigInt('0'));
 
     return total;
 }
