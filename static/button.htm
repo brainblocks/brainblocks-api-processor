@@ -267,6 +267,8 @@
 
     <script>
         (function() {
+            var API_DOMAIN = (window.xprops.env === 'local') ? '' : 'https://api.brainblocks.io';
+
             window.LOG_LEVEL = 'warn';
             // var WAIT_TIME = 1 * 60
             var WAIT_TIME = 20 * 60;
@@ -371,7 +373,7 @@
             }
 
             function createSession(destination, amount, currency) {
-                return api('post', 'https://api.brainblocks.io/api/session', {
+                return api('post', API_DOMAIN + '/api/session', {
                     destination: destination,
                     amount:      amount,
                     currency:    currency
@@ -395,7 +397,7 @@
                     attempts = 1;
                 }
 
-                return api('post', 'https://api.brainblocks.io/api/session/' + token + '/transfer', {
+                return api('post', API_DOMAIN + '/api/session/' + token + '/transfer', {
                     time: time
                 }).catch(function(err) {
                     if (err.res) {
@@ -619,7 +621,7 @@
             }
 
             function populateRai(props) {
-                api('get', 'https://api.brainblocks.io/api/exchange/' + props.payment.currency + '/' + props.payment.amount + '/rai')
+                api('get', API_DOMAIN + '/api/exchange/' + props.payment.currency + '/' + props.payment.amount + '/rai')
                     .then(function(data) {
                         var currency = '';
 
@@ -693,7 +695,7 @@
             }
 
             function createPayPalSession(email, amount, currency, payment_id) {
-                return api('post', 'https://api.brainblocks.io/api/paypal/session', {
+                return api('post', API_DOMAIN + '/api/paypal/session', {
                     email:       email,
                     amount:      amount,
                     currency:    currency,
@@ -702,7 +704,7 @@
             }
 
             function executePayPalSession(token, payer_id) {
-                return api('post', 'https://api.brainblocks.io/api/paypal/execute', {
+                return api('post', API_DOMAIN + '/api/paypal/execute', {
                     token: token,
                     payer_id: payer_id
                 });

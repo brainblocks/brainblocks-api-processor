@@ -5,6 +5,9 @@
 import uuidv4 from 'uuid/v4';
 import { TokenExpiredError, JsonWebTokenError } from 'jsonwebtoken';
 import requestPromise from 'request-promise';
+import bigInt from 'big-integer';
+
+import type { BigInt } from '../types';
 
 import { raven } from './raven';
 
@@ -201,4 +204,8 @@ export function memoizePromise<R : mixed, A : Array<*>> (method : (...args: A) =
 
     // $FlowFixMe
     return resultFunction;
+}
+
+export function toBigInt(num : string) : BigInt {
+    return bigInt(num);
 }

@@ -76,6 +76,13 @@ registerNanoOperation('rai_from_raw', ({ amount }) => {
     };
 });
 
+registerNanoOperation('rai_to_raw', ({ amount }) => {
+    return {
+        amount: `${ amount }000000000000000000000000`
+    };
+});
+
+
 registerNanoOperation('account_history', () => {
     return [
         {

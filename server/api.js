@@ -10,12 +10,13 @@ import base64 from 'base-64';
 import fetch, { Headers } from 'node-fetch';
 import swaggerUi from 'swagger-ui-express';
 import YAML from 'yamljs';
+import { min } from 'big-integer';
 
 import { SECRET, PAYPAL_CLIENT, PAYPAL_SECRET } from './config';
-import { waitForBalance, accountCreate, getTotalReceived, getLatestTransaction, accountHistory, isAccountValid, nodeEvent } from './lib/rai';
+import { waitForBalance, accountCreate, getTotalReceived, getLatestTransaction, accountHistory, isAccountValid, nodeEvent, rawToRai } from './lib/rai';
 import { handler, ValidationError } from './lib/util';
-import { toRai, SUPPORTED_CURRENCIES } from './lib/rateService';
-import { TRANSACTION_STATUS } from './constants';
+import { currencyToRaw } from './lib/rateService';
+import { TRANSACTION_STATUS, CURRENCY } from './constants';
 import { createTransaction, createPayPalTransaction, getTransaction, getPayPalTransaction,
     setTransactionStatus, recoverAndRefundTransaction, recoverAndProcessTransaction, setPayPalTransactionStatus } from './transaction';
 
@@ -41,7 +42,11 @@ app.post('/api/session', handler(async (req : express$Request) => {
 
     let destination = body.destination;
     let amount      = body.amount;
-    let currency    = body.currency || 'rai';
+    let currency    = body.currency || CURRENCY.NANO;
+
+    if (currency === 'rai') {
+        currency = CURRENCY.NANO;
+    }
 
     if (!destination) {
         throw new ValidationError(`Expected 'destination' to be present in request body`);
@@ -55,13 +60,12 @@ app.post('/api/session', handler(async (req : express$Request) => {
         throw new ValidationError(`Expected amount to be a number, got ${ amount }`);
     }
 
-    if (currency !== 'rai' && SUPPORTED_CURRENCIES.indexOf(currency) === -1) {
-        throw new ValidationError(`Expected currency to be rai or ${ SUPPORTED_CURRENCIES.join(', ') }, got ${ currency }`);
+    if (Object.values(CURRENCY).indexOf(currency) === -1) {
+        throw new ValidationError(`Expected currency to be rai or ${ Object.values(CURRENCY).join(', ') }, got ${ currency }`);
     }
 
-    let amount_rai = (currency === 'rai')
-        ? parseInt(amount, 10)
-        : await toRai(currency, amount);
+    let amount_raw = await currencyToRaw(currency, amount);
+    let amount_rai = await rawToRai(amount_raw);
 
     if (amount_rai < 1) {
         throw new ValidationError(`Expected rai amount to be greater than or equal to 1`);
@@ -73,7 +77,7 @@ app.post('/api/session', handler(async (req : express$Request) => {
 
     let { account, privateKey, publicKey } = await accountCreate();
 
-    let id = await createTransaction({ status: TRANSACTION_STATUS.CREATED, destination, amount, amount_rai, account, currency, privateKey, publicKey });
+    let id = await createTransaction({ status: TRANSACTION_STATUS.CREATED, destination, amount, amount_raw, account, currency, privateKey, publicKey });
     let token = base64.encode(jwt.sign({ type: 'nano', id }, SECRET, { expiresIn: '1h' })).replace(/=/g, ''); // eslint-disable-line no-div-regex
 
     return { status: 'success', token, account, amount_rai };
@@ -94,22 +98,24 @@ app.post('/api/session/:token/transfer', handler(async (req : express$Request, r
 
     // $FlowFixMe
     let { id } = jwt.verify(base64.decode(token), SECRET);
-    let { account, amount_rai } = await getTransaction(id);
+    let { account, amount_raw } = await getTransaction(id);
 
     await setTransactionStatus(id, TRANSACTION_STATUS.WAITING);
 
-    let { balance, pending } = await waitForBalance({
+    let { total } = await waitForBalance({
         account,
-        amount:   amount_rai,
+        amount:   amount_raw,
         timeout:  time,
         onCancel: (cancelHandler) => req.connection.on('close', cancelHandler)
     });
 
-    let received = balance + pending;
-
-    if (received < amount_rai) {
+    if (total.lesser(amount_raw)) {
         await setTransactionStatus(id, TRANSACTION_STATUS.EXPIRED);
-        return { token, received, status: 'expired' };
+        return {
+            token,
+            received: await rawToRai(total),
+            status:   'expired'
+        };
     }
 
     await setTransactionStatus(id, TRANSACTION_STATUS.PENDING);
@@ -125,8 +131,8 @@ app.post('/api/paypal/session', handler(async (req : express$Request) => {
         throw new ValidationError(`Expected amount to be a number, got ${ amount }`);
     }
 
-    if (SUPPORTED_CURRENCIES.indexOf(currency) === -1) {
-        throw new ValidationError(`Expected currency to be one of ${ SUPPORTED_CURRENCIES.join(', ') }, got ${ currency }`);
+    if (Object.values(CURRENCY).indexOf(currency) === -1) {
+        throw new ValidationError(`Expected currency to be one of ${ Object.values(CURRENCY).join(', ') }, got ${ currency }`);
     }
 
     let id = await createPayPalTransaction({ status: TRANSACTION_STATUS.CREATED, amount, currency, email, payment_id });
@@ -232,12 +238,21 @@ app.get('/api/session/:token/verify', handler(async (req : express$Request) => {
 
     } else if (type === 'nano') {
 
-        let { account, destination, amount, currency, amount_rai } = await getTransaction(id);
+        let { account, destination, amount, currency, amount_raw } = await getTransaction(id);
 
-        let received_rai = Math.min(amount_rai, await getTotalReceived(account));
-        let fulfilled = (received_rai === amount_rai);
+        let received_raw = min(amount_raw, await getTotalReceived(account));
+        let fulfilled = (received_raw.equals(amount_raw));
     
-        let response : Object = { type, token, destination, currency, amount, amount_rai, received_rai, fulfilled };
+        let response : Object = {
+            type,
+            token,
+            destination,
+            currency,
+            amount,
+            amount_rai:   await rawToRai(amount_raw),
+            received_rai: await rawToRai(received_raw),
+            fulfilled
+        };
     
         if (fulfilled) {
             let { send_block, sender } = await getLatestTransaction(account);
@@ -255,19 +270,20 @@ app.get('/api/exchange/:currency/:amount/rai', handler(async (req : express$Requ
 
     let { currency, amount } = req.params;
 
-    if (SUPPORTED_CURRENCIES.indexOf(currency) === -1) {
-        throw new ValidationError(`Expected currency to be ${ SUPPORTED_CURRENCIES.join(', ') }, got ${ currency }`);
+    if (Object.values(CURRENCY).indexOf(currency) === -1) {
+        throw new ValidationError(`Expected currency to be ${ Object.values(CURRENCY).join(', ') }, got ${ currency }`);
     }
 
     if (!amount || !amount.match(/^\d+(\.\d+)?$/)) { // eslint-disable-line security/detect-unsafe-regex
         throw new ValidationError(`Expected amount to be a number, got ${ amount }`);
     }
 
-    let rai = await toRai(currency, amount);
+    let amount_raw = await currencyToRaw(currency, amount);
+    let amount_rai = await rawToRai(amount_raw);
 
     return {
         status: 'success',
-        rai
+        rai:    amount_rai
     };
 }));
 
