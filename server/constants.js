@@ -32,7 +32,10 @@ export const TRANSACTION_STATUS = {
     FORCE: 'force',
 
     // The transaction has been purged. We will not wait for any more activity on this account
-    PURGED:   'purged'
+    PURGED:   'purged',
+
+    // There was an error processing the transaction
+    ERROR: 'error'
 };
 
 // Happy case: CREATED -> WAITING -> PENDING -> COMPLETE

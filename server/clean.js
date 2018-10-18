@@ -3,7 +3,7 @@
 import { raven } from './lib/raven';
 import { postQuery } from './lib/postgres';
 import { TRANSACTION_STATUS } from './constants';
-import { processTransaction, refundTransaction, forceProcessTransaction, checkExchanges } from './transaction';
+import { processTransaction, refundTransaction, forceProcessTransaction, checkExchanges, setTransactionStatus } from './transaction';
 
 const REFUND_PERIOD = '1 day';
 
@@ -37,6 +37,7 @@ export async function cleanTransactions() : Promise<void> {
 
         } catch (err) {
             console.error(err.stack);
+            await setTransactionStatus(id, TRANSACTION_STATUS.ERROR);
             raven.captureException(err);
         }
     }
