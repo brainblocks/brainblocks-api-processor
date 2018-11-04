@@ -227,10 +227,6 @@ app.get('/api/session/:token/verify', handler(async (req : express$Request) => {
 
         let fulfilled = (getPayment.state === 'approved');
 
-        if (currency === CURRENCY.NANO) {
-            currency = 'rai';
-        }
-
         return {
             type,
             token,
@@ -246,6 +242,10 @@ app.get('/api/session/:token/verify', handler(async (req : express$Request) => {
 
         let received_raw = min(amount_raw, await getTotalReceived(account));
         let fulfilled = (received_raw.equals(amount_raw));
+
+        if (currency === CURRENCY.NANO) {
+            currency = 'rai';
+        }
     
         let response : Object = {
             type,
