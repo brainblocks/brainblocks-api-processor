@@ -343,6 +343,7 @@ export async function receive(key : string, sendBlock : string) : Promise<void> 
         amount
     });
 
+    console.log(receiveBlock);
     await process(receiveBlock);
 }
 
