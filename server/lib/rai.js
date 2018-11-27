@@ -69,12 +69,15 @@ export async function raiAction<R : Object>(action : string, args : Object = {})
     let data = JSON.parse(res.body);
 
     if (data.error) {
-        let err = new Error(data.error);
+        // rai_node returns this error but process the command anyway?
+        if (data.error !== 'Gap source block') {
+            let err = new Error(data.error);
 
-        // $FlowFixMe
-        err.data = args;
+            // $FlowFixMe
+            err.data = args;
 
-        throw err;
+            throw err;
+        }
     }
 
     return data;
