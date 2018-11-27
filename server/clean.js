@@ -36,9 +36,14 @@ export async function cleanTransactions() : Promise<void> {
             }
 
         } catch (err) {
-            console.error(err.stack);
-            await setTransactionStatus(id, TRANSACTION_STATUS.ERROR);
-            raven.captureException(err);
+            if (err.message !== 'Gap source block') {
+                console.error(err.stack);
+                await setTransactionStatus(id, TRANSACTION_STATUS.ERROR);
+                raven.captureException(err);
+            }
+            
+            // await setTransactionStatus(id, TRANSACTION_STATUS.ERROR);
+            // raven.captureException(err);
         }
     }
 
