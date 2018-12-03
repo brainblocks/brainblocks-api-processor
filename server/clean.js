@@ -4,6 +4,7 @@ import { raven } from './lib/raven';
 import { postQuery } from './lib/postgres';
 import { TRANSACTION_STATUS } from './constants';
 import { processTransaction, refundTransaction, forceProcessTransaction, checkExchanges, setTransactionStatus } from './transaction';
+import { wait } from './lib/util';
 
 const REFUND_PERIOD = '1 day';
 
@@ -15,10 +16,10 @@ export async function cleanTransactions() : Promise<void> {
             
         SELECT id, status
             FROM transaction
-            WHERE (status = $1 OR status = $2 OR status = $3 OR status = $4)
+            WHERE (status = $1 OR status = $2 OR status = $3)
             AND (created >= (NOW() - INTERVAL '${ REFUND_PERIOD }'));
 
-    `, [ TRANSACTION_STATUS.COMPLETE, TRANSACTION_STATUS.PENDING, TRANSACTION_STATUS.REFUNDED, TRANSACTION_STATUS.EXPIRED ]);
+    `, [ TRANSACTION_STATUS.PENDING, TRANSACTION_STATUS.REFUNDED, TRANSACTION_STATUS.EXPIRED ]);
 
     for (let { id, status } of transactions) {
         try {
@@ -31,16 +32,11 @@ export async function cleanTransactions() : Promise<void> {
                 await processTransaction(id);
             }
         
-            if (status === TRANSACTION_STATUS.REFUNDED || status === TRANSACTION_STATUS.EXPIRED || status === TRANSACTION_STATUS.COMPLETE) {
+            if (status === TRANSACTION_STATUS.REFUNDED || status === TRANSACTION_STATUS.EXPIRED) {
                 await refundTransaction(id);
             }
 
         } catch (err) {
-            // if (err.message !== 'Gap source block') {
-            // console.error(err.stack);
-            // await setTransactionStatus(id, TRANSACTION_STATUS.ERROR);
-            // raven.captureException(err);
-            // }
             console.error(err.stack);
             await setTransactionStatus(id, TRANSACTION_STATUS.ERROR);
             raven.captureException(err);
@@ -61,5 +57,5 @@ export async function cleanTransactions() : Promise<void> {
 
     console.log('Immediately re-initialize cleanup');
 
-    await cleanTransactions();
+    await wait(5 * 1000);
 }
