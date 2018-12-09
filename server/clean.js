@@ -7,6 +7,7 @@ import { processTransaction, refundTransaction, forceProcessTransaction, checkEx
 import { wait } from './lib/util';
 
 const REFUND_PERIOD = '1 day';
+const DELAY = 5;
 
 export async function cleanTransactions() : Promise<void> {
 
@@ -53,9 +54,10 @@ export async function cleanTransactions() : Promise<void> {
 
     `, [ TRANSACTION_STATUS.PURGED, TRANSACTION_STATUS.COMPLETE, TRANSACTION_STATUS.PENDING ]);
 
-    // Immediately re-initialize event
+    console.log(`Wait ${ DELAY } seconds to re-initialize cleanup`);
 
-    console.log('Immediately re-initialize cleanup');
+    await wait(DELAY * 1000);
 
-    await wait(5 * 1000);
+    // eslint-disable-next-line no-process-exit, unicorn/no-process-exit
+    process.exit(0);
 }

@@ -9,5 +9,6 @@ export type BigInt = {|
     greater : (BigInt) => boolean,
     lesser : (BigInt) => boolean,
     greaterOrEquals : (BigInt) => boolean,
-    lesserOrEquals : (BigInt) => boolean
+    lesserOrEquals : (BigInt) => boolean,
+    equals : (mixed) => boolean
 |};
