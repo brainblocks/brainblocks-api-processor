@@ -6,7 +6,7 @@ import { TRANSACTION_STATUS } from './constants';
 import { processTransaction, refundTransaction, forceProcessTransaction, checkExchanges, setTransactionStatus } from './transaction';
 import { wait } from './lib/util';
 
-const REFUND_PERIOD = '1 day';
+const REFUND_PERIOD = '7 day';
 const DELAY = 5;
 
 export async function cleanTransactions() : Promise<void> {
