@@ -5,6 +5,7 @@ import { postQuery } from './lib/postgres';
 import { TRANSACTION_STATUS } from './constants';
 import { processTransaction, refundTransaction, forceProcessTransaction, checkExchanges, setTransactionStatus } from './transaction';
 import { wait } from './lib/util';
+import { raiToRaw } from './lib/rai';
 
 const REFUND_PERIOD = '7 day';
 const DELAY = 5;
@@ -12,6 +13,9 @@ const DELAY = 5;
 export async function cleanTransactions() : Promise<void> {
 
     console.log('Starting cleanup');
+    
+    // Check if RPC Server is working with simple value calculation
+    await raiToRaw(1000);
 
     let transactions = await postQuery(`
             
