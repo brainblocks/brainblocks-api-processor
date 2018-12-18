@@ -6,4 +6,9 @@ require('babel-register');
 // eslint-disable-next-line import/no-commonjs
 const { cleanTransactions } = require('./server/clean');
 
-cleanTransactions();
+try {
+    cleanTransactions();
+} catch (err) {
+    // eslint-disable-next-line no-process-exit, unicorn/no-process-exit
+    process.exit(0);
+}
