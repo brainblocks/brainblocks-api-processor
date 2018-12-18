@@ -50,9 +50,10 @@ export async function cleanTransactions() : Promise<void> {
         SET status = $1
         WHERE (created < (NOW() - INTERVAL '${ REFUND_PERIOD }'))
         AND (status != $2)
-        AND (status != $3);
+        AND (status != $3)
+        AND (status != $4);
 
-    `, [ TRANSACTION_STATUS.PURGED, TRANSACTION_STATUS.COMPLETE, TRANSACTION_STATUS.PENDING ]);
+    `, [ TRANSACTION_STATUS.PURGED, TRANSACTION_STATUS.COMPLETE, TRANSACTION_STATUS.PENDING, TRANSACTION_STATUS.ERROR ]);
 
     console.log(`Wait ${ DELAY } seconds to re-initialize cleanup`);
 
