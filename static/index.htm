@@ -113,7 +113,10 @@
                 console.log('Payment Session Started', data.token);
             },
             onPayment: function(data) {
-                console.log('Payment successful!', data.token);                
+                console.log('Payment successful!', data.token);
+                $.get('https://brainblocks.io/api/session/' + data.token + '/verify', function(data) {
+                    console.log('Verify call: ', data)
+                })
             }
         }, '#nano-button');
     </script>

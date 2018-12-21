@@ -277,7 +277,7 @@ export async function getBalance(account : string) :
 export async function getPending(account : string) : Promise<Array<string>> {
     let res = await raiAction('pending', {
         account,
-        count:   '100',
+        count:          '100',
         include_active: true
     });
 
