@@ -114,7 +114,7 @@
             },
             onPayment: function(data) {
                 console.log('Payment successful!', data.token);
-                $.get('https://brainblocks.io/api/session/' + data.token + '/verify', function(data) {
+                $.get('http://localhost:8000/api/session/' + data.token + '/verify', function(data) {
                     console.log('Verify call: ', data)
                 })
             }
