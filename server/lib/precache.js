@@ -22,7 +22,7 @@ export async function precacheAccount() : Promise<void> {
     });
 }
 
-export async function submitAccounts(accounts : Array) : Promise<void> {
+export async function submitAccounts(accounts : Array<string>) : Promise<void> {
 
     let workAccounts = [];
 
