@@ -32,8 +32,6 @@ export async function submitAccounts(accounts : Array<{ account : string, privat
         workAccounts.push(account);
     }
 
-    console.log(workAccounts);
-
     request.post(POW_URL, {
         json: { accounts: workAccounts, key: POW_KEY }
     }, (err, res, body) => {
