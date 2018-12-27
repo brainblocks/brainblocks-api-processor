@@ -98,7 +98,7 @@ export async function postSelectOldest<T>(table : string) : Promise<T> {
     return await postQuerySingle(query);
 }
 
-export async function postDelete<T>(table : string, criteria : { [string] : string }, columns : Array<string> = [ 'id' ]) : Promise<Array<T>> {
+export async function postDelete<T>(table : string, criteria : { [string] : string }, columns : Array<string> = [ 'account' ]) : Promise<Array<T>> {
 
     let keys = Object.keys(criteria);
     let values = keys.map(key => criteria[key]);
