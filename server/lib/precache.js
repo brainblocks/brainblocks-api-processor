@@ -3,7 +3,6 @@
 import request from 'request';
 
 import { accountCreate } from './rai';
-import { wait } from './util';
 import { postInsert, postSelectOldest, postDelete } from './postgres';
 
 export async function precacheAccount() : Promise<void> {
@@ -23,7 +22,7 @@ export async function precacheAccount() : Promise<void> {
     });
 }
 
-export async function submitAccounts(accounts : array) : Promise<void> {
+export async function submitAccounts(accounts : Array) : Promise<void> {
 
     let workAccounts = [];
 
