@@ -39,16 +39,22 @@ export let RAI_SERVER;
 if (process.env.NODE_ENV === 'development') {
     RAI_SERVER = 'http://127.0.0.1:7076';
 } else if (process.env.NODE_ENV === 'test') {
-    // RAI_SERVER = 'http://test.brainblocks.io:7076';
     RAI_SERVER = 'http://127.0.0.1:7070';
 } else {
-    // set to DigitalOcean Processing Node Private IP: 10.136.7.198
-    // RAI_SERVER = 'http://ssh.node2.brainblocks.io:7076';
+    // set to DigitalOcean Processing Node Private IP
     RAI_SERVER = 'http://[10.136.7.198]:7076';
+
+    // set to DigitalOcean Processing Node Public Address
+    // RAI_SERVER = 'http://ssh.node2.brainblocks.io:7076';
 }
 
 export const PAYPAL_CLIENT = '***REMOVED***';
 export const PAYPAL_SECRET = '***REMOVED***';
+
+// url for connecting to distributed proof of work server
+export const POW_URL = 'http://178.62.11.37:5000/work';
+// api key for interacting with distributed proof of work server
+export const POW_KEY = '8F17AFEB7851AA305091D436E2046025';
 
 export const REPRESENTATIVE = 'xrb_1brainb3zz81wmhxndsbrjb94hx3fhr1fyydmg6iresyk76f3k7y7jiazoji';
 

@@ -10,6 +10,7 @@
     "clean:dev": "NODE_ENV=development node ./clean.js",
     "recover": "node ./recover.js",
     "recover:dev": "NODE_ENV=development node ./recover.js",
+    "populate-precache": "node ./populate_precache.js",
     "db-setup": "./scripts/db-setup.sh $1",
     "test": "npm run lint && npm run flow-typed && npm run flow && npm run jest",
     "flow-typed": "flow-typed install",

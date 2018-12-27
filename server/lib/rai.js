@@ -45,7 +45,7 @@ export async function raiAction<R : Object>(action : string, args : Object = {})
         if (!res.statusCode) {
             throw new Error(`Expected status code from rai node`);
         }
-        
+
     } catch (err) {
         await wait(8000);
 
@@ -65,7 +65,7 @@ export async function raiAction<R : Object>(action : string, args : Object = {})
     if (res.statusCode !== 200) {
         throw new Error(`Expected status to be 200, got ${ res.statusCode } for action: ${ action }`);
     }
-    
+
     let data = JSON.parse(res.body);
 
     if (data.error) {
@@ -108,14 +108,14 @@ export async function rawToRai(raw : BigInt) : Promise<number> {
 }
 
 export async function accountHistory(account : string) : Promise<Array<{ hash : string, type : string, amount : BigInt, account : string }>> {
-    
+
     let response = await raiAction('account_history', {
         account,
         count:   '100'
     });
 
     let history = response.history || [];
-    
+
     return history.map(({ hash, type, amount, account: historyAccount }) => {
         return {
             hash,
@@ -232,7 +232,7 @@ export async function blockCreateReceive({ key, account, source, amount } : { ke
         key,
         account
     });
-    
+
     const { type, account: blockAccount, previous: blockPrevious,
         representative, balance: blockBalance, link, link_as_account, signature, work } = JSON.parse(serializedBlock);
 
@@ -264,7 +264,7 @@ export let accountCreate = buffer(async () : Promise<{ account : string, private
 
 export async function getBalance(account : string) :
     Promise<{ balance : BigInt, pending : BigInt, total : BigInt }> {
-    
+
     let { balance, pending } = await raiAction('account_balance', { account });
 
     return {
@@ -286,11 +286,11 @@ export async function getPending(account : string) : Promise<Array<string>> {
 
 export async function blockInfo(block : string) :
     Promise<{ amount : BigInt, block_account : string, contents : Block }> {
-    
+
     let res = await raiAction('blocks_info', {
         hashes: [ block ]
     });
-    
+
     let { amount, contents: serializedContents, block_account } = res.blocks[block];
     let { type, account, previous, representative, balance, source, link_as_account, signature, work, link } = JSON.parse(serializedContents);
 
@@ -339,7 +339,7 @@ export async function receive(key : string, sendBlock : string) : Promise<void> 
         blockInfo(sendBlock),
         keyToAccount(key)
     ]);
-    
+
     let { block: receiveBlock } = await blockCreateReceive({
         key,
         account,
@@ -483,7 +483,7 @@ export async function getLatestSendBlock(account : string) : Promise<string | vo
 }
 
 export async function getLatestTransaction(account : string) : Promise<{ send_block : string, sender : string }> {
-    
+
     let send_block = await getLatestSendBlock(account);
 
     if (!send_block) {
@@ -540,13 +540,13 @@ export async function waitForBalanceViaCallback({ account, amount, timeout = 120
             run(async () => {
                 if (data.block.link_as_account === account) {
                     let block = await blockInfo(data.hash);
-    
+
                     if (block.contents.link_as_account !== account) {
                         throw new Error(`Callback account does not match`);
                     }
-    
+
                     let { balance, pending, total } = await getBalance(account);
-    
+
                     if (balance.add(pending).greaterOrEquals(amount)) {
                         clearTimeout(timeoutHandle);
                         listener.cancel();
@@ -569,7 +569,7 @@ export async function waitForBalanceViaPoll({ account, amount, timeout = 120000,
     onCancel(() => {
         cancelled = true;
     });
-    
+
     while (true) { // eslint-disable-line no-constant-condition
         let { balance, pending, total } = await getBalance(account);
 

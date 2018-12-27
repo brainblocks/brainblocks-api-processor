@@ -13,7 +13,8 @@ import YAML from 'yamljs';
 import { min } from 'big-integer';
 
 import { SECRET, PAYPAL_CLIENT, PAYPAL_SECRET } from './config';
-import { waitForBalance, accountCreate, getTotalReceived, getLatestTransaction, accountHistory, isAccountValid, nodeEvent, rawToRai } from './lib/rai';
+import { waitForBalance, getTotalReceived, getLatestTransaction, accountHistory, isAccountValid, nodeEvent, rawToRai } from './lib/rai';
+import { getAccount } from './lib/precache';
 import { handler, ValidationError } from './lib/util';
 import { currencyToRaw } from './lib/rateService';
 import { TRANSACTION_STATUS, CURRENCY } from './constants';
@@ -75,7 +76,7 @@ app.post('/api/session', handler(async (req : express$Request) => {
         throw new ValidationError(`Destination account is invalid`);
     }
 
-    let { account, privateKey, publicKey } = await accountCreate();
+    let { account, privateKey, publicKey } = await getAccount();
 
     let id = await createTransaction({ status: TRANSACTION_STATUS.CREATED, destination, amount, amount_raw, account, currency, privateKey, publicKey });
     let token = base64.encode(jwt.sign({ type: 'nano', id }, SECRET, { expiresIn: '1h' })).replace(/=/g, ''); // eslint-disable-line no-div-regex
@@ -212,15 +213,15 @@ app.get('/api/session/:token/verify', handler(async (req : express$Request) => {
                 'Authorization': `Basic ${ Buffer.from(`${ PAYPAL_CLIENT }:${ PAYPAL_SECRET }`).toString('base64') }`
             })
         })).json();
-    
+
         if (getPayment.transactions[0].amount.total !== amount) {
             throw new Error(`Amount does not match paypal token`);
         }
-    
+
         if (getPayment.transactions[0].amount.currency !== currency.toUpperCase()) {
             throw new Error(`Currency does not match paypal token`);
         }
-    
+
         if (getPayment.transactions[0].payee.email !== email) {
             throw new Error(`Payee does not match paypal payee`);
         }
@@ -246,7 +247,7 @@ app.get('/api/session/:token/verify', handler(async (req : express$Request) => {
         if (currency === CURRENCY.NANO) {
             currency = 'rai';
         }
-    
+
         let response : Object = {
             type,
             token,
@@ -257,12 +258,12 @@ app.get('/api/session/:token/verify', handler(async (req : express$Request) => {
             received_rai: await rawToRai(received_raw),
             fulfilled
         };
-    
+
         if (fulfilled) {
             let { send_block, sender } = await getLatestTransaction(account);
             Object.assign(response, { send_block, sender });
         }
-    
+
         return response;
     } else {
         throw new Error(`Unrecognized type: ${ type }`);

@@ -60,7 +60,7 @@ export async function postInsert<T>(table : string, data : { [string] : string |
             VALUES (${ keys.map((val, i) => `$${ (i + 1).toString() }`).join(', ') })
             RETURNING id;
     `;
-    
+
     return await postQuerySingle(query, values);
 }
 
@@ -79,7 +79,6 @@ export async function postSelect<T>(table : string, criteria : { [string] : stri
 }
 
 export async function postSelectOne<T>(table : string, criteria : { [string] : string }, columns : Array<string> = [ 'id' ]) : Promise<T> {
-    
     let rows = await postSelect(table, criteria, columns);
 
     if (rows.length > 1) {
@@ -88,14 +87,34 @@ export async function postSelectOne<T>(table : string, criteria : { [string] : s
 
     return rows[0];
 }
-    
+
+export async function postSelectOldest<T>(table : string) : Promise<T> {
+    let query = `
+        SELECT *
+          FROM ${ table }
+            ORDER BY created LIMIT 1;
+    `;
+
+    return await postQuerySingle(query);
+}
+
+export async function postGetPrecacheCount<T>(table : string) : Promise<T> {
+    let query = `SELECT COUNT(*) FROM ${ table };`;
+
+    return await postQuerySingle(query);
+}
+
+export async function postDeleteAccount<T>(table : string, account : string) : Promise<Array<T>> {
+    let query = `DELETE FROM ${ table } WHERE account='${ account }';`;
+
+    return await postQuery(query);
+}
 
 export async function postSelectID<T>(table : string, id : string, columns : Array<string> = [ 'id' ]) : Promise<T> {
     return await postSelectOne(table, { id }, columns);
 }
 
 export async function postUpdateWhere<T>(table : string, criteria : { [string] : string }, data : { [string] : string }) : Promise<T> {
-    
     let keys = Object.keys(data);
     let values = keys.map(key => data[key]);
 
