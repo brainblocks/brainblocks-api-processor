@@ -5,7 +5,7 @@ import request from 'request';
 import { POW_URL, POW_KEY } from '../config';
 
 import { accountCreate } from './rai';
-import { postInsert, postSelectOldest, postDeleteAccount } from './postgres';
+import { postInsert, postSelectOldest, postDeleteAccount, postGetPrecacheCount } from './postgres';
 
 export async function precacheAccount() : Promise<void> {
     // Generate New Account
@@ -41,28 +41,37 @@ export async function submitAccounts(accounts : Array<{ account : string, privat
             console.error(err);
             return err;
         }
+        console.log(body);
         return body;
     });
 }
 
 export async function getAccount() : Promise<{ account : string, privateKey : string, publicKey : string }> {
-    // pull oldest account from precache database
-    let { account, private: privateKey, public: publicKey } = await postSelectOldest('precache');
+    // get number of rows in precache database
+    let { count } = await postGetPrecacheCount('precache');
 
-    if (!account) {
+    console.log('precache queue:', count);
+
+    if (count >= 1) {
+        // pull oldest account from precache database
+        let { account, private: privateKey, public: publicKey } = await postSelectOldest('precache');
+
+        // delete account from precache
+        await postDeleteAccount('precache', account);
+
+        // generate and submit new precache account
+        await precacheAccount();
+
+        // return precache account
+        return { account, privateKey, publicKey };
+    } else {
         // generate and submit new precache account
         await precacheAccount();
 
         // return on-demand account
-        return await accountCreate();
+        let { account,  privateKey, publicKey } = await accountCreate();
+
+        // return precache account
+        return { account, privateKey, publicKey };
     }
-
-    // delete account from precache
-    await postDeleteAccount('precache', account);
-
-    // generate and submit new precache account
-    await precacheAccount();
-
-    // return precache account
-    return { account, privateKey, publicKey };
 }

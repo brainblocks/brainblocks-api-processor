@@ -98,6 +98,12 @@ export async function postSelectOldest<T>(table : string) : Promise<T> {
     return await postQuerySingle(query);
 }
 
+export async function postGetPrecacheCount<T>(table : string) : Promise<T> {
+    let query = `SELECT COUNT(*) FROM ${ table };`;
+
+    return await postQuerySingle(query);
+}
+
 export async function postDeleteAccount<T>(table : string, account : string) : Promise<Array<T>> {
     let query = `DELETE FROM ${ table } WHERE account='${ account }';`;
 

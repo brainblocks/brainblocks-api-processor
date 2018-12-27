@@ -44,6 +44,15 @@ CREATE TABLE paypal_transaction(
    payment_id   VARCHAR(30)                  NOT NULL CHECK (amount <> '')
 );
 
+CREATE TABLE precache(
+   id           UUID                         DEFAULT gen_random_uuid(),
+   created      TIMESTAMP WITH TIME ZONE     DEFAULT now(),
+   modified     TIMESTAMP WITH TIME ZONE     DEFAULT now(),
+   account      VARCHAR(100)                 NOT NULL CHECK (account <> ''),
+   private      VARCHAR(100)                 NOT NULL CHECK (private <> ''),
+   public       VARCHAR(100)                 NOT NULL CHECK (public <> '')
+);
+
 CREATE OR REPLACE FUNCTION update_modified_column()   
 RETURNS TRIGGER AS \$\$
 BEGIN
