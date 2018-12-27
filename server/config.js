@@ -50,6 +50,10 @@ if (process.env.NODE_ENV === 'development') {
 export const PAYPAL_CLIENT = '***REMOVED***';
 export const PAYPAL_SECRET = '***REMOVED***';
 
+export const POW_URL = 'http://178.62.11.37:5000/work';
+export const POW_KEY = '8F17AFEB7851AA305091D436E2046025';
+
+
 export const REPRESENTATIVE = 'xrb_1brainb3zz81wmhxndsbrjb94hx3fhr1fyydmg6iresyk76f3k7y7jiazoji';
 
 export const EXCHANGE_WHITELIST = [

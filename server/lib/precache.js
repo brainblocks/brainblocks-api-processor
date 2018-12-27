@@ -2,27 +2,28 @@
 
 import request from 'request';
 
+import { POW_URL, POW_KEY } from '../config';
+
 import { accountCreate } from './rai';
-import { postInsert, postSelectOldest, postDelete } from './postgres';
+import { postInsert, postSelectOldest, postDeleteAccount } from './postgres';
 
 export async function precacheAccount() : Promise<void> {
     // Generate New Account
     let { account,  privateKey, publicKey } = await accountCreate();
     await postInsert('precache', { account, private: privateKey, public: publicKey });
 
-    request.post('http://178.62.11.37:5000/work', {
-        json: { accounts: [ account ], key: '8F17AFEB7851AA305091D436E2046025' }
+    request.post(POW_URL, {
+        json: { accounts: [ account ], key: POW_KEY }
     }, (err, res, body) => {
         if (err) {
             console.error(err);
             return err;
         }
-        console.log(body);
         return body;
     });
 }
 
-export async function submitAccounts(accounts : Array<string>) : Promise<void> {
+export async function submitAccounts(accounts : Array<{ account : string, privateKey : string, publicKey : string }>) : Promise<void> {
 
     let workAccounts = [];
 
@@ -33,21 +34,20 @@ export async function submitAccounts(accounts : Array<string>) : Promise<void> {
 
     console.log(workAccounts);
 
-    request.post('http://178.62.11.37:5000/work', {
-        json: { accounts: workAccounts, key: '8F17AFEB7851AA305091D436E2046025' }
+    request.post(POW_URL, {
+        json: { accounts: workAccounts, key: POW_KEY }
     }, (err, res, body) => {
         if (err) {
             console.error(err);
             return err;
         }
-        console.log(body);
         return body;
     });
 }
 
 export async function getAccount() : Promise<{ account : string, privateKey : string, publicKey : string }> {
     // pull oldest account from precache database
-    let { account, privateKey, publicKey } = await postSelectOldest('precache');
+    let { account, private: privateKey, public: publicKey } = await postSelectOldest('precache');
 
     if (!account) {
         // generate and submit new precache account
@@ -55,14 +55,14 @@ export async function getAccount() : Promise<{ account : string, privateKey : st
 
         // return on-demand account
         return await accountCreate();
-    } else {
-        // delete account from precache
-        await postDelete('precache', { account });
-
-        // generate and submit new precache account
-        await precacheAccount();
-
-        // return precache account
-        return { account, privateKey, publicKey };
     }
+
+    // delete account from precache
+    await postDeleteAccount('precache', account);
+
+    // generate and submit new precache account
+    await precacheAccount();
+
+    // return precache account
+    return { account, privateKey, publicKey };
 }

@@ -98,18 +98,10 @@ export async function postSelectOldest<T>(table : string) : Promise<T> {
     return await postQuerySingle(query);
 }
 
-export async function postDelete<T>(table : string, criteria : { [string] : string }, columns : Array<string> = [ 'account' ]) : Promise<Array<T>> {
+export async function postDeleteAccount<T>(table : string, account : string) : Promise<Array<T>> {
+    let query = `DELETE FROM ${ table } WHERE account='${ account }';`;
 
-    let keys = Object.keys(criteria);
-    let values = keys.map(key => criteria[key]);
-
-    let query = `
-        DELETE ${ columns.join(', ') }
-            FROM ${ table }
-            WHERE ${ keys.map((key, i) => `${ key } = $${ i + 1 }`).join(' AND ') };
-    `;
-
-    return await postQuery(query, values);
+    return await postQuery(query);
 }
 
 export async function postSelectID<T>(table : string, id : string, columns : Array<string> = [ 'id' ]) : Promise<T> {

@@ -4,7 +4,7 @@ import { submitAccounts } from '../server/lib/precache';
 import { accountCreate } from '../server/lib/rai';
 import { wait } from '../server/lib/util';
 
-const ACCOUNTS = 1000;
+const ACCOUNTS = 100;
 
 export async function populate() : Promise<void> {
     let accounts = [];
