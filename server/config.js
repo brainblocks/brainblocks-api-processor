@@ -20,9 +20,9 @@ if (process.env.NODE_ENV === 'development') {
     };
 } else if (process.env.NODE_ENV === 'test') {
     DATABASE = {
-        HOST:     '127.0.0.1',
+        HOST:     process.env.DB_HOST || '127.0.0.1',
         NAME:     'brainblocks-test',
-        USER:     process.env.CI ? 'circleci' : '',
+        USER:     process.env.CI ? 'root' : '',
         PASSWORD: ''
     };
 } else {
