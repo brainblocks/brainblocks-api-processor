@@ -69,4 +69,4 @@ CREATE TRIGGER paypal_transaction_modtime
     BEFORE UPDATE ON transaction
     FOR EACH ROW EXECUTE PROCEDURE update_modified_column();
 
-" | psql -h localhost "$db";
+" | psql -h postgres "$db";
