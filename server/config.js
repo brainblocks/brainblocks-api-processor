@@ -41,11 +41,8 @@ if (process.env.NODE_ENV === 'development') {
 } else if (process.env.NODE_ENV === 'test') {
     RAI_SERVER = 'http://127.0.0.1:7070';
 } else {
-    // set to DigitalOcean Processing Node Private IP
-    RAI_SERVER = 'http://[10.136.7.198]:7076';
-
-    // set to DigitalOcean Processing Node Public Address
-    // RAI_SERVER = 'http://ssh.node2.brainblocks.io:7076';
+    // Prod Processing Node Address
+    RAI_SERVER = 'http://ssh.node2.brainblocks.io:7076';
 }
 
 export const PAYPAL_CLIENT = '***REMOVED***';
