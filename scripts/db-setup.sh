@@ -4,6 +4,7 @@ set -e
 
 test_db="brainblocks-test";
 db="${1-brainblocks}";
+host="$2" || "localhost";
 
 if [[ "$db" != $test_db ]]; then
     read -p "This will delete the $db database. Press enter to continue"
@@ -11,8 +12,8 @@ if [[ "$db" != $test_db ]]; then
     read -p "THIS WILL DELETE THE $db DATABASE. LAST CHANCE. Press enter to continue"
 fi
 
-dropdb -h localhost "$db" || echo "$db database does not exist"
-createdb -h localhost "$db"
+dropdb -h $host "$db" || echo "$db database does not exist on $host"
+createdb -h $host "$db"
 
 echo "
 
@@ -69,4 +70,4 @@ CREATE TRIGGER paypal_transaction_modtime
     BEFORE UPDATE ON transaction
     FOR EACH ROW EXECUTE PROCEDURE update_modified_column();
 
-" | psql -h localhost "$db";
+" | psql -h $host "$db";

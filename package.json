@@ -11,13 +11,14 @@
     "recover": "node ./recover.js",
     "recover:dev": "NODE_ENV=development node ./recover.js",
     "populate-precache": "node ./populate_precache.js",
-    "db-setup": "./scripts/db-setup.sh $1",
+    "db-setup": "./scripts/db-setup.sh $1 $2",
     "test": "npm run lint && npm run flow-typed && npm run flow && npm run jest",
     "flow-typed": "flow-typed install",
     "flow": "flow",
     "lint": "eslint server/ test/ *.js",
     "checkdb": "NODE_ENV=test babel-node ./testdb.js",
-    "jest": "npm run db-setup brainblocks-test && jest test --env=node --no-cache --coverage --verbose --runInBand --silent"
+    "jest": "npm run db-setup brainblocks-test postgres && jest test --env=node --no-cache --coverage --verbose --runInBand --silent",
+    "jest-local": "npm run db-setup brainblocks-test localhost && jest test --env=node --no-cache --coverage --verbose --runInBand --silent"
   },
   "author": "",
   "license": "ISC",
