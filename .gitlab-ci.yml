@@ -54,5 +54,6 @@ test:
 
 deploy:
   stage: deploy
+  when: manual
   script:
     - ssh brainblocks@ssh.node1.brainblocks.io "cd /home/brainblocks/brainblocks && git stash && git pull https://git.brainblocks.io/brainblocks/brainblocks-site.git && npm install && pm2 restart brainblocks && pm2 restart clean"
