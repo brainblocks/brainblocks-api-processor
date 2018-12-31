@@ -4,7 +4,7 @@ set -e
 
 test_db="brainblocks-test";
 db="${1-brainblocks}";
-host="$2" || "localhost";
+host= $2 || "localhost";
 
 if [[ "$db" != $test_db ]]; then
     read -p "This will delete the $db database. Press enter to continue"
