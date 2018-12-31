@@ -10,23 +10,23 @@ before_script:
 
   # Add the SSH key stored in SSH_PRIVATE_KEY variable to the agent store
   - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add - > /dev/null
-  
+
   # Create the SSH directory and give it the right permissions
   - mkdir -p ~/.ssh
   - chmod 700 ~/.ssh
-  
-  # Use ssh-keyscan to scan the keys of your private server. 
+
+  # Use ssh-keyscan to scan the keys of your private server.
   - ssh-keyscan ssh.node1.brainblocks.io >> ~/.ssh/known_hosts
   - ssh-keyscan git.brainblocks.io >> ~/.ssh/known_hosts
   - chmod 644 ~/.ssh/known_hosts
 
 services:
   - postgres:latest
- 
+
 variables:
   POSTGRES_DB: circle_test
   POSTGRES_USER: circleci
-  
+
 stages:
   - test
   - deploy
@@ -39,8 +39,8 @@ test:
   stage: test
   script:
     - curl -L -o google-chrome.deb https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
-    - sudo dpkg -i google-chrome.deb
-    - sudo sed -i 's|HERE/chrome\"|HERE/chrome\" --disable-setuid-sandbox|g' /opt/google/chrome/google-chrome
+    - dpkg -i google-chrome.deb
+    - sed -i 's|HERE/chrome\"|HERE/chrome\" --disable-setuid-sandbox|g' /opt/google/chrome/google-chrome
     - rm google-chrome.deb
     #- apt update
     #- apt-get install -yq postgresql postgresql-client
