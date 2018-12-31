@@ -22,6 +22,10 @@ before_script:
 
 services:
   - postgres:latest
+ 
+variables:
+  POSTGRES_DB: circle_test
+  POSTGRES_USER: circleci
   
 stages:
   - test
@@ -33,9 +37,6 @@ cache:
 
 test:
   stage: test
-  variables:
-    POSTGRES_USER: circleci
-    POSTGRES_DB: circle_test
   script:
     - apt update
     - apt-get install -yq postgresql postgresql-client
