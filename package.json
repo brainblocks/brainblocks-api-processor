@@ -17,7 +17,7 @@
     "flow": "flow",
     "lint": "eslint server/ test/ *.js",
     "checkdb": "NODE_ENV=test babel-node ./testdb.js",
-    "jest": "npm run db-setup brainblocks-test postgres && DB_HOST=postgres jest test --env=node --no-cache --coverage --verbose --runInBand --silent",
+    "jest": "npm run db-setup brainblocks-test postgres && DB_HOST=postgres DB_PORT=5432 jest test --env=node --no-cache --coverage --verbose --runInBand --silent",
     "jest-local": "npm run db-setup brainblocks-test localhost && jest test --env=node --no-cache --coverage --verbose --runInBand --silent"
   },
   "author": "",

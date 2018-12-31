@@ -1,6 +1,6 @@
 /* @flow */
 
-export const PORT = 8000;
+export const PORT = process.env.DB_PORT || 8000;
 export const DB_HOST = process.env.DB_HOST || '127.0.0.1';
 export const URL = `http://${ DB_HOST }:${ PORT }`;
 
