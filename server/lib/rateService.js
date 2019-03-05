@@ -5,6 +5,7 @@ import { CURRENCY } from '../constants';
 
 import { request } from './util';
 import { raiToRaw } from './rai';
+import { postUpdateID, postSelectID, postQuery } from './postgres';
 
 const CRYPTOCOMPARE_PRICE_URL = `https://min-api.cryptocompare.com/data/price`;
 const BITCOIN_RATES_URL = 'https://bitpay.com/api/rates';
@@ -20,39 +21,44 @@ export async function currencyToRaw(currency : $Values<typeof CURRENCY>, amount 
 
     // amount in dollars of currency
     const floatAmont = parseFloat(amount);
-    currency = currency.toUpperCase();
+    const id = currency.toLowerCase();
 
-    const bitcoinPerNano = await request({ method: 'get', uri: `${ CRYPTOCOMPARE_PRICE_URL }?fsym=${ NANO.toUpperCase() }&tsyms=${ BTC.toUpperCase() }` });
-    const allDollarsPerBitcoin = await request({ method: 'get', uri: `${ BITCOIN_RATES_URL }` });
+    let { price } = await postSelectID('pos_currencies', id, [ 'price' ]);
 
-    let currencyDollarsPerBitcoin = allDollarsPerBitcoin.filter(
-        rate => {
-            return rate.code === currency;
-        })[0];
-
-    if (currencyDollarsPerBitcoin.rate !== undefined) {
-        currencyDollarsPerBitcoin = currencyDollarsPerBitcoin.rate;
-    } else {
-        throw new Error(`Could not find bitcoin rate for currency: ${ currency }`);
-    }
-
-    const bitcoinsForAmountOfCurrency = (floatAmont * 1000000) / parseFloat(currencyDollarsPerBitcoin);
-    const nanoForBitcoins = bitcoinsForAmountOfCurrency / bitcoinPerNano.BTC;
-
-    const rounded = 1000 * parseInt(Math.floor(nanoForBitcoins / 1000), 10);
+    const rate = (floatAmont * 1000000) / parseFloat(price);
+    const rounded = 1000 * parseInt(Math.floor(rate / 1000), 10);
     
     return await raiToRaw(rounded);
 }
 
-export async function getPrices() : Promise<Array<{ id : string, price : number }>> {
+export async function pullRates() : Promise<Array<{ id : string, price : number, timestamp : number }>> {
+    return await postQuery(`SELECT * FROM pos_currencies;`);
+}
+
+export async function getRates() : Promise<Array<{ id : string, price : string, timestamp : string }>> {
     const bitcoinPerNano = await request({ method: 'get', uri: `${ CRYPTOCOMPARE_PRICE_URL }?fsym=${ NANO.toUpperCase() }&tsyms=${ BTC.toUpperCase() }` });
     const allDollarsPerBitcoin = await request({ method: 'get', uri: `${ BITCOIN_RATES_URL }` });
     const prices = [];
 
+    // get current time
+    const date = new Date();
+    const currentTime = date.getTime();
+
     allDollarsPerBitcoin.forEach(item => {
         const newPrice = (item.rate * bitcoinPerNano.BTC);
-        prices.push({ 'id': item.code, 'price': newPrice });
+        prices.push({ 'id': item.code.toLowerCase(), 'price': newPrice.toString(), 'timestamp': currentTime.toString() });
     });
     
     return prices;
+}
+
+export async function updateRates() : Promise<string> {
+
+    const rates = await getRates();
+
+    for (let { id, price, timestamp } of rates) {
+        await postUpdateID('pos_currencies', id, { price, timestamp });
+    }
+
+    return 'success';
 }
