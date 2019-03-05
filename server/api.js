@@ -16,7 +16,7 @@ import { SECRET, PAYPAL_CLIENT, PAYPAL_SECRET } from './config';
 import { waitForBalance, getTotalReceived, getLatestTransaction, accountHistory, isAccountValid, nodeEvent, rawToRai } from './lib/rai';
 import { getAccount } from './lib/precache';
 import { handler, ValidationError } from './lib/util';
-import { currencyToRaw, getPrices } from './lib/rateService';
+import { currencyToRaw, pullRates } from './lib/rateService';
 import { TRANSACTION_STATUS, CURRENCY } from './constants';
 import { createTransaction, createPayPalTransaction, getTransaction, getPayPalTransaction,
     setTransactionStatus, recoverAndRefundTransaction, recoverAndProcessTransaction, setPayPalTransactionStatus } from './transaction';
@@ -292,17 +292,13 @@ app.get('/api/exchange/:currency/:amount/rai', handler(async (req : express$Requ
     };
 }));
 
-app.get('/api/exchange/prices', handler(async () => {
+app.get('/api/exchange/rates', handler(async () => {
 
-    const prices = await getPrices();
-
-    const date = new Date();
-    const currentTime = date.getTime();
+    const prices = await pullRates();
 
     return {
-        status:     'success',
-        timestamp:  currentTime,
-        price:      prices
+        status: 'success',
+        rates:  prices
     };
 }));
 
