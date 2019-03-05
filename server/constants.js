@@ -189,6 +189,7 @@ export const CURRENCY = {
     UYU:  'uyu',
     UZS:  'uzs',
     VEF:  'vef',
+    VES:  'ves',
     VND:  'vnd',
     VUV:  'vuv',
     WST:  'wst',
