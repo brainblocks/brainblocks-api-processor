@@ -5,7 +5,7 @@ import { CURRENCY } from '../constants';
 
 import { request } from './util';
 import { raiToRaw } from './rai';
-import { postUpdateID, postSelectID, postQuery } from './postgres';
+import { postUpdateID, postSelectID, postQuery, postInsert } from './postgres';
 
 const CRYPTOCOMPARE_PRICE_URL = `https://min-api.cryptocompare.com/data/price`;
 const BITCOIN_RATES_URL = 'https://bitpay.com/api/rates';
@@ -46,18 +46,33 @@ export async function getRates() : Promise<Array<{ id : string, price : string, 
 
     allDollarsPerBitcoin.forEach(item => {
         const newPrice = (item.rate * bitcoinPerNano.BTC);
+        item.code.toUpperCase();
         prices.push({ 'id': item.code.toLowerCase(), 'price': newPrice.toString(), 'timestamp': currentTime.toString() });
     });
+
     
     return prices;
+}
+
+async function checkRateArray(id, arr) : Promise<boolean> {
+    await arr.some(item => {
+        return item.id === id;
+    });
+
+    return false;
 }
 
 export async function updateRates() : Promise<string> {
 
     const rates = await getRates();
+    const savedRates = await pullRates();
 
     for (let { id, price, timestamp } of rates) {
-        await postUpdateID('pos_currencies', id, { price, timestamp });
+        if (checkRateArray(id, savedRates)) {
+            await postUpdateID('pos_currencies', id, { price, timestamp });
+        } else {
+            await postInsert('pos_currencies', { id, price, timestamp });
+        }
     }
 
     return 'success';
