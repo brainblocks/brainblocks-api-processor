@@ -54,14 +54,16 @@ export async function getRates() : Promise<Array<{ id : string, price : string, 
     return prices;
 }
 
-export function checkRateArray(item, arr) : Promise<boolean>  {
+export function checkRateArray(item: string, arr: Array<{ id : string, price : string, timestamp : string }>) : Promise<boolean>  {
+    let found = false;
+    
     for (let object of arr) {
         if (object.id === item) {
-            return true;
+            found = true;
         }
     }
 
-    return false;
+    return found;
 }
 
 export async function updateRates() : Promise<string> {
