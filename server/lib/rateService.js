@@ -54,10 +54,12 @@ export async function getRates() : Promise<Array<{ id : string, price : string, 
     return prices;
 }
 
-async function checkRateArray(id, arr) : Promise<boolean> {
-    await arr.some(item => {
-        return item.id === id;
-    });
+async function checkRateArray(item, arr) : Promise<boolean>  {
+    for (let object of arr) {
+        if (object.id == item) {
+            return true; 
+        }
+    }
 
     return false;
 }
