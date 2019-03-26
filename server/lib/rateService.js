@@ -56,8 +56,8 @@ export async function getRates() : Promise<Array<{ id : string, price : string, 
 
 async function checkRateArray(item, arr) : Promise<boolean>  {
     for (let object of arr) {
-        if (object.id == item) {
-            return true; 
+        if (object.id === item) {
+            return true;
         }
     }
 
@@ -70,7 +70,7 @@ export async function updateRates() : Promise<string> {
     const savedRates = await pullRates();
 
     for (let { id, price, timestamp } of rates) {
-        if (checkRateArray(id, savedRates)) {
+        if (await checkRateArray(id, savedRates)) {
             await postUpdateID('pos_currencies', id, { price, timestamp });
         } else {
             await postInsert('pos_currencies', { id, price, timestamp });
