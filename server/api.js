@@ -19,7 +19,7 @@ import { handler, ValidationError } from './lib/util';
 import { currencyToRaw, pullRates } from './lib/rateService';
 import { TRANSACTION_STATUS, CURRENCY } from './constants';
 import { createTransaction, createPayPalTransaction, getTransaction, getPayPalTransaction,
-    setTransactionStatus, recoverAndRefundTransaction, recoverAndProcessTransaction, setPayPalTransactionStatus } from './transaction';
+    setTransactionStatus, recoverAndRefundTransaction, recoverAndProcessTransaction, setPayPalTransactionStatus, processTransaction, forceProcessTransaction, checkExchanges } from './transaction';
 
 const ROOT_DIR = join(__dirname, '..');
 const swaggerDocument = YAML.load(join(ROOT_DIR, 'server/swagger.yaml'));
@@ -120,6 +120,15 @@ app.post('/api/session/:token/transfer', handler(async (req : express$Request, r
     }
 
     await setTransactionStatus(id, TRANSACTION_STATUS.PENDING);
+
+    if (await checkExchanges(id)) {
+        await forceProcessTransaction(id);
+    }
+
+    if (status === TRANSACTION_STATUS.PENDING) {
+        await processTransaction(id);
+    }
+
     return { token, status: 'success' };
 }));
 
