@@ -4,7 +4,7 @@ export const PORT = 8000;
 export const URL = `http://127.0.0.1:${ PORT }`;
 
 export const NANO_PORT = 7076;
-export const NANO_SERVER = `http://test.brainblocks.io:${ NANO_PORT }`;
+export const NANO_SERVER = `http://127.0.0.1:${ NANO_PORT }`;
 
 export const SERVER_PORT = 8000;
 export const SECRET = '***REMOVED***';
@@ -69,6 +69,5 @@ export const EXCHANGE_WHITELIST = [
     'xrb_3azhmyaof9sdzboi8eghdw8fmmb5xke7zp6jcgu8p8ycasegpb1nookzenbs',
     'xrb_353wooh9ihduaj5auji6tgjt3n7iboh8uo1g7spkx3ome3xpxf7ctp8th4so',
     'xrb_1jorthzotgrsjs863m6srzx9ia8w8mue9xu8ath5izk7s6bdutgdczt73ft4',
-    'xrb_3x7cjioqahgs5ppheys6prpqtb4rdknked83chf97bot1unrbdkaux37t31b',
-    'xrb_1jnatu97dka1h49zudxtpxxrho3j591jwu5bzsn7h1kzn3gwit4kejak756y'
+    'xrb_3x7cjioqahgs5ppheys6prpqtb4rdknked83chf97bot1unrbdkaux37t31b'
 ];
