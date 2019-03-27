@@ -54,29 +54,18 @@ export async function getRates() : Promise<Array<{ id : string, price : string, 
     return prices;
 }
 
-export function checkRateArray(item : string, arr : Array<{ id : string, price : number, timestamp : number }>) : Promise<boolean> {
-    
-    let found : boolean = false;
-
-    for (let object of arr) {
-        if (object.id === item) {
-            found = true;
-        }
-    }
-    
-    return found;
-}
-
 export async function updateRates() : Promise<string> {
     const rates = await getRates();
     const savedRates = await pullRates();
 
     for (let { id, price, timestamp } of rates) {
-        if (await checkRateArray(id, savedRates)) {
-            await postUpdateID('pos_currencies', id, { price, timestamp });
-        } else {
-            await postInsert('pos_currencies', { id, price, timestamp });
-        }
+	    for (let object of savedRates) {
+	        if (object.id === id) {
+	            await postUpdateID('pos_currencies', id, { price, timestamp });
+	        } else {
+	        	await postInsert('pos_currencies', { id, price, timestamp });
+	        }
+	    }
     }
 
     return 'success';
