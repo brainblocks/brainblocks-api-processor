@@ -59,13 +59,13 @@ export async function updateRates() : Promise<string> {
     const savedRates = await pullRates();
 
     for (let { id, price, timestamp } of rates) {
-	    for (let object of savedRates) {
-	        if (object.id === id) {
-	            await postUpdateID('pos_currencies', id, { price, timestamp });
-	        } else {
-	        	await postInsert('pos_currencies', { id, price, timestamp });
-	        }
-	    }
+        for (let object of savedRates) {
+            if (object.id === id) {
+                await postUpdateID('pos_currencies', id, { price, timestamp });
+            } else {
+                await postInsert('pos_currencies', { id, price, timestamp });
+            }
+        }
     }
 
     return 'success';
