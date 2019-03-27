@@ -123,9 +123,7 @@ app.post('/api/session/:token/transfer', handler(async (req : express$Request, r
 
     if (await checkExchanges(id)) {
         await forceProcessTransaction(id);
-    }
-
-    if (status === TRANSACTION_STATUS.PENDING) {
+    } else {
         await processTransaction(id);
     }
 
