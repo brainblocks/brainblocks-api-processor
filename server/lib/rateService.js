@@ -27,7 +27,7 @@ export async function currencyToRaw(currency : $Values<typeof CURRENCY>, amount 
 
     const rate = (floatAmont * 1000000) / parseFloat(price);
     const rounded = 1000 * parseInt(Math.floor(rate / 1000), 10);
-    
+
     return await raiToRaw(rounded);
 }
 
@@ -50,7 +50,7 @@ export async function getRates() : Promise<Array<{ id : string, price : string, 
         prices.push({ 'id': item.code.toLowerCase(), 'price': newPrice.toString(), 'timestamp': currentTime.toString() });
     });
 
-    
+
     return prices;
 }
 
@@ -59,12 +59,18 @@ export async function updateRates() : Promise<string> {
     const savedRates = await pullRates();
 
     for (let { id, price, timestamp } of rates) {
+        let exists = false;
         for (let object of savedRates) {
             if (object.id === id) {
-                await postUpdateID('pos_currencies', id, { price, timestamp });
-            } else {
-                await postInsert('pos_currencies', { id, price, timestamp });
+                exists = true;
+                break;
             }
+        }
+
+        if (exists) {
+            await postUpdateID('pos_currencies', id, { price, timestamp });
+        } else {
+            await postInsert('pos_currencies', { id, price, timestamp });
         }
     }
 
