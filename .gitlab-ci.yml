@@ -1,5 +1,5 @@
 # node.js docker image
-image: node:latest
+image: node:8
 
 before_script:
   ## Install ssh-agent if not already installed, it is required by Docker.
