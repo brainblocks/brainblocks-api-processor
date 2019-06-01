@@ -45,7 +45,7 @@ test:
     # - dpkg -i google-chrome.deb
     # - sed -i 's|HERE/chrome\"|HERE/chrome\" --disable-setuid-sandbox|g' /opt/google/chrome/google-chrome
     # - rm google-chrome.deb
-    - npm install -g npm
+    # - npm install -g npm
     - npm ci
     - npm test
   artifacts:
