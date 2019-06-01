@@ -560,7 +560,7 @@ export async function waitForBalanceViaCallback({ account, amount, timeout = 120
     });
 }
 
-export async function waitForBalanceViaPoll({ account, amount, timeout = 120000, delay = 5000, onCancel = noop } : WaitForBalance) :
+export async function waitForBalanceViaPoll({ account, amount, timeout = 120000, delay = 500, onCancel = noop } : WaitForBalance) :
     Promise<{ balance : BigInt, pending : BigInt, total : BigInt }> {
 
     let start = Date.now();
@@ -593,7 +593,7 @@ export async function waitForBalanceViaPoll({ account, amount, timeout = 120000,
     return await getBalance(account);
 }
 
-export async function waitForBalance({ account, amount, timeout = 120000, delay = 5000, onCancel = noop } : WaitForBalance) :
+export async function waitForBalance({ account, amount, timeout = 120000, delay = 500, onCancel = noop } : WaitForBalance) :
     Promise<{ balance : BigInt, pending : BigInt, total : BigInt }> {
 
     if (nodeEventsActive) {
