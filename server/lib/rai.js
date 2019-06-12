@@ -257,6 +257,11 @@ export async function isAccountValid(account : string) : Promise<boolean> {
     return res.valid === '1';
 }
 
+export async function representativesOnline() : Promise<Array<string>> {
+    let { representatives } = await raiAction('representatives_online');
+    return representatives;
+}
+
 export let accountCreate = buffer(async () : Promise<{ account : string, privateKey : string, publicKey : string }> => {
     let { private: privateKey, public: publicKey, account } = await raiAction('key_create');
     return { account, privateKey, publicKey };
@@ -560,7 +565,7 @@ export async function waitForBalanceViaCallback({ account, amount, timeout = 120
     });
 }
 
-export async function waitForBalanceViaPoll({ account, amount, timeout = 120000, delay = 5000, onCancel = noop } : WaitForBalance) :
+export async function waitForBalanceViaPoll({ account, amount, timeout = 120000, delay = 500, onCancel = noop } : WaitForBalance) :
     Promise<{ balance : BigInt, pending : BigInt, total : BigInt }> {
 
     let start = Date.now();
@@ -593,7 +598,7 @@ export async function waitForBalanceViaPoll({ account, amount, timeout = 120000,
     return await getBalance(account);
 }
 
-export async function waitForBalance({ account, amount, timeout = 120000, delay = 5000, onCancel = noop } : WaitForBalance) :
+export async function waitForBalance({ account, amount, timeout = 120000, delay = 500, onCancel = noop } : WaitForBalance) :
     Promise<{ balance : BigInt, pending : BigInt, total : BigInt }> {
 
     if (nodeEventsActive) {

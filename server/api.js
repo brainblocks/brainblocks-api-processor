@@ -13,7 +13,7 @@ import YAML from 'yamljs';
 import { min } from 'big-integer';
 
 import { SECRET, PAYPAL_CLIENT, PAYPAL_SECRET } from './config';
-import { waitForBalance, getTotalReceived, getLatestTransaction, accountHistory, isAccountValid, nodeEvent, rawToRai } from './lib/rai';
+import { waitForBalance, getTotalReceived, getLatestTransaction, accountHistory, isAccountValid, nodeEvent, rawToRai, representativesOnline } from './lib/rai';
 import { getAccount } from './lib/precache';
 import { handler, ValidationError } from './lib/util';
 import { currencyToRaw, pullRates } from './lib/rateService';
@@ -335,6 +335,23 @@ app.get('/api/process/:account', handler(async (req : express$Request) => {
     return {
         status: 'success'
     };
+}));
+
+// provide node monitor endpoint for uptimerobot to alert us
+app.get('/api/nano/node/representatives/check/:rep', handler(async (req : express$Request) => {
+
+    let { rep } = req.params;
+    const representatives = await representativesOnline();
+
+    if (representatives.includes(rep)) {
+        return {
+            status: 'success'
+        };
+    } else {
+        return {
+            status: 'error'
+        };
+    }
 }));
 
 function mapCallbackData(data : mixed) : { hash : string, block : { link_as_account : string } } {

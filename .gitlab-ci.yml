@@ -1,5 +1,5 @@
 # node.js docker image
-image: node:latest
+image: node:8
 
 before_script:
   ## Install ssh-agent if not already installed, it is required by Docker.
@@ -45,8 +45,8 @@ test:
     # - dpkg -i google-chrome.deb
     # - sed -i 's|HERE/chrome\"|HERE/chrome\" --disable-setuid-sandbox|g' /opt/google/chrome/google-chrome
     # - rm google-chrome.deb
-    - npm install -g npm
-    - npm install
+    # - npm install -g npm
+    - npm ci
     - npm test
   artifacts:
     paths:

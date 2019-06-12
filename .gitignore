@@ -1,5 +1,4 @@
 node_modules
-package-lock.json
 .DS_Store
 static/js/brainblocks.js
 static/js/brainblocks.min.js
