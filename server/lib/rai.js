@@ -257,6 +257,11 @@ export async function isAccountValid(account : string) : Promise<boolean> {
     return res.valid === '1';
 }
 
+export async function representativesOnline() : Promise<Array<string>> {
+    let { representatives } = await raiAction('representatives_online');
+    return representatives;
+}
+
 export let accountCreate = buffer(async () : Promise<{ account : string, privateKey : string, publicKey : string }> => {
     let { private: privateKey, public: publicKey, account } = await raiAction('key_create');
     return { account, privateKey, publicKey };
