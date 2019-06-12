@@ -13,7 +13,7 @@ import YAML from 'yamljs';
 import { min } from 'big-integer';
 
 import { SECRET, PAYPAL_CLIENT, PAYPAL_SECRET } from './config';
-import { waitForBalance, getTotalReceived, getLatestTransaction, accountHistory, isAccountValid, nodeEvent, rawToRai } from './lib/rai';
+import { waitForBalance, getTotalReceived, getLatestTransaction, accountHistory, isAccountValid, nodeEvent, rawToRai, representativesOnline } from './lib/rai';
 import { getAccount } from './lib/precache';
 import { handler, ValidationError } from './lib/util';
 import { currencyToRaw, pullRates } from './lib/rateService';
@@ -335,6 +335,34 @@ app.get('/api/process/:account', handler(async (req : express$Request) => {
     return {
         status: 'success'
     };
+}));
+
+// provide list from nano node of all of the representatives online for other services to have something they can check against
+app.get('/api/nano/node/representatives-online', handler(async () => {
+
+    const representatives = await representativesOnline();
+
+    return {
+        status: 'success',
+        representatives
+    };
+}));
+
+
+// provide node monitor endpoint for uptimerobot to alert us
+app.get('/api/nano/node/bb-monitor', handler(async () => {
+
+    const representatives = await representativesOnline();
+
+    if ((representatives.includes('nano_1brainb3zz81wmhxndsbrjb94hx3fhr1fyydmg6iresyk76f3k7y7jiazoji') || representatives.includes('xrb_1brainb3zz81wmhxndsbrjb94hx3fhr1fyydmg6iresyk76f3k7y7jiazoji')) && (representatives.includes('nano_1mateo6t67q96ou911cbagcmrbx43ouxenc6873why7z8i1ys89r3xhtphyk') || representatives.includes('xrb_1mateo6t67q96ou911cbagcmrbx43ouxenc6873why7z8i1ys89r3xhtphyk')) && (representatives.includes('nano_3pczxuorp48td8645bs3m6c3xotxd3idskrenmi65rbrga5zmkemzhwkaznh') || representatives.includes('xrb_3pczxuorp48td8645bs3m6c3xotxd3idskrenmi65rbrga5zmkemzhwkaznh'))) {
+        return {
+            status: 'success'
+        };
+    } else {
+        return {
+            status: 'error'
+        };
+    }
 }));
 
 function mapCallbackData(data : mixed) : { hash : string, block : { link_as_account : string } } {
