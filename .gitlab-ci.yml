@@ -17,6 +17,7 @@ before_script:
 
   # Use ssh-keyscan to scan the keys of your private server.
   - ssh-keyscan ssh.node1.brainblocks.io >> ~/.ssh/known_hosts
+  - ssh-keyscan ssh.node3.brainblocks.io >> ~/.ssh/known_hosts
   - ssh-keyscan git.brainblocks.io >> ~/.ssh/known_hosts
   - chmod 644 ~/.ssh/known_hosts
 
