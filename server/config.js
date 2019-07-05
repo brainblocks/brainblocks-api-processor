@@ -29,9 +29,7 @@ if (process.env.NODE_ENV === 'development') {
     };
 } else {
     DATABASE = {
-        // HOST:     'db.brainblocks.io',
-        HOST:     'database-cluster-do-user-3734781-0.db.ondigitalocean.com',
-        // HOST:     process.env.CI ? 'db.brainblocks.io' : 'database-cluster-do-user-3734781-0.db.ondigitalocean.com',
+        HOST:     'db.brainblocks.io',
         NAME:     'brainblocks',
         USER:     'brainblocks',
         PASSWORD: '***REMOVED***',
