@@ -16,21 +16,24 @@ if (process.env.NODE_ENV === 'development') {
         HOST:     '127.0.0.1',
         NAME:     'brainblocks',
         USER:     '',
-        PASSWORD: ''
+        PASSWORD: '',
+        PORT:     5432
     };
 } else if (process.env.NODE_ENV === 'test') {
     DATABASE = {
         HOST:     process.env.DB_HOST || '127.0.0.1',
         NAME:     'brainblocks-test',
         USER:     process.env.CI ? 'root' : '',
-        PASSWORD: ''
+        PASSWORD: '',
+        PORT:     5432
     };
 } else {
     DATABASE = {
         HOST:     'db.brainblocks.io',
         NAME:     'brainblocks',
         USER:     'brainblocks',
-        PASSWORD: '***REMOVED***'
+        PASSWORD: '***REMOVED***',
+        PORT:     25060
     };
 }
 

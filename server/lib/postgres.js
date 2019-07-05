@@ -15,6 +15,7 @@ function createPool() : Object {
         user:                    DATABASE.USER,
         database:                DATABASE.NAME,
         password:                DATABASE.PASSWORD,
+        port:                    DATABASE.PORT,
         max:                     20,
         idleTimeoutMillis:       30000,
         connectionTimeoutMillis: 2000
