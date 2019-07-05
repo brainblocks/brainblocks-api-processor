@@ -21,7 +21,7 @@ if (process.env.NODE_ENV === 'development') {
     };
 } else if (process.env.NODE_ENV === 'test') {
     DATABASE = {
-        HOST:     process.env.DB_HOST || '127.0.0.1',
+        HOST:     process.env.CI ? process.env.DB_HOST : '127.0.0.1',
         NAME:     'brainblocks-test',
         USER:     process.env.CI ? 'root' : '',
         PASSWORD: '',
@@ -29,7 +29,9 @@ if (process.env.NODE_ENV === 'development') {
     };
 } else {
     DATABASE = {
-        HOST:     'db.brainblocks.io',
+        // HOST:     'db.brainblocks.io',
+        HOST:     'database-cluster-do-user-3734781-0.db.ondigitalocean.com',
+        // HOST:     process.env.CI ? 'db.brainblocks.io' : 'database-cluster-do-user-3734781-0.db.ondigitalocean.com',
         NAME:     'brainblocks',
         USER:     'brainblocks',
         PASSWORD: '***REMOVED***',

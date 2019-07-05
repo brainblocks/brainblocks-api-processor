@@ -109,7 +109,7 @@ app.post('/api/session/:token/transfer', handler(async (req : express$Request, r
         timeout:  time,
         onCancel: (cancelHandler) => req.connection.on('close', cancelHandler)
     });
-
+    
     if (total.lesser(amount_raw)) {
         await setTransactionStatus(id, TRANSACTION_STATUS.EXPIRED);
         return {
