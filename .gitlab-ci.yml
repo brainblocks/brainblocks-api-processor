@@ -28,8 +28,8 @@ variables:
   POSTGRES_DB: brainblocks-test
   POSTGRES_USER: root
 
+#- test
 stages:
-  #- test
   - deploy
 
 cache:
