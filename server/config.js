@@ -31,7 +31,7 @@ if (process.env.NODE_ENV === 'development') {
     DATABASE = {
         HOST:     'db.brainblocks.io',
         NAME:     'brainblocks',
-        USER:     'brainblocks',
+        USER:     'bb-user',
         PASSWORD: '***REMOVED***',
         PORT:     25060
     };
