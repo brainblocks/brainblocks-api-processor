@@ -103,14 +103,14 @@ app.post('/api/session/:token/transfer', handler(async (req : express$Request, r
 
     await setTransactionStatus(id, TRANSACTION_STATUS.WAITING);
 
-    /*flow-disable*/
+    /* flow-disable */
     let { total } = await waitForBalance({
         account,
         amount:   amount_raw,
         timeout:  time,
         onCancel: (cancelHandler) => req.connection.on('close', cancelHandler)
     });
-    /*flow-enable*/
+    /* flow-enable */
     
     if (total.lesser(amount_raw)) {
         await setTransactionStatus(id, TRANSACTION_STATUS.EXPIRED);
