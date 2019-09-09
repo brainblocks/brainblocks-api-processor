@@ -5,6 +5,7 @@
 import { join } from 'path';
 
 import express from 'express';
+import WebSocket from 'ws';
 import jwt from 'jsonwebtoken';
 import base64 from 'base-64';
 import fetch, { Headers } from 'node-fetch';
@@ -12,17 +13,22 @@ import swaggerUi from 'swagger-ui-express';
 import YAML from 'yamljs';
 import { min } from 'big-integer';
 
-import { SECRET, PAYPAL_CLIENT, PAYPAL_SECRET } from './config';
+import { SECRET, PAYPAL_CLIENT, PAYPAL_SECRET, NANO_SERVER, NANO_WS } from './config';
 import { waitForBalance, getTotalReceived, getLatestTransaction, accountHistory, isAccountValid, nodeEvent, rawToRai, representativesOnline } from './lib/rai';
 import { getAccount } from './lib/precache';
 import { handler, ValidationError } from './lib/util';
 import { currencyToRaw, pullRates } from './lib/rateService';
 import { TRANSACTION_STATUS, CURRENCY } from './constants';
 import { createTransaction, createPayPalTransaction, getTransaction, getPayPalTransaction,
-    setTransactionStatus, recoverAndRefundTransaction, recoverAndProcessTransaction, setPayPalTransactionStatus } from './transaction';
+    setTransactionStatus, recoverAndRefundTransaction, recoverAndProcessTransaction, setPayPalTransactionStatus,
+    processTransaction, forceProcessTransaction, checkExchanges } from './transaction';
 
 const ROOT_DIR = join(__dirname, '..');
 const swaggerDocument = YAML.load(join(ROOT_DIR, 'server/swagger.yaml'));
+
+// websocket connection
+const socketConnection = `ws://${ NANO_SERVER }:${ NANO_WS }`;
+let nodeSocket = new WebSocket(socketConnection);
 
 export let app = express();
 
@@ -103,15 +109,14 @@ app.post('/api/session/:token/transfer', handler(async (req : express$Request, r
 
     await setTransactionStatus(id, TRANSACTION_STATUS.WAITING);
 
-    /* flow-disable */
     let { total } = await waitForBalance({
         account,
         amount:   amount_raw,
         timeout:  time,
+        // $FlowFixMe
         onCancel: (cancelHandler) => req.connection.on('close', cancelHandler)
     });
-    /* flow-enable */
-    
+
     if (total.lesser(amount_raw)) {
         await setTransactionStatus(id, TRANSACTION_STATUS.EXPIRED);
         return {
@@ -122,6 +127,12 @@ app.post('/api/session/:token/transfer', handler(async (req : express$Request, r
     }
 
     await setTransactionStatus(id, TRANSACTION_STATUS.PENDING);
+
+    if (await checkExchanges(id)) {
+        await forceProcessTransaction(id);
+    } else {
+        await processTransaction(id);
+    }
 
     return { token, status: 'success' };
 }));
@@ -369,18 +380,42 @@ function mapCallbackData(data : mixed) : { hash : string, block : { link_as_acco
         throw new Error(`Expected body.hash`);
     }
 
-    block = JSON.parse(block);
-
     return { hash, block };
 }
 
-app.all('/nano/callback', handler(async (req : express$Request) => {
+nodeSocket.on('open', () => {
+    console.log('Node Socket - connected');
+    let subscribe = JSON.stringify({ 'action': 'subscribe', 'topic': 'confirmation' });
+    nodeSocket.send(subscribe);
+});
 
-    let data = mapCallbackData(req.body);
+nodeSocket.on('close', () => {
+    console.log('Node Socket - disconnected');
+});
 
+nodeSocket.on('message', async message => {
+    let fullPacket = JSON.parse(message);
+    let fullMessage = fullPacket.message;
+    let fullBlock = fullMessage.block;
+
+    /* All block types
+      if (fullBlock.block.type === 'state') {
+          if (fullBlock.is_send === 'true' && fullBlock.block.link_as_account) {
+              destinations.push(fullBlock.block.link_as_account);
+          }
+          // push to destinations array
+          destinations.push(fullBlock.account);
+      } else {
+          // push to destinations array
+          destinations.push(fullBlock.block.destination);
+      }
+    */
+
+    /* For now, only sends where we are the recipient */
+    if (fullBlock.type !== 'state' || fullBlock.subtype !== 'send') {
+        return;
+    }
+
+    let data = await mapCallbackData(fullMessage);
     nodeEvent.publish(data);
-
-    return await {
-        status: 'success'
-    };
-}, { log: false }));
+});

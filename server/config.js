@@ -4,7 +4,9 @@ export const PORT = 8000;
 export const URL = `http://127.0.0.1:${ PORT }`;
 
 export const NANO_PORT = 7076;
-export const NANO_SERVER = `http://127.0.0.1:${ NANO_PORT }`;
+export const NANO_WS = 7078;
+export const NANO_SERVER = 'ssh.node2.brainblocks.io';
+export let NANO_RPC;
 
 export const SERVER_PORT = 8000;
 export const SECRET = '***REMOVED***';
@@ -37,24 +39,19 @@ if (process.env.NODE_ENV === 'development') {
     };
 }
 
-export let RAI_SERVER;
-
 if (process.env.NODE_ENV === 'development') {
-    RAI_SERVER = 'http://127.0.0.1:7076';
+    // Development Node RPC
+    NANO_RPC = `http://127.0.0.1:${ NANO_PORT }`;
 } else if (process.env.NODE_ENV === 'test') {
-    RAI_SERVER = 'http://127.0.0.1:7070';
+    // Test Node RPC
+    NANO_RPC = `http://127.0.0.1${ NANO_PORT }`;
 } else {
-    // Prod Processing Node Address
-    RAI_SERVER = 'http://ssh.node2.brainblocks.io:7076';
+    // Production Processing Node Address
+    NANO_RPC = `http://${ NANO_SERVER }:${ NANO_PORT }`;
 }
 
 export const PAYPAL_CLIENT = '***REMOVED***';
 export const PAYPAL_SECRET = '***REMOVED***';
-
-// url for connecting to distributed proof of work server
-export const POW_URL = 'http://178.62.11.37:5000/work';
-// api key for interacting with distributed proof of work server
-export const POW_KEY = '8F17AFEB7851AA305091D436E2046025';
 
 export const REPRESENTATIVE = 'nano_1brainb3zz81wmhxndsbrjb94hx3fhr1fyydmg6iresyk76f3k7y7jiazoji';
 

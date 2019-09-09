@@ -32,7 +32,7 @@ test('Should run a successful transaction in chrome', async () => {
         return window.brainblocks.Button.render({
             env:     'local',
             payment: {
-                destination: 'xrb_1brainb3zz81wmhxndsbrjb94hx3fhr1fyydmg6iresyk76f3k7y7jiazoji',
+                destination: 'nano_1brainb3zz81wmhxndsbrjb94hx3fhr1fyydmg6iresyk76f3k7y7jiazoji',
                 currency:    'rai',
                 amount:      '1'
             },
@@ -55,13 +55,13 @@ test('Should run a successful transaction in chrome', async () => {
     await renderPromise;
 
     await page.waitFor('iframe[name^=xcomponent__brainblocks_button]');
-    
+
     let frame = page.frames().find(f => f.name().match(/^xcomponent__brainblocks_button/));
 
     if (!frame) {
         throw new Error(`Can not find nano button frame`);
     }
-    
+
     await frame.waitFor('.brainblocks-button');
     await frame.click('.brainblocks-button');
 

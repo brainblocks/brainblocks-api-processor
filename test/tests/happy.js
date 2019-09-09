@@ -26,7 +26,7 @@ test('Should run a successful transaction', async () => {
             'content-type': 'application/x-www-form-urlencoded'
         },
         body:   qs.stringify({
-            destination: 'xrb_164xaa1ojy6qmq9e8t94mz8izr4mkf1sojb6xrmstru5jsif48g5kegcqg7y',
+            destination: 'nano_164xaa1ojy6qmq9e8t94mz8izr4mkf1sojb6xrmstru5jsif48g5kegcqg7y',
             amount:      1
         })
     });
