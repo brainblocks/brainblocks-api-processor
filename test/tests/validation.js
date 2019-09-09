@@ -18,7 +18,7 @@ test('Should fail a transaction when the nano node returns destination invalid',
             'content-type': 'application/x-www-form-urlencoded'
         },
         body:   qs.stringify({
-            destination: 'xrb_164xaa1ojy6qmq9e8t94mz8izr4mkf1sojb6xrmstru5jsif48g5kegcqg7y',
+            destination: 'nano_164xaa1ojy6qmq9e8t94mz8izr4mkf1sojb6xrmstru5jsif48g5kegcqg7y',
             amount:      1
         })
     });
@@ -77,7 +77,7 @@ test('Should fail a transaction when the amount is invalid', async () => {
             'content-type': 'application/x-www-form-urlencoded'
         },
         body:   qs.stringify({
-            destination: 'xrb_164xaa1ojy6qmq9e8t94mz8izr4mkf1sojb6xrmstru5jsif48g5kegcqg7y',
+            destination: 'nano_164xaa1ojy6qmq9e8t94mz8izr4mkf1sojb6xrmstru5jsif48g5kegcqg7y',
             amount:      '0.1'
         })
     });
@@ -97,7 +97,7 @@ test('Should fail a transaction when the amount is not passed', async () => {
             'content-type': 'application/x-www-form-urlencoded'
         },
         body:   qs.stringify({
-            destination: 'xrb_164xaa1ojy6qmq9e8t94mz8izr4mkf1sojb6xrmstru5jsif48g5kegcqg7y'
+            destination: 'nano_164xaa1ojy6qmq9e8t94mz8izr4mkf1sojb6xrmstru5jsif48g5kegcqg7y'
         })
     });
 

@@ -13,12 +13,12 @@ const DELAY = 5;
 export async function cleanTransactions() : Promise<void> {
 
     console.log('Starting cleanup');
-    
+
     // Check if RPC Server is working with simple value calculation
     await raiToRaw(1000);
 
     let transactions = await postQuery(`
-            
+
         SELECT id, status
             FROM transaction
             WHERE (status = $1 OR status = $2 OR status = $3)
@@ -36,7 +36,7 @@ export async function cleanTransactions() : Promise<void> {
             if (status === TRANSACTION_STATUS.PENDING) {
                 await processTransaction(id);
             }
-        
+
             if (status === TRANSACTION_STATUS.REFUNDED || status === TRANSACTION_STATUS.EXPIRED) {
                 await refundTransaction(id);
             }

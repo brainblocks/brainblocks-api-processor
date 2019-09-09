@@ -48,7 +48,7 @@ export function setupNanoMockServer() : express$Application {
 }
 
 registerNanoOperation('validate_account_number', ({ account }) => {
-    if (!account.match(/^xrb_\w+$/)) {
+    if (!account.match(/^nano_\w+$/)) {
         return { valid: '0' };
     }
 

@@ -10,6 +10,10 @@ function createPool() : Object {
         throw new Error(`No database config found`);
     }
 
+    // process.env.DB_HOST : '127.0.0.1'
+
+    // if (DATABASE.HOST === '127.0.0.1' || DATABASE.HOST === process.env.DB_HOST) {
+
     return new Pool({
         host:                    DATABASE.HOST,
         user:                    DATABASE.USER,
@@ -19,7 +23,7 @@ function createPool() : Object {
         max:                     20,
         idleTimeoutMillis:       30000,
         connectionTimeoutMillis: 2000,
-        ssl:                     true
+        ssl:                     DATABASE.HOST === 'db.brainblocks.io' ? true : false
     });
 }
 

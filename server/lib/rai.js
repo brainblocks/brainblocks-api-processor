@@ -4,7 +4,7 @@
 import request from 'request-promise';
 import { min } from 'big-integer';
 
-import { RAI_SERVER, REPRESENTATIVE } from '../config';
+import { NANO_RPC, REPRESENTATIVE } from '../config';
 import type { BigInt } from '../types';
 
 import { wait, noop, buffer, eventEmitter, debounce, promise, toBigInt } from './util';
@@ -22,7 +22,7 @@ type Block = {
     work : string
 };
 
-export async function raiAction<R : Object>(action : string, args : Object = {}) : Promise<R> {
+export async function nanoAction<R : Object>(action : string, args : Object = {}) : Promise<R> {
 
     console.log((new Date()).toUTCString(), 'START', action, args);
 
@@ -31,7 +31,7 @@ export async function raiAction<R : Object>(action : string, args : Object = {})
     try {
         res = await request({
             method:  'POST',
-            uri:     RAI_SERVER,
+            uri:     NANO_RPC,
             headers: {
                 'content-type': 'application/json'
             },
@@ -51,7 +51,7 @@ export async function raiAction<R : Object>(action : string, args : Object = {})
 
         res = await request({
             method: 'POST',
-            uri:    RAI_SERVER,
+            uri:    NANO_RPC,
             body:   JSON.stringify({
                 action,
                 ...args
@@ -88,7 +88,7 @@ export async function raiToRaw(rai : number) : Promise<BigInt> {
         return toBigInt('0');
     }
 
-    let res = await raiAction('rai_to_raw', {
+    let res = await nanoAction('rai_to_raw', {
         amount: rai.toString()
     });
 
@@ -100,7 +100,7 @@ export async function rawToRai(raw : BigInt) : Promise<number> {
         return 0;
     }
 
-    let res = await raiAction('rai_from_raw', {
+    let res = await nanoAction('rai_from_raw', {
         amount: raw.toString()
     });
 
@@ -109,7 +109,7 @@ export async function rawToRai(raw : BigInt) : Promise<number> {
 
 export async function accountHistory(account : string) : Promise<Array<{ hash : string, type : string, amount : BigInt, account : string }>> {
 
-    let response = await raiAction('account_history', {
+    let response = await nanoAction('account_history', {
         account,
         count:   '100'
     });
@@ -151,7 +151,7 @@ export async function getLastSent(account : string) : Promise<?{ hash : string, 
 }
 
 export async function blockCreate({ type, key, account, representative, source } : { type : string, key : string, account : string, representative : string, source : string }) : Promise<{ hash : string, block : string }> {
-    return await raiAction('block_create', { type, key, account, representative, source });
+    return await nanoAction('block_create', { type, key, account, representative, source });
 }
 
 export async function getLatestBlock(account : string) : Promise<string> {
@@ -160,7 +160,7 @@ export async function getLatestBlock(account : string) : Promise<string> {
 }
 
 export async function getAccountInfo(account : string) : Promise<{| balance : BigInt, frontier : string |}> {
-    let { balance, frontier } = await raiAction('account_info', { account });
+    let { balance, frontier } = await nanoAction('account_info', { account });
 
     return {
         frontier,
@@ -179,7 +179,7 @@ export async function blockCreateSend({ key, account, destination, amount } : { 
         throw new Error(`Negative balance for send. Original balance: ${ balance.toString() } / Amount: ${ amount.toString() } / New Balance: ${ newBalance.toString() }`);
     }
 
-    let { hash, block: serializedBlock } = await raiAction('block_create', {
+    let { hash, block: serializedBlock } = await nanoAction('block_create', {
         type:           'state',
         representative: REPRESENTATIVE,
         link:           destination,
@@ -223,7 +223,7 @@ export async function blockCreateReceive({ key, account, source, amount } : { ke
         previous = '0';
     }
 
-    let { hash, block: serializedBlock } = await raiAction('block_create', {
+    let { hash, block: serializedBlock } = await nanoAction('block_create', {
         type:           'state',
         representative: REPRESENTATIVE,
         link:           source,
@@ -253,24 +253,24 @@ export async function blockCreateReceive({ key, account, source, amount } : { ke
 }
 
 export async function isAccountValid(account : string) : Promise<boolean> {
-    let res = await raiAction('validate_account_number', { account });
+    let res = await nanoAction('validate_account_number', { account });
     return res.valid === '1';
 }
 
 export async function representativesOnline() : Promise<Array<string>> {
-    let { representatives } = await raiAction('representatives_online');
+    let { representatives } = await nanoAction('representatives_online');
     return representatives;
 }
 
 export let accountCreate = buffer(async () : Promise<{ account : string, privateKey : string, publicKey : string }> => {
-    let { private: privateKey, public: publicKey, account } = await raiAction('key_create');
+    let { private: privateKey, public: publicKey, account } = await nanoAction('key_create');
     return { account, privateKey, publicKey };
 });
 
 export async function getBalance(account : string) :
     Promise<{ balance : BigInt, pending : BigInt, total : BigInt }> {
 
-    let { balance, pending } = await raiAction('account_balance', { account });
+    let { balance, pending } = await nanoAction('account_balance', { account });
 
     return {
         balance: toBigInt(balance),
@@ -280,7 +280,7 @@ export async function getBalance(account : string) :
 }
 
 export async function getPending(account : string) : Promise<Array<string>> {
-    let res = await raiAction('pending', {
+    let res = await nanoAction('pending', {
         account,
         count:          '100',
         include_active: true
@@ -292,7 +292,7 @@ export async function getPending(account : string) : Promise<Array<string>> {
 export async function blockInfo(block : string) :
     Promise<{ amount : BigInt, block_account : string, contents : Block }> {
 
-    let res = await raiAction('blocks_info', {
+    let res = await nanoAction('blocks_info', {
         hashes: [ block ]
     });
 
@@ -318,7 +318,7 @@ export async function blockInfo(block : string) :
 }
 
 export async function keyExpand(key : string) : Promise<{ privateKey : string, publicKey : string, account : string }> {
-    let { private: privateKey, public: publicKey, account } = await raiAction('key_expand', { key });
+    let { private: privateKey, public: publicKey, account } = await nanoAction('key_expand', { key });
 
     return {
         privateKey,
@@ -334,7 +334,7 @@ export async function keyToAccount(key : string) : Promise<string> {
 
 export async function process(block : Block) : Promise<string> {
     let serializedBlock = JSON.stringify(block);
-    let { hash } = await raiAction('process', { block: serializedBlock });
+    let { hash } = await nanoAction('process', { block: serializedBlock });
     return hash;
 }
 
