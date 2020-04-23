@@ -14,7 +14,7 @@ import YAML from 'yamljs';
 import { min } from 'big-integer';
 
 import { SECRET, PAYPAL_CLIENT, PAYPAL_SECRET, NANO_SERVER, NANO_WS } from './config';
-import { waitForBalance, getTotalReceived, getLatestTransaction, accountHistory, isAccountValid, nodeEvent, rawToRai, representativesOnline } from './lib/rai';
+import { waitForBalance, getTotalReceived, getLatestTransaction, accountHistory, isAccountValid, nodeEvent, rawToRai, representativesOnline, process } from './lib/rai';
 import { getAccount } from './lib/precache';
 import { handler, ValidationError } from './lib/util';
 import { currencyToRaw, pullRates } from './lib/rateService';
@@ -348,6 +348,18 @@ app.get('/api/process/:account', handler(async (req : express$Request) => {
     return {
         status: 'success'
     };
+}));
+
+app.post('/api/process', handler(async (req : express$Request, res) => {
+
+    // $FlowFixMe
+    let { block } = req.body;
+
+    if (!block) {
+        throw new ValidationError(`Expected block`);
+    }
+    
+    return await process(block);
 }));
 
 // provide node monitor endpoint for uptimerobot to alert us
