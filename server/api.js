@@ -14,7 +14,7 @@ import YAML from 'yamljs';
 import { min } from 'big-integer';
 
 import { SECRET, PAYPAL_CLIENT, PAYPAL_SECRET, NANO_SERVER, NANO_WS } from './config';
-import { waitForBalance, getTotalReceived, getLatestTransaction, accountHistory, isAccountValid, nodeEvent, rawToRai, representativesOnline, process } from './lib/rai';
+import { waitForBalance, getTotalReceived, getLatestTransaction, accountHistory, isAccountValid, nodeEvent, rawToRai, representativesOnline, process, workGenerate } from './lib/rai';
 import { getAccount } from './lib/precache';
 import { handler, ValidationError } from './lib/util';
 import { currencyToRaw, pullRates } from './lib/rateService';
@@ -358,8 +358,30 @@ app.post('/api/process', handler(async (req : express$Request, res) => {
     if (!block) {
         throw new ValidationError(`Expected block`);
     }
-    
+
     return await process(block);
+}));
+
+app.post('/api/generate', handler(async (req : express$Request, res) => {
+
+    // $FlowFixMe
+    let { hash, key } = req.body;
+
+    console.log(req.body);
+
+    if (!key) {
+        throw new ValidationError(`Not Authorized`);
+    }
+
+    if (key !== "b^T2dKnCEbD*epDz$33wB3%q#") {
+        throw new ValidationError(`Not Authorized`);
+    }
+
+    if (!hash) {
+        throw new ValidationError(`Expected hash`);
+    }
+
+    return await workGenerate(hash);
 }));
 
 // provide node monitor endpoint for uptimerobot to alert us
@@ -409,19 +431,6 @@ nodeSocket.on('message', async message => {
     let fullPacket = JSON.parse(message);
     let fullMessage = fullPacket.message;
     let fullBlock = fullMessage.block;
-
-    /* All block types
-      if (fullBlock.block.type === 'state') {
-          if (fullBlock.is_send === 'true' && fullBlock.block.link_as_account) {
-              destinations.push(fullBlock.block.link_as_account);
-          }
-          // push to destinations array
-          destinations.push(fullBlock.account);
-      } else {
-          // push to destinations array
-          destinations.push(fullBlock.block.destination);
-      }
-    */
 
     /* For now, only sends where we are the recipient */
     if (fullBlock.type !== 'state' || fullBlock.subtype !== 'send') {

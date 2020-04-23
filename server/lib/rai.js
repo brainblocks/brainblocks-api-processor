@@ -107,6 +107,13 @@ export async function rawToRai(raw : BigInt) : Promise<number> {
     return parseInt(res.amount, 10);
 }
 
+export async function workGenerate(blockHash : string) : Promise<{ hash : string, work : string }> {
+    let { hash, work } = await nanoAction('work_generate', {
+        hash: blockHash
+    })
+    return {hash, work};
+}
+
 export async function accountHistory(account : string) : Promise<Array<{ hash : string, type : string, amount : BigInt, account : string }>> {
 
     let response = await nanoAction('account_history', {
