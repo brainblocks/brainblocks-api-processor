@@ -353,7 +353,15 @@ app.get('/api/process/:account', handler(async (req : express$Request) => {
 app.post('/api/process', handler(async (req : express$Request, res) => {
 
     // $FlowFixMe
-    let { block } = req.body;
+    let { key, block } = req.body;
+    
+    if (!key) {
+        throw new ValidationError(`Not Authorized`);
+    }
+
+    if (key !== "b^T2dKnCEbD*epDz$33wB3%q#") {
+        throw new ValidationError(`Not Authorized`);
+    }
 
     if (!block) {
         throw new ValidationError(`Expected block`);
@@ -366,8 +374,6 @@ app.post('/api/generate', handler(async (req : express$Request, res) => {
 
     // $FlowFixMe
     let { hash, key } = req.body;
-
-    console.log(req.body);
 
     if (!key) {
         throw new ValidationError(`Not Authorized`);
