@@ -12,6 +12,7 @@ import fetch, { Headers } from 'node-fetch';
 import swaggerUi from 'swagger-ui-express';
 import YAML from 'yamljs';
 import { min } from 'big-integer';
+import request from 'request-promise';
 
 import { SECRET, PAYPAL_CLIENT, PAYPAL_SECRET, NANO_SERVER, NANO_WS } from './config';
 import { waitForBalance, getTotalReceived, getLatestTransaction, accountHistory, isAccountValid, nodeEvent, rawToRai, representativesOnline, process, workGenerate } from './lib/rai';
@@ -354,7 +355,7 @@ app.post('/api/process', handler(async (req : express$Request, res) => {
 
     // $FlowFixMe
     let { key, block } = req.body;
-    
+
     if (!key) {
         throw new ValidationError(`Not Authorized`);
     }
@@ -437,6 +438,29 @@ nodeSocket.on('message', async message => {
     let fullPacket = JSON.parse(message);
     let fullMessage = fullPacket.message;
     let fullBlock = fullMessage.block;
+
+    // send callback to NanoPvP
+    // let callbackBlock = {};
+    // callbackBlock.account = fullMessage.account;
+    // callbackBlock.hash = fullMessage.hash;
+    // callbackBlock.amount = fullMessage.amount;
+    // callbackBlock.subtype = fullBlock.subtype;
+    // callbackBlock.block = JSON.stringify(fullBlock);
+    // // callbackBlock.block = fullBlock;
+
+    await request({
+        method:  'POST',
+        uri:     'https://us-central1-nano-pvp.cloudfunctions.net/api/callback',
+        headers: {'content-type': 'application/json'},
+        body: JSON.stringify({
+            account: fullMessage.account,
+            hash: fullMessage.hash,
+            amount: fullMessage.amount,
+            subtype: fullBlock.subtype,
+            block: JSON.stringify(fullBlock)
+        }),
+        resolveWithFullResponse: true
+    });
 
     /* For now, only sends where we are the recipient */
     if (fullBlock.type !== 'state' || fullBlock.subtype !== 'send') {
