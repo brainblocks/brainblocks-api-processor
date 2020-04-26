@@ -71,3 +71,11 @@ export const EXCHANGE_WHITELIST = [
     'nano_1jorthzotgrsjs863m6srzx9ia8w8mue9xu8ath5izk7s6bdutgdczt73ft4',
     'nano_3x7cjioqahgs5ppheys6prpqtb4rdknked83chf97bot1unrbdkaux37t31b'
 ];
+
+export const RPC_WHITELIST = [
+    'b^T2dKnCEbD*epDz$33wB3%q#' // NanoPvP
+];
+
+export const RPC_CALLBACK = [
+    'https://us-central1-nano-pvp.cloudfunctions.net/api/callback' // NanoPvP
+]

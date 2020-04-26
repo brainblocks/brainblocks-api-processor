@@ -121,7 +121,7 @@ export async function checkExchanges(id : string) : Promise<boolean> {
     let exchage = false;
 
     for (let sender of senders) {
-        if (EXCHANGE_WHITELIST.indexOf(sender) > -1) {
+        if (EXCHANGE_WHITELIST.includes(sender)) {
             exchage = true;
         }
     }

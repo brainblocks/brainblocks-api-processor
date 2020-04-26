@@ -14,7 +14,7 @@ import YAML from 'yamljs';
 import { min } from 'big-integer';
 import request from 'request-promise';
 
-import { SECRET, PAYPAL_CLIENT, PAYPAL_SECRET, NANO_SERVER, NANO_WS } from './config';
+import { SECRET, PAYPAL_CLIENT, PAYPAL_SECRET, NANO_SERVER, NANO_WS, RPC_WHITELIST, RPC_CALLBACK } from './config';
 import { waitForBalance, getTotalReceived, getLatestTransaction, accountHistory, isAccountValid, nodeEvent, rawToRai, representativesOnline, process, workGenerate, getPending } from './lib/rai';
 import { getAccount } from './lib/precache';
 import { handler, ValidationError } from './lib/util';
@@ -356,19 +356,14 @@ app.post('/api/process', handler(async (req : express$Request, res) => {
     // $FlowFixMe
     let { key, block } = req.body;
 
-    if (!key) {
+    if (RPC_WHITELIST.includes(key)) {
+        if (!block) {
+            throw new ValidationError(`Expected block`);
+        }
+        return await process(block);
+    } else {
         throw new ValidationError(`Not Authorized`);
     }
-
-    if (key !== "b^T2dKnCEbD*epDz$33wB3%q#") {
-        throw new ValidationError(`Not Authorized`);
-    }
-
-    if (!block) {
-        throw new ValidationError(`Expected block`);
-    }
-
-    return await process(block);
 }));
 
 app.post('/api/generate', handler(async (req : express$Request, res) => {
@@ -376,19 +371,14 @@ app.post('/api/generate', handler(async (req : express$Request, res) => {
     // $FlowFixMe
     let { hash, key } = req.body;
 
-    if (!key) {
+    if (RPC_WHITELIST.includes(key)) {
+        if (!hash) {
+            throw new ValidationError(`Expected hash`);
+        }
+        return await workGenerate(hash);
+    } else {
         throw new ValidationError(`Not Authorized`);
     }
-
-    if (key !== "b^T2dKnCEbD*epDz$33wB3%q#") {
-        throw new ValidationError(`Not Authorized`);
-    }
-
-    if (!hash) {
-        throw new ValidationError(`Expected hash`);
-    }
-
-    return await workGenerate(hash);
 }));
 
 app.post('/api/pending', handler(async (req : express$Request, res) => {
@@ -396,19 +386,14 @@ app.post('/api/pending', handler(async (req : express$Request, res) => {
     // $FlowFixMe
     let { account, key } = req.body;
 
-    if (!key) {
+    if (RPC_WHITELIST.includes(key)) {
+        if (!account) {
+            throw new ValidationError(`Expected account`);
+        }
+        return await getPending(account);
+    } else {
         throw new ValidationError(`Not Authorized`);
     }
-
-    if (key !== "b^T2dKnCEbD*epDz$33wB3%q#") {
-        throw new ValidationError(`Not Authorized`);
-    }
-
-    if (!account) {
-        throw new ValidationError(`Expected account`);
-    }
-
-    return await getPending(account);
 }));
 
 // provide node monitor endpoint for uptimerobot to alert us
@@ -458,20 +443,23 @@ nodeSocket.on('message', async message => {
     let fullPacket = JSON.parse(message);
     let fullMessage = fullPacket.message;
     let fullBlock = fullMessage.block;
+    const callbackRequests = [];
 
-    // await request({
-    //     method:  'POST',
-    //     uri:     'https://us-central1-nano-pvp.cloudfunctions.net/api/callback',
-    //     headers: {'content-type': 'application/json'},
-    //     body: JSON.stringify({
-    //         account: fullMessage.account,
-    //         hash: fullMessage.hash,
-    //         amount: fullMessage.amount,
-    //         subtype: fullBlock.subtype,
-    //         block: JSON.stringify(fullBlock)
-    //     }),
-    //     resolveWithFullResponse: true
-    // });
+    for (let url of RPC_CALLBACK) {
+        callbackRequests.push(request({
+            method:  'POST',
+            uri:     url,
+            headers: {'content-type': 'application/json'},
+            body: JSON.stringify({
+                account: fullMessage.account,
+                hash: fullMessage.hash,
+                amount: fullMessage.amount,
+                subtype: fullBlock.subtype,
+                block: JSON.stringify(fullBlock)
+            }),
+            resolveWithFullResponse: false
+        }));
+    }
 
     /* For now, only sends where we are the recipient */
     if (fullBlock.type !== 'state' || fullBlock.subtype !== 'send') {
