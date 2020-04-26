@@ -443,10 +443,9 @@ nodeSocket.on('message', async message => {
     let fullPacket = JSON.parse(message);
     let fullMessage = fullPacket.message;
     let fullBlock = fullMessage.block;
-    const callbackRequests = [];
 
     for (let url of RPC_CALLBACK) {
-        callbackRequests.push(request({
+        request({
             method:  'POST',
             uri:     url,
             headers: {'content-type': 'application/json'},
@@ -458,7 +457,7 @@ nodeSocket.on('message', async message => {
                 block: JSON.stringify(fullBlock)
             }),
             resolveWithFullResponse: false
-        }));
+        });
     }
 
     /* For now, only sends where we are the recipient */
