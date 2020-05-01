@@ -5,7 +5,7 @@ export const URL = `http://127.0.0.1:${ PORT }`;
 
 export const NANO_PORT = 7076;
 export const NANO_WS = 7078;
-export const NANO_SERVER = 'ssh.node2.brainblocks.io';
+export const NANO_SERVER = '10.136.172.150';
 export let NANO_RPC;
 
 export const SERVER_PORT = 8000;
