@@ -206,26 +206,6 @@
         a:active {
             color: rgb(145, 145, 145);
         }
-
-        .or {
-            font-size: 10px;
-            margin: 6px;
-            margin-bottom: 10px;
-            padding: 0;
-            line-height: 10px;
-            color: #bbb;
-        }
-
-        .nanowallet-button {
-            background-color: #040150;
-            color: white;
-            border-radius: 10px;
-            width: 244px;
-            padding: 10px;
-            font-size: 14px;
-            margin-bottom: 5px;
-            cursor: pointer;
-        }
     </style>
 </head>
 
@@ -253,13 +233,7 @@
                 <span id="copy-text">COPY ADDRESS</span>
             </button>
         </div>
-
-        <div class="or">— or —</div>
-
-        <button id="nanowallet-button" class="nanowallet-button">
-            Pay with <b>NANOWALLET.IO</b>
-        </button>
-
+	    
         <div id="brainblocks-powered">
             <a href="https://brainblocks.io" target="_blank"><span>Powered by <img id="powered-logo" src="/button-static/img/brainblocks_symbol.svg">Brainblocks</span></a>
         </div>
@@ -342,8 +316,8 @@
 
             function showButton() {
                 document.body.classList.add('brainblocks-checkout-active');
-                window.xchild.resize(window.innerWidth, 530);
-                document.querySelector('.brainblocks-button').style.height = '530px';
+                window.xchild.resize(window.innerWidth, 430);
+                document.querySelector('.brainblocks-button').style.height = '430px';
                 copyButton.style.display = 'block';
             }
 
@@ -539,18 +513,6 @@
                             }
                         }
                     }, 50);
-
-                    var nanoWalletPromise;
-
-                    document.querySelector('#nanowallet-button')
-                        .addEventListener('click', function() {
-                            nanoWalletPromise = new brainblocks.Promise(function(resolve) {
-                                brainblocks.NanoWallet.render({
-                                    token: json.token,
-                                    onComplete: resolve
-                                });
-                            });
-                        });
 
                     function completePayment(transfer) {
                         progressBar.style.width = 0;
