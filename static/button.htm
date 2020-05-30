@@ -1,725 +1,780 @@
 <!DOCTYPE: html>
 
-<head>
-	<link href="https://fonts.googleapis.com/css?family=Open+Sans:400,600,700" rel="stylesheet">
-	<script src="/brainblocks.min.js"></script>
-	<script src="https://cdnjs.cloudflare.com/ajax/libs/fetch/2.0.3/fetch.min.js"></script>
-	<script src="https://cdn.rawgit.com/papnkukn/qrcode-svg/e4889213/dist/qrcode.min.js"></script>
-	<script src="https://unpkg.com/clipboard@2.0.0/dist/clipboard.min.js"></script>
-	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<head>
+		<link href="https://fonts.googleapis.com/css?family=Open+Sans:400,600,700" rel="stylesheet">
+		<script src="/brainblocks.min.js"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/fetch/2.0.3/fetch.min.js"></script>
+		<script src="https://cdn.rawgit.com/papnkukn/qrcode-svg/e4889213/dist/qrcode.min.js"></script>
+		<script src="https://unpkg.com/clipboard@2.0.0/dist/clipboard.min.js"></script>
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 
-    <style>
-        html, body {
-            border: 0;
-            padding: 0;
-            margin: 0;
-            background-color: transparent;
-        }
-
-        .brainblocks-button {
-            transition: height 0.5s ease-in-out;
-            overflow: hidden;
-        }
-
-        #brainblocks-checkout {
-            opacity: 0;
-            transition: all 0.5s ease-in-out;
-        }
-
-        #brainblocks-inner {
-            font-family: 'Open Sans';
-            font-weight: 400;
-            height: 345px;
-			width: 244px;
-            margin: 12 auto;
-            overflow: hidden;
-            border-collapse: separate; 
-            border-radius: 20px;
-            background-color: rgb(255, 255, 255);
-            box-shadow: 2.796px 4.145px 35px 0px rgba(0, 0, 0, 0.05);
-            position: relative;
-        }
-
-        #loading-spinner {
-            margin-top: 40px;
-            width: 100px;
-            height: 100px;
-            display: none;
-        }
-
-        #brainblocks-checkout-qr {
-            margin-top: 25px;
-            margin-bottom: 15px;
-            height: 175px;
-            width: 175px;
-            display: inline-block;
-        }
-
-        #brainblocks-copy {
-            font-family: 'Open Sans';
-            font-weight: 400;
-            background-color: rgb(219, 219, 219);
-            border: none;
-            color: rgb(132, 132, 132);
-            text-align: center;
-            text-decoration: none;
-            display: inline-block;
-            font-weight: 400;
-            font-size: 11px;
-            width: 100%;
-            bottom: 0px;
-            z-index: 1;
-            position: absolute;
-            height: 40px;
-            line-height: 32px;
-        }
-
-        #copy-logo {
-            font-family: 'Open Sans';
-            font-weight: 400;
-            vertical-align: middle;
-            width: 12px;
-            height: 12px;
-            margin-right: 5px;
-            color: rgb(132, 132, 132);
-        }
-
-        #copy-text {
-            font-family: 'Open Sans';
-            font-weight: 400;
-            vertical-align: middle;
-            color: rgb(132, 132, 132);
-            letter-spacing: 2px;
-        }
-
-        #brainblocks-checkout-account {
-            font-family: 'Open Sans';
-            font-weight: 400;
-        	font-size: 7px;
-            width: 180px;
-            height: 30px;
-            line-height: 7px;
-            word-wrap: break-word;
-            display: inline-block;
-			color: black;
-            -webkit-box-shadow: none;
-            -moz-box-shadow: none;
-            box-shadow: none;
-            text-align: center;
-            padding-top: 8px;
-            padding-bottom: 8px;
-            padding-left: 8px;
-            padding-right: 8px;
-		    border: 1px solid rgb(221, 221, 221);
-		    border-radius: 10px;
-        }
-
-        #brainblocks-progress-bar {
-            font-family: 'Open Sans';
-            font-weight: 400;
-            margin-top: 0px;
-            height: 100%;
-            width: 100%;
-            background-color: #7CCA7D;
-            z-index: 1;
-        }
-
-        #brainblocks-progress {
-            font-family: 'Open Sans';
-            font-weight: 400;
-            margin-top: 0px;
-            background-color: #9ED9A1;
-            width: 100%;
-            height: 40px;
-            z-index: 0;
-        }
-
-        #brainblocks-progress-time {
-            font-family: 'Open Sans';
-            font-weight: 400;
-            color: #fff;
-            position: absolute;
-            width: 100%;
-            font-size: 12px;
-            line-height: 16px;
-            z-index: 2;
-            margin: 0 auto;
-            line-height: 40px;
-            top: 0;
-        }
-
-        #brainblocks-powered {
-            font-family: 'Open Sans';
-            font-weight: 400;
-			font-size: 16px;
-			color: rgb(145, 145, 145);
-			line-height: 20px;
-			-moz-transform: matrix( 0.52646445761995,0,0,0.52465215953566,0,0);
-			-webkit-transform: matrix( 0.52646445761995,0,0,0.52465215953566,0,0);
-			-ms-transform: matrix( 0.52646445761995,0,0,0.52465215953566,0,0);
-			margin: 5 auto;
-            z-index: 1px;
-        }
-
-        #powered-logo {
-            font-family: 'Open Sans';
-            font-weight: 400;
-            vertical-align: middle;
-            width: 20px;
-            height: 20px;
-            margin-right: 5px;
-        }
-
-        #warn-exchange {
-            font-family: 'Open Sans';
-            font-weight: 400;
-        	margin: 0 auto;
-        	text-align: center;
-        	margin-top: 10px;
-        	font-size: 10px;
-        	line-height: 20px;
-            word-wrap: break-word;
-            overflow-wrap: break-word;
-            overflow: none;
-        }
-
-        .brainblocks-checkout-active .brainblocks-button {
-            cursor: auto;
-        }
-
-        /* unvisited link */
-        a:link {
-            color: rgb(145, 145, 145);
-        }
-
-        /* visited link */
-        a:visited {
-            color: rgb(145, 145, 145);
-        }
-
-        /* mouse over link */
-        a:hover {
-            color: #5589C5;
-        }
-
-        /* selected link */
-        a:active {
-            color: rgb(145, 145, 145);
-        }
-    </style>
-</head>
-
-<body>
-    <script>
-        document.body.appendChild(brainblocks.buttonTemplate({ props: window.xprops }));
-    </script>
-
-    <img id="loading-spinner" class="loading-spinner" src="data:image/svg+xml;base64,PHN2ZyB4bWxuczpzdmc9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIiB2ZXJzaW9uPSIxLjAiIHdpZHRoPSIyNXB4IiBoZWlnaHQ9IjI1cHgiIHZpZXdCb3g9IjAgMCAxMjggMTI4IiB4bWw6c3BhY2U9InByZXNlcnZlIj48Zz48cGF0aCBkPSJNNzguNzUgMTYuMThWMS41NmE2NC4xIDY0LjEgMCAwIDEgNDcuNyA0Ny43SDExMS44YTQ5Ljk4IDQ5Ljk4IDAgMCAwLTMzLjA3LTMzLjA4ek0xNi40MyA0OS4yNUgxLjhhNjQuMSA2NC4xIDAgMCAxIDQ3LjctNDcuN1YxNi4yYTQ5Ljk4IDQ5Ljk4IDAgMCAwLTMzLjA3IDMzLjA3em0zMy4wNyA2Mi4zMnYxNC42MkE2NC4xIDY0LjEgMCAwIDEgMS44IDc4LjVoMTQuNjNhNDkuOTggNDkuOTggMCAwIDAgMzMuMDcgMzMuMDd6bTYyLjMyLTMzLjA3aDE0LjYyYTY0LjEgNjQuMSAwIDAgMS00Ny43IDQ3Ljd2LTE0LjYzYTQ5Ljk4IDQ5Ljk4IDAgMCAwIDMzLjA4LTMzLjA3eiIgZmlsbD0iIzgxY2RmMSIgZmlsbC1vcGFjaXR5PSIxIi8+PGFuaW1hdGVUcmFuc2Zvcm0gYXR0cmlidXRlTmFtZT0idHJhbnNmb3JtIiB0eXBlPSJyb3RhdGUiIGZyb209Ii05MCA2NCA2NCIgdG89IjAgNjQgNjQiIGR1cj0iNDAwbXMiIHJlcGVhdENvdW50PSJpbmRlZmluaXRlIj48L2FuaW1hdGVUcmFuc2Zvcm0+PC9nPjwvc3ZnPg==" />
-
-    <div id="brainblocks-checkout">
-        <div id="brainblocks-inner">
-
-            <div id="brainblocks-progress">
-                <div id="brainblocks-progress-bar"></div>
-                <div id="brainblocks-progress-time"></div>
-            </div>
-
-            <div id="brainblocks-checkout-qr"></div>
-  
-            <div id="brainblocks-checkout-account"></div>
-
-            <button type="button" id="brainblocks-copy" data-clipboard-action="copy" data-clipboard-target="#brainblocks-checkout-account">
-                <img id="copy-logo" src="/button-static/img/copy.svg">
-                <span id="copy-text">COPY ADDRESS</span>
-            </button>
-        </div>
-	    
-        <div id="brainblocks-powered">
-            <a href="https://brainblocks.io" target="_blank"><span>Powered by <img id="powered-logo" src="/button-static/img/brainblocks_symbol.svg">Brainblocks</span></a>
-        </div>
-    </div>
-
-    <script>
-        (function() {
-            var API_DOMAIN = (window.xprops.env === 'local') ? '' : 'https://api.brainblocks.io';
-
-            window.LOG_LEVEL = 'warn';
-            // var WAIT_TIME = 1 * 60
-            var WAIT_TIME = 20 * 60;
-
-            function objToQuery(obj) {
-                var str = [];
-                for(var p in obj)
-                    if (obj.hasOwnProperty(p)) {
-                    str.push(encodeURIComponent(p) + "=" + encodeURIComponent(obj[p]));
-                }
-                return str.join("&");
-            }
-
-            function pad(n, width, z) {
-                z = z || '0';
-                n = n + '';
-                return n.length >= width ? n : new Array(width - n.length + 1).join(z) + n;
-            }
-
-            // copy feedback
-			function setCopied() {
-				document.getElementById("brainblocks-copy").style.backgroundColor = "#aeadad";
-				document.getElementById("copy-text").style.color = "white";
-				document.getElementById("copy-logo").style.display = "none";
-				document.getElementById("copy-text").innerHTML = "COPIED!";
-
-				setTimeout(function() {
-					document.getElementById("brainblocks-copy").style.backgroundColor = "#DBDBDB";
-					document.getElementById("copy-text").style.color = "#848484";
-					document.getElementById("copy-logo").style.display = "inline-block";
-					document.getElementById("copy-text").innerHTML = "COPY ADDRESS";
-				}, 1500);
+		<style>
+			html,
+			body {
+				border: 0;
+				padding: 0;
+				margin: 0;
+				background-color: transparent;
 			}
 
-			function setCopyError() {
-				document.getElementById("brainblocks-copy").style.backgroundColor = "red";
-				document.getElementById("brainblocks-copy").style.color = "white";
-				document.getElementById("copy-logo").style.display = "none";
-				document.getElementById("copy-text").innerHTML = "FAILED!";
-
-				setTimeout(function() {
-					document.getElementById("brainblocks-copy").style.backgroundColor = "#DBDBDB";
-					document.getElementById("copy-text").style.color = "#848484";
-					document.getElementById("copy-logo").style.display = "inline-block";
-					document.getElementById("copy-text").innerHTML = "COPY ADDRESS";
-				}, 1500);
+			.brainblocks-button {
+				transition: height 0.5s ease-in-out;
+				overflow: hidden;
 			}
 
-            var checkoutActive = false;
-            var interval;
+			#brainblocks-checkout {
+				opacity: 0;
+				transition: all 0.5s ease-in-out;
+			}
 
-            var button = document.querySelector('.brainblocks-button');
-            var checkout = document.querySelector('#brainblocks-checkout');
-            var loader = document.querySelector('#loading-spinner');
-            var qrcontainer = document.querySelector('#brainblocks-checkout-qr');
-            var accountcontainer = document.querySelector('#brainblocks-checkout-account');
-            var progressBar = document.querySelector('#brainblocks-progress-bar');
-            var progressTime = document.querySelector('#brainblocks-progress-time');
-            var progress = document.querySelector('#brainblocks-progress');
-            var copyButton = document.querySelector('#brainblocks-copy');
+			#brainblocks-inner {
+				font-family: 'Open Sans';
+				font-weight: 400;
+				height: 345px;
+				width: 244px;
+				margin: 12 auto;
+				overflow: hidden;
+				border-collapse: separate;
+				border-radius: 20px;
+				background-color: rgb(255, 255, 255);
+				box-shadow: 2.796px 4.145px 35px 0px rgba(0, 0, 0, 0.05);
+				position: relative;
+			}
 
-            function closeButton() {
-                clearInterval(interval);
-                copyButton.style.display = 'none';
-                window.onbeforeunload = function() {};
-                checkoutActive = false;
-                window.xchild.resize(window.innerWidth, 50);
-                document.querySelector('.brainblocks-button').style.height = '50px';
-                document.body.classList.remove('brainblocks-checkout-active');
-            }
+			#loading-spinner {
+				margin-top: 40px;
+				width: 100px;
+				height: 100px;
+				display: none;
+			}
 
-            function showButton() {
-                document.body.classList.add('brainblocks-checkout-active');
-                window.xchild.resize(window.innerWidth, 430);
-                document.querySelector('.brainblocks-button').style.height = '430px';
-                copyButton.style.display = 'block';
-            }
+			#brainblocks-checkout-qr {
+				margin-top: 25px;
+				margin-bottom: 15px;
+				height: 175px;
+				width: 175px;
+				display: inline-block;
+			}
 
-            function api(method, url, data) {
-                data = data || {};
-                var req = {
-                    method: method,
-                    headers: { 'content-type': 'application/x-www-form-urlencoded' },
-                    timeout: 2 * WAIT_TIME * 1000
-                };
+			#brainblocks-copy {
+				font-family: 'Open Sans';
+				font-weight: 400;
+				background-color: rgb(219, 219, 219);
+				border: none;
+				color: rgb(132, 132, 132);
+				text-align: center;
+				text-decoration: none;
+				display: inline-block;
+				font-weight: 400;
+				font-size: 11px;
+				width: 100%;
+				bottom: 0px;
+				z-index: 1;
+				position: absolute;
+				height: 40px;
+				line-height: 32px;
+			}
 
-                if (method === 'post') {
-                    req.body = objToQuery(data);
-                }
+			#copy-logo {
+				font-family: 'Open Sans';
+				font-weight: 400;
+				vertical-align: middle;
+				width: 12px;
+				height: 12px;
+				margin-right: 5px;
+				color: rgb(132, 132, 132);
+			}
 
-                return fetch(url, req)
-                    .then(function(res) {
-                        return res.json().then(function(data) {
-                            if (data.status !== 'success' && data.status !== 'expired') {
-                                var err = new Error('Api ' + url + ' status: ' + data.status);
-                                err.res = res;
-                                throw err;
-                            }
-                            return data;
-                        });
-                    })
-            }
+			#copy-text {
+				font-family: 'Open Sans';
+				font-weight: 400;
+				vertical-align: middle;
+				color: rgb(132, 132, 132);
+				letter-spacing: 2px;
+			}
 
-            function createSession(destination, amount, currency) {
-                return api('post', API_DOMAIN + '/api/session', {
-                    destination: destination,
-                    amount:      amount,
-                    currency:    currency
-                });
-            }
+			#brainblocks-checkout-account {
+				font-family: 'Open Sans';
+				font-weight: 400;
+				font-size: 7px;
+				width: 180px;
+				height: 30px;
+				line-height: 7px;
+				word-wrap: break-word;
+				display: inline-block;
+				color: black;
+				-webkit-box-shadow: none;
+				-moz-box-shadow: none;
+				box-shadow: none;
+				text-align: center;
+				padding-top: 8px;
+				padding-bottom: 8px;
+				padding-left: 8px;
+				padding-right: 8px;
+				border: 1px solid rgb(221, 221, 221);
+				border-radius: 10px;
+			}
 
-            function sleep(time) {
-                return new Promise(function(resolve) {
-                    setTimeout(resolve, time);
-                });
-            }
+			#brainblocks-progress-bar {
+				font-family: 'Open Sans';
+				font-weight: 400;
+				margin-top: 0px;
+				height: 100%;
+				width: 100%;
+				background-color: #7CCA7D;
+				z-index: 1;
+			}
 
-            function transfer(token, time, attempts) {
-                var startTime = Date.now();
+			#brainblocks-progress {
+				font-family: 'Open Sans';
+				font-weight: 400;
+				margin-top: 0px;
+				background-color: #9ED9A1;
+				width: 100%;
+				height: 40px;
+				z-index: 0;
+			}
 
-                if (typeof time === 'undefined') {
-                    time = WAIT_TIME * 1000;
-                }
+			#brainblocks-progress-time {
+				font-family: 'Open Sans';
+				font-weight: 400;
+				color: #fff;
+				position: absolute;
+				width: 100%;
+				font-size: 12px;
+				line-height: 16px;
+				z-index: 2;
+				margin: 0 auto;
+				line-height: 40px;
+				top: 0;
+			}
 
-                if (typeof attempts === 'undefined') {
-                    attempts = 1;
-                }
+			#brainblocks-powered {
+				font-family: 'Open Sans';
+				font-weight: 400;
+				font-size: 16px;
+				color: rgb(145, 145, 145);
+				line-height: 20px;
+				-moz-transform: matrix(0.52646445761995, 0, 0, 0.52465215953566, 0, 0);
+				-webkit-transform: matrix(0.52646445761995, 0, 0, 0.52465215953566, 0, 0);
+				-ms-transform: matrix(0.52646445761995, 0, 0, 0.52465215953566, 0, 0);
+				margin: 5 auto;
+				z-index: 1px;
+			}
 
-                return api('post', API_DOMAIN + '/api/session/' + token + '/transfer', {
-                    time: time
-                }).catch(function(err) {
-                    if (err.res) {
-                        throw err;
-                    }
+			#powered-logo {
+				font-family: 'Open Sans';
+				font-weight: 400;
+				vertical-align: middle;
+				width: 20px;
+				height: 20px;
+				margin-right: 5px;
+			}
 
-                    if (attempts >= 5) {
-                        throw err;
-                    }
+			#warn-exchange {
+				font-family: 'Open Sans';
+				font-weight: 400;
+				margin: 0 auto;
+				text-align: center;
+				margin-top: 10px;
+				font-size: 10px;
+				line-height: 20px;
+				word-wrap: break-word;
+				overflow-wrap: break-word;
+				overflow: none;
+			}
 
-                    return sleep(1000 * Math.pow(2, (attempts - 1))).then(function() {
+			.brainblocks-checkout-active .brainblocks-button {
+				cursor: auto;
+			}
 
-                        var elapsed = Date.now() - startTime;
-                        time -= elapsed;
-                        
-                        if (time < 5000) {
-                            throw err;
-                        }
+			/* unvisited link */
+			a:link {
+				color: rgb(145, 145, 145);
+			}
 
-                        return transfer(token, time, attempts + 1);
-                    });
-                });
-            }
+			/* visited link */
+			a:visited {
+				color: rgb(145, 145, 145);
+			}
 
-            function openButton() {
+			/* mouse over link */
+			a:hover {
+				color: #5589C5;
+			}
 
-                if (checkoutActive) {
-                    return;
-                }
+			/* selected link */
+			a:active {
+				color: rgb(145, 145, 145);
+			}
 
-                window.onbeforeunload = function(event) {
-                    var message = 'WARNING: if you have sent any nano, by closing this window your transaction will be cancelled and your nano will be refunded. Your payment will not be completed.';
-                    event.returnValue = message;
-                    return message;
-                };
+			.or {
+				font-size: 10px;
+				margin: 6px;
+				margin-bottom: 10px;
+				padding: 0;
+				line-height: 10px;
+				color: #bbb;
+			}
 
-                checkoutActive = true;
+			.vola-button {
+				background-color: #003DDA;
+				color: white;
+				border-radius: 10px;
+				width: 244px;
+				padding: 10px;
+				font-size: 14px;
+				margin-bottom: 5px;
+				cursor: pointer;
+			}
+		</style>
+	</head>
 
-                qrcontainer.innerHTML = '';
-                accountcontainer.innerHTML = '';
-                progressTime.innerHTML = '';
-                progressBar.style.width = '0px';
-                progress.style.backgroundColor = "#9ED9A1";
+	<body>
+		<script>
+			document.body.appendChild(brainblocks.buttonTemplate({
+				props: window.xprops
+			}));
+		</script>
 
-                showButton();
+		<img id="loading-spinner" class="loading-spinner"
+			src="data:image/svg+xml;base64,PHN2ZyB4bWxuczpzdmc9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIiB2ZXJzaW9uPSIxLjAiIHdpZHRoPSIyNXB4IiBoZWlnaHQ9IjI1cHgiIHZpZXdCb3g9IjAgMCAxMjggMTI4IiB4bWw6c3BhY2U9InByZXNlcnZlIj48Zz48cGF0aCBkPSJNNzguNzUgMTYuMThWMS41NmE2NC4xIDY0LjEgMCAwIDEgNDcuNyA0Ny43SDExMS44YTQ5Ljk4IDQ5Ljk4IDAgMCAwLTMzLjA3LTMzLjA4ek0xNi40MyA0OS4yNUgxLjhhNjQuMSA2NC4xIDAgMCAxIDQ3LjctNDcuN1YxNi4yYTQ5Ljk4IDQ5Ljk4IDAgMCAwLTMzLjA3IDMzLjA3em0zMy4wNyA2Mi4zMnYxNC42MkE2NC4xIDY0LjEgMCAwIDEgMS44IDc4LjVoMTQuNjNhNDkuOTggNDkuOTggMCAwIDAgMzMuMDcgMzMuMDd6bTYyLjMyLTMzLjA3aDE0LjYyYTY0LjEgNjQuMSAwIDAgMS00Ny43IDQ3Ljd2LTE0LjYzYTQ5Ljk4IDQ5Ljk4IDAgMCAwIDMzLjA4LTMzLjA3eiIgZmlsbD0iIzgxY2RmMSIgZmlsbC1vcGFjaXR5PSIxIi8+PGFuaW1hdGVUcmFuc2Zvcm0gYXR0cmlidXRlTmFtZT0idHJhbnNmb3JtIiB0eXBlPSJyb3RhdGUiIGZyb209Ii05MCA2NCA2NCIgdG89IjAgNjQgNjQiIGR1cj0iNDAwbXMiIHJlcGVhdENvdW50PSJpbmRlZmluaXRlIj48L2FuaW1hdGVUcmFuc2Zvcm0+PC9nPjwvc3ZnPg==" />
 
-                button.appendChild(loader);
-                loader.style.display = 'inline-block';
+		<div id="brainblocks-checkout">
+			<div id="brainblocks-inner">
 
-                return createSession(window.xprops.payment.destination, window.xprops.payment.amount, window.xprops.payment.currency).then(function(json) {
+				<div id="brainblocks-progress">
+					<div id="brainblocks-progress-bar"></div>
+					<div id="brainblocks-progress-time"></div>
+				</div>
 
-                	if (window.xprops.onToken) { window.xprops.onToken({ token: json.token })}
+				<div id="brainblocks-checkout-qr"></div>
 
-                    button.removeChild(loader);
-                    button.appendChild(checkout);
+				<div id="brainblocks-checkout-account"></div>
 
-                    function hasRai(num) {
-                        num = parseInt(num) / 1000;
-                        return num > Math.floor(num)
-                    }
+				<button type="button" id="brainblocks-copy" data-clipboard-action="copy" data-clipboard-target="#brainblocks-checkout-account">
+					<img id="copy-logo" src="/button-static/img/copy.svg">
+					<span id="copy-text">COPY ADDRESS</span>
+				</button>
+			</div>
 
-                    var amount = hasRai(json.amount_rai)
-                        ? (json.amount_rai / 1000000).toFixed(6)
-                        : (json.amount_rai / 1000000).toFixed(3);
+			<!-- <div class="or">— or —</div>
 
-                    document.querySelector('#pay-amount').innerText = amount;
+			<button id="vola-button" class="vola-button">
+				Pay with <b>Vola</b>
+			</button> -->
 
-                    // generate payment QR code
-                    var qr = new QRCode({
-                         content: "nano:" + json.account + "?amount=" + json.amount_rai + "000000000000000000000000",
-                         width: 175,
-                         height: 175,
-                         padding: 1
-                    });
-                    qrcontainer.innerHTML = qr.svg();
+			<div id="brainblocks-powered">
+				<a href="https://brainblocks.io" target="_blank"><span>Powered by <img id="powered-logo" src="/button-static/img/brainblocks_symbol.svg">Brainblocks</span></a>
+			</div>
+		</div>
 
-			        //initialize copy function
-			        var clipboard = new ClipboardJS('#brainblocks-copy');
+		<script>
+			(function() {
+				var API_DOMAIN = (window.xprops.env === 'local') ? '' : 'https://api.brainblocks.io';
 
-					clipboard.on('success', function(e) {
-						setCopied();
+				window.LOG_LEVEL = 'warn';
+				var WAIT_TIME = 20 * 60;
+
+				function objToQuery(obj) {
+					var str = [];
+					for (var p in obj)
+						if (obj.hasOwnProperty(p)) {
+							str.push(encodeURIComponent(p) + "=" + encodeURIComponent(obj[p]));
+						}
+					return str.join("&");
+				}
+
+				function pad(n, width, z) {
+					z = z || '0';
+					n = n + '';
+					return n.length >= width ? n : new Array(width - n.length + 1).join(z) + n;
+				}
+
+				// copy feedback
+				function setCopied() {
+					document.getElementById("brainblocks-copy").style.backgroundColor = "#aeadad";
+					document.getElementById("copy-text").style.color = "white";
+					document.getElementById("copy-logo").style.display = "none";
+					document.getElementById("copy-text").innerHTML = "COPIED!";
+
+					setTimeout(function() {
+						document.getElementById("brainblocks-copy").style.backgroundColor = "#DBDBDB";
+						document.getElementById("copy-text").style.color = "#848484";
+						document.getElementById("copy-logo").style.display = "inline-block";
+						document.getElementById("copy-text").innerHTML = "COPY ADDRESS";
+					}, 1500);
+				}
+
+				function setCopyError() {
+					document.getElementById("brainblocks-copy").style.backgroundColor = "red";
+					document.getElementById("brainblocks-copy").style.color = "white";
+					document.getElementById("copy-logo").style.display = "none";
+					document.getElementById("copy-text").innerHTML = "FAILED!";
+
+					setTimeout(function() {
+						document.getElementById("brainblocks-copy").style.backgroundColor = "#DBDBDB";
+						document.getElementById("copy-text").style.color = "#848484";
+						document.getElementById("copy-logo").style.display = "inline-block";
+						document.getElementById("copy-text").innerHTML = "COPY ADDRESS";
+					}, 1500);
+				}
+
+				var checkoutActive = false;
+				var interval;
+
+				var button = document.querySelector('.brainblocks-button');
+				var checkout = document.querySelector('#brainblocks-checkout');
+				var loader = document.querySelector('#loading-spinner');
+				var qrcontainer = document.querySelector('#brainblocks-checkout-qr');
+				var accountcontainer = document.querySelector('#brainblocks-checkout-account');
+				var progressBar = document.querySelector('#brainblocks-progress-bar');
+				var progressTime = document.querySelector('#brainblocks-progress-time');
+				var progress = document.querySelector('#brainblocks-progress');
+				var copyButton = document.querySelector('#brainblocks-copy');
+
+				function closeButton() {
+					clearInterval(interval);
+					copyButton.style.display = 'none';
+					window.onbeforeunload = function() {};
+					checkoutActive = false;
+					window.xchild.resize(window.innerWidth, 50);
+					document.querySelector('.brainblocks-button').style.height = '50px';
+					document.body.classList.remove('brainblocks-checkout-active');
+				}
+
+				function showButton() {
+					document.body.classList.add('brainblocks-checkout-active');
+					window.xchild.resize(window.innerWidth, 450);
+					document.querySelector('.brainblocks-button').style.height = '450px';
+					copyButton.style.display = 'block';
+				}
+
+				function api(method, url, data) {
+					data = data || {};
+					var req = {
+						method: method,
+						headers: {
+							'content-type': 'application/x-www-form-urlencoded'
+						},
+						timeout: 2 * WAIT_TIME * 1000
+					};
+
+					if (method === 'post') {
+						req.body = objToQuery(data);
+					}
+
+					return fetch(url, req)
+						.then(function(res) {
+							return res.json().then(function(data) {
+								if (data.status !== 'success' && data.status !== 'expired') {
+									var err = new Error('Api ' + url + ' status: ' + data.status);
+									err.res = res;
+									throw err;
+								}
+								return data;
+							});
+						})
+				}
+
+				function createSession(destination, amount, currency) {
+					return api('post', API_DOMAIN + '/api/session', {
+						destination: destination,
+						amount: amount,
+						currency: currency
 					});
+				}
 
-					clipboard.on('error', function(e) {
-						setCopyError();
+				function sleep(time) {
+					return new Promise(function(resolve) {
+						setTimeout(resolve, time);
 					});
+				}
 
-                    accountcontainer.addEventListener('click', function() {
-                        accountcontainer.focus();
-                        accountcontainer.select();
-                    });
+				function transfer(token, time, attempts) {
+					var startTime = Date.now();
 
-                    //display nano account in short form
-                    accountcontainer.innerText = json.account;
+					if (typeof time === 'undefined') {
+						time = WAIT_TIME * 1000;
+					}
 
-                    accountcontainer.style.height = 'auto';
+					if (typeof attempts === 'undefined') {
+						attempts = 1;
+					}
 
-                    setTimeout(function() {
-                        checkout.style.opacity = 1;
-                    });
+					return api('post', API_DOMAIN + '/api/session/' + token + '/transfer', {
+						time: time
+					}).catch(function(err) {
+						if (err.res) {
+							throw err;
+						}
 
-                    var width = 0;
-                    var time = WAIT_TIME * 1000;
-                    var start = Date.now();
+						if (attempts >= 5) {
+							throw err;
+						}
 
-                    interval = setInterval(function() {
-                        var elapsed = (Date.now() - start);
+						return sleep(1000 * Math.pow(2, (attempts - 1))).then(function() {
 
-                        if (elapsed > time) {
-                            alert('Your payment session timed out. Any nano sent will be automatically refunded. Please try again');
-                            closeButton();
-                            return clearInterval(interval);
-                        }
+							var elapsed = Date.now() - startTime;
+							time -= elapsed;
 
-                        var perc = ((elapsed / time) * 100).toFixed(2);
-                        var remaining = parseInt(Math.floor(((time - elapsed) / 1000)));
-                        var minutes = Math.floor(remaining / 60);
-                        var seconds = remaining % 60;
-                        
-                        progressBar.style.width = (perc + '%');
-                        
-                        if (minutes <= 1) {
-                            if (seconds < 10) {
-                                progressTime.innerHTML = ('00:0' + seconds + ' <b>Waiting for payment</b>');
-                            } else {
-                                progressTime.innerHTML = ('00:' + seconds + ' <b>Waiting for payment</b>');
-                            }
-                        } else if (minutes < 10) {
-                            if (seconds < 10) {
-                                progressTime.innerHTML = ('0' + minutes + ':0' + seconds + ' <b>Waiting for payment</b>');
-                            } else { 
-                                progressTime.innerHTML = ('0' + minutes + ':' + seconds + ' <b>Waiting for payment</b>');
-                            }
-                        } else {
-                            if (seconds < 10) {
-                                progressTime.innerHTML = (minutes + ':0' + seconds + ' <b>Waiting for payment</b>');
-                            } else {
-                                progressTime.innerHTML = (minutes + ':' + seconds + ' <b>Waiting for payment</b>');
-                            }
-                        }
-                    }, 50);
+							if (time < 5000) {
+								throw err;
+							}
 
-                    function completePayment(transfer) {
-                        progressBar.style.width = 0;
-                        progress.style.backgroundColor = "#40AE49";
-                        progressTime.innerText = 'Payment received!';
-                        accountcontainer.innerText = 'Payment received! Please do not close your browser window while we finalize your payment';
-                        accountcontainer.style.height = '50px';
-                        copyButton.style.display = 'none';
+							return transfer(token, time, attempts + 1);
+						});
+					});
+				}
 
-                        qrcontainer.innerHTML = '<img src="/button-static/img/check.svg">';
+				function openButton() {
 
-                        window.onbeforeunload = function() {};
-                        window.xprops.onPayment(transfer);
-                        
-                        setTimeout(function() {
-                            closeButton();
-                        }, 5000);
-                    }
+					if (checkoutActive) {
+						return;
+					}
 
-                    return transfer(json.token)
-                        
-                        .then(function(transfer) {
-                            clearInterval(interval);
-                            if (transfer.status === 'success') {
+					window.onbeforeunload = function(event) {
+						var message = 'WARNING: if you have sent any nano, by closing this window your transaction will be cancelled and your nano will be refunded. Your payment will not be completed.';
+						event.returnValue = message;
+						return message;
+					};
 
-                                if (nanoWalletPromise) {
-                                    nanoWalletPromise.then(function() {
-                                        completePayment(transfer);
-                                    });
-                                } else {
-                                    completePayment(transfer);
-                                }
-                                
-                            } else {
-                                clearInterval(interval);
-                                alert('Your payment session timed out. Any nano sent will be automatically refunded. Please try again');
-                                closeButton();
-                            }
-                        }).catch(function(err) {
-                            clearInterval(interval);
-                            throw err;
-                        });
-                    
-                }).catch(function(err) {
-                    clearInterval(interval);
-                    alert('There was a problem processing your payment. Any nano sent will be automatically refunded. Please try again');
-                    closeButton();
-                    throw err;
-                });
-            }
+					checkoutActive = true;
 
-            document.querySelector('.brainblocks-button').addEventListener('click', function() {
-                if (window.xprops.onClick) {
-                    return window.xprops.onClick().then(function(result) {
-                        if (result !== false) {
-                            openButton();
-                        }
-                    });
-                }
+					qrcontainer.innerHTML = '';
+					accountcontainer.innerHTML = '';
+					progressTime.innerHTML = '';
+					progressBar.style.width = '0px';
+					progress.style.backgroundColor = "#9ED9A1";
 
-                openButton();
-            });
+					showButton();
 
-            if (window.xprops.style && window.xprops.style.expanded) {
-                setTimeout(function() {
-                    openButton();
-                }, 50)
-            }
+					button.appendChild(loader);
+					loader.style.display = 'inline-block';
 
-            function populateRai(props) {
-                api('get', API_DOMAIN + '/api/exchange/' + props.payment.currency + '/' + props.payment.amount + '/rai')
-                    .then(function(data) {
-                        var currency = '';
+					return createSession(window.xprops.payment.destination, window.xprops.payment.amount, window.xprops.payment.currency).then(function(json) {
 
-                        function hasRai(num) {
-                            num = parseInt(num) / 1000;
-                            return num > Math.floor(num)
-                        }
+						if (window.xprops.onToken) {
+							window.xprops.onToken({
+								token: json.token
+							})
+						}
 
-                        var amount = hasRai(data.rai)
-                            ? (data.rai / 1000000).toFixed(6)
-                            : (data.rai / 1000000).toFixed(3);
+						button.removeChild(loader);
+						button.appendChild(checkout);
 
-                        document.querySelector('.pay-text').innerText = 'Pay ';
-                        document.querySelector('#pay-amount').innerText = amount;
-                        document.querySelector('#pay-currency').innerText = 'NANO';
-                    });
-            }
+						function hasRai(num) {
+							num = parseInt(num) / 1000;
+							return num > Math.floor(num)
+						}
 
-            if (window.xprops.payment.currency !== 'rai') {
-                populateRai(window.xprops);
-            }
+						var amount = hasRai(json.amount_rai) ?
+							(json.amount_rai / 1000000).toFixed(6) :
+							(json.amount_rai / 1000000).toFixed(3);
 
-            window.xchild.onProps(function (props) {
-                if (props.payment.currency !== 'rai') {
-                    populateRai(props);
-                }
-            });
-        })();
-    </script>
+						document.querySelector('#pay-amount').innerText = amount;
 
-    <script src="//static.getclicky.com/js" type="text/javascript"></script>
-    <script type="text/javascript">try{ clicky.init(101095092); }catch(e){}</script>
-    <noscript><p><img alt="Clicky" width="1" height="1" src="//in.getclicky.com/101095092ns.gif" /></p></noscript>
+						// generate payment QR code
+						var qr = new QRCode({
+							content: "nano:" + json.account + "?amount=" + json.amount_rai + "000000000000000000000000",
+							width: 175,
+							height: 175,
+							padding: 1
+						});
+						qrcontainer.innerHTML = qr.svg();
 
-    <script src="https://www.paypalobjects.com/api/checkout.min.js"></script>
+						//initialize copy function
+						var clipboard = new ClipboardJS('#brainblocks-copy');
 
-    <script>
-        (function() {
-            function objToQuery(obj) {
-                var str = [];
-                for(var p in obj)
-                    if (obj.hasOwnProperty(p)) {
-                    str.push(encodeURIComponent(p) + "=" + encodeURIComponent(obj[p]));
-                }
-                return str.join("&");
-            }
+						clipboard.on('success', function(e) {
+							setCopied();
+						});
 
-            function api(method, url, data) {
-                data = data || {};
-                var req = {
-                    method: method,
-                    headers: { 'content-type': 'application/x-www-form-urlencoded' },
-                    timeout: 10000
-                };
+						clipboard.on('error', function(e) {
+							setCopyError();
+						});
 
-                if (method === 'post') {
-                    req.body = objToQuery(data);
-                }
+						accountcontainer.addEventListener('click', function() {
+							accountcontainer.focus();
+							accountcontainer.select();
+						});
 
-                return fetch(url, req)
-                    .then(function(res) {
-                        return res.json().then(function(data) {
-                            if (data.status !== 'success' && data.status !== 'expired') {
-                                var err = new Error('Api ' + url + ' status: ' + data.status);
-                                err.res = res;
-                                throw err;
-                            }
-                            return data;
-                        });
-                    })
-            }
+						//display nano account in short form
+						accountcontainer.innerText = json.account;
 
-            function createPayPalSession(email, amount, currency, payment_id) {
-                return api('post', API_DOMAIN + '/api/paypal/session', {
-                    email:       email,
-                    amount:      amount,
-                    currency:    currency,
-                    payment_id:  payment_id
-                });
-            }
+						accountcontainer.style.height = 'auto';
 
-            function executePayPalSession(token, payer_id) {
-                return api('post', API_DOMAIN + '/api/paypal/execute', {
-                    token: token,
-                    payer_id: payer_id
-                });
-            }
+						setTimeout(function() {
+							checkout.style.opacity = 1;
+						});
 
-            if (window.xprops.payment.paypal_email) {
-                var bbToken;
+						var width = 0;
+						var time = WAIT_TIME * 1000;
+						var start = Date.now();
 
-                var amount = window.xprops.payment.amount;
-                var currency = window.xprops.payment.currency;
-                var email = window.xprops.payment.paypal_email;
+						interval = setInterval(function() {
+							var elapsed = (Date.now() - start);
 
-                window.xprops.renderPayPal({
-                    style: {
-                        color: 'silver',
-                        layout: 'vertical',
-                        size: 'responsive',
-                        shape: 'rect'
-                    },
-                    client: {
-                        production: '***REMOVED***'
-                    },
-                    commit: true,
-                    payment: function(data, actions) {
-                        return actions.payment.create({
-                            payment: {
-                                transactions: [
-                                    {
-                                        amount: {
-                                            total: amount,
-                                            currency: currency.toUpperCase()
-                                        },
-                                        payee: {
-                                            email: email
-                                        }
-                                    }
-                                ]
-                            }
-                        }).then(function(paymentID) {
-                            return createPayPalSession(email, amount, currency, paymentID).then(function(json) {
-                                bbToken = json.token;
-                                return paymentID;
-                            });
-                        });
-                    },
-                    onAuthorize: function(data) {
-                        return executePayPalSession(bbToken, data.payerID).then(() => {
-                            window.xprops.onPayment({ token: bbToken });
-                        });
-                    }
-                });
-            }
-        })();
-    </script>
+							if (elapsed > time) {
+								alert('Your payment session timed out. Any nano sent will be automatically refunded. Please try again');
+								closeButton();
+								return clearInterval(interval);
+							}
 
-</body>
+							var perc = ((elapsed / time) * 100).toFixed(2);
+							var remaining = parseInt(Math.floor(((time - elapsed) / 1000)));
+							var minutes = Math.floor(remaining / 60);
+							var seconds = remaining % 60;
+
+							progressBar.style.width = (perc + '%');
+
+							if (minutes <= 1) {
+								if (seconds < 10) {
+									progressTime.innerHTML = ('00:0' + seconds + ' <b>Waiting for payment</b>');
+								} else {
+									progressTime.innerHTML = ('00:' + seconds + ' <b>Waiting for payment</b>');
+								}
+							} else if (minutes < 10) {
+								if (seconds < 10) {
+									progressTime.innerHTML = ('0' + minutes + ':0' + seconds + ' <b>Waiting for payment</b>');
+								} else {
+									progressTime.innerHTML = ('0' + minutes + ':' + seconds + ' <b>Waiting for payment</b>');
+								}
+							} else {
+								if (seconds < 10) {
+									progressTime.innerHTML = (minutes + ':0' + seconds + ' <b>Waiting for payment</b>');
+								} else {
+									progressTime.innerHTML = (minutes + ':' + seconds + ' <b>Waiting for payment</b>');
+								}
+							}
+						}, 50);
+
+						// var volaPromise;
+						//
+						// document.querySelector('#vola-button')
+						// 	.addEventListener('click', function() {
+						// 		volaPromise = new brainblocks.Promise(function(resolve) {
+						// 			brainblocks.VolaWallet.render({
+						// 				token: json.token,
+						// 				onComplete: resolve
+						// 			});
+						// 		});
+						// 	});
+
+						function completePayment(transfer) {
+							progressBar.style.width = 0;
+							progress.style.backgroundColor = "#40AE49";
+							progressTime.innerText = 'Payment received!';
+							accountcontainer.innerText = 'Payment received! Please do not close your browser window while we finalize your payment';
+							accountcontainer.style.height = '50px';
+							copyButton.style.display = 'none';
+
+							qrcontainer.innerHTML = '<img src="/button-static/img/check.svg">';
+
+							window.onbeforeunload = function() {};
+							window.xprops.onPayment(transfer);
+
+							setTimeout(function() {
+								closeButton();
+							}, 5000);
+						}
+
+						return transfer(json.token)
+
+							.then(function(transfer) {
+								clearInterval(interval);
+								if (transfer.status === 'success') {
+
+									if (nanoWalletPromise) {
+										nanoWalletPromise.then(function() {
+											completePayment(transfer);
+										});
+									} else {
+										completePayment(transfer);
+									}
+
+								} else {
+									clearInterval(interval);
+									alert('Your payment session timed out. Any nano sent will be automatically refunded. Please try again');
+									closeButton();
+								}
+							}).catch(function(err) {
+								clearInterval(interval);
+								throw err;
+							});
+
+					}).catch(function(err) {
+						clearInterval(interval);
+						alert('There was a problem processing your payment. Any nano sent will be automatically refunded. Please try again');
+						closeButton();
+						throw err;
+					});
+				}
+
+				document.querySelector('.brainblocks-button').addEventListener('click', function() {
+					if (window.xprops.onClick) {
+						return window.xprops.onClick().then(function(result) {
+							if (result !== false) {
+								openButton();
+							}
+						});
+					}
+
+					openButton();
+				});
+
+				if (window.xprops.style && window.xprops.style.expanded) {
+					setTimeout(function() {
+						openButton();
+					}, 50)
+				}
+
+				function populateRai(props) {
+					api('get', API_DOMAIN + '/api/exchange/' + props.payment.currency + '/' + props.payment.amount + '/rai')
+						.then(function(data) {
+							var currency = '';
+
+							function hasRai(num) {
+								num = parseInt(num) / 1000;
+								return num > Math.floor(num)
+							}
+
+							var amount = hasRai(data.rai) ?
+								(data.rai / 1000000).toFixed(6) :
+								(data.rai / 1000000).toFixed(3);
+
+							document.querySelector('.pay-text').innerText = 'Pay ';
+							document.querySelector('#pay-amount').innerText = amount;
+							document.querySelector('#pay-currency').innerText = 'NANO';
+						});
+				}
+
+				if (window.xprops.payment.currency !== 'rai') {
+					populateRai(window.xprops);
+				}
+
+				window.xchild.onProps(function(props) {
+					if (props.payment.currency !== 'rai') {
+						populateRai(props);
+					}
+				});
+			})();
+		</script>
+
+		<script src="//static.getclicky.com/js" type="text/javascript"></script>
+		<script type="text/javascript">
+			try {
+				clicky.init(101095092);
+			} catch (e) {}
+		</script>
+		<noscript>
+			<p><img alt="Clicky" width="1" height="1" src="//in.getclicky.com/101095092ns.gif" /></p>
+		</noscript>
+
+		<script src="https://www.paypalobjects.com/api/checkout.min.js"></script>
+
+		<script>
+			(function() {
+				function objToQuery(obj) {
+					var str = [];
+					for (var p in obj)
+						if (obj.hasOwnProperty(p)) {
+							str.push(encodeURIComponent(p) + "=" + encodeURIComponent(obj[p]));
+						}
+					return str.join("&");
+				}
+
+				function api(method, url, data) {
+					data = data || {};
+					var req = {
+						method: method,
+						headers: {
+							'content-type': 'application/x-www-form-urlencoded'
+						},
+						timeout: 10000
+					};
+
+					if (method === 'post') {
+						req.body = objToQuery(data);
+					}
+
+					return fetch(url, req)
+						.then(function(res) {
+							return res.json().then(function(data) {
+								if (data.status !== 'success' && data.status !== 'expired') {
+									var err = new Error('Api ' + url + ' status: ' + data.status);
+									err.res = res;
+									throw err;
+								}
+								return data;
+							});
+						})
+				}
+
+				function createPayPalSession(email, amount, currency, payment_id) {
+					return api('post', API_DOMAIN + '/api/paypal/session', {
+						email: email,
+						amount: amount,
+						currency: currency,
+						payment_id: payment_id
+					});
+				}
+
+				function executePayPalSession(token, payer_id) {
+					return api('post', API_DOMAIN + '/api/paypal/execute', {
+						token: token,
+						payer_id: payer_id
+					});
+				}
+
+				if (window.xprops.payment.paypal_email) {
+					var bbToken;
+
+					var amount = window.xprops.payment.amount;
+					var currency = window.xprops.payment.currency;
+					var email = window.xprops.payment.paypal_email;
+
+					window.xprops.renderPayPal({
+						style: {
+							color: 'silver',
+							layout: 'vertical',
+							size: 'responsive',
+							shape: 'rect'
+						},
+						client: {
+							production: '***REMOVED***'
+						},
+						commit: true,
+						payment: function(data, actions) {
+							return actions.payment.create({
+								payment: {
+									transactions: [{
+										amount: {
+											total: amount,
+											currency: currency.toUpperCase()
+										},
+										payee: {
+											email: email
+										}
+									}]
+								}
+							}).then(function(paymentID) {
+								return createPayPalSession(email, amount, currency, paymentID).then(function(json) {
+									bbToken = json.token;
+									return paymentID;
+								});
+							});
+						},
+						onAuthorize: function(data) {
+							return executePayPalSession(bbToken, data.payerID).then(() => {
+								window.xprops.onPayment({
+									token: bbToken
+								});
+							});
+						}
+					});
+				}
+			})();
+		</script>
+
+	</body>
