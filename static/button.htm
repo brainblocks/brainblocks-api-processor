@@ -584,15 +584,13 @@
 							.then(function(transfer) {
 								clearInterval(interval);
 								if (transfer.status === 'success') {
-
-									if (nanoWalletPromise) {
-										nanoWalletPromise.then(function() {
-											completePayment(transfer);
-										});
-									} else {
-										completePayment(transfer);
-									}
-
+// 									if (nanoWalletPromise) {
+// 										nanoWalletPromise.then(function() {
+// 											completePayment(transfer);
+// 										});
+// 									} else {
+									completePayment(transfer);
+// 									}
 								} else {
 									clearInterval(interval);
 									alert('Your payment session timed out. Any nano sent will be automatically refunded. Please try again');
