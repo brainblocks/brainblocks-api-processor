@@ -109,7 +109,8 @@ export async function rawToRai(raw : BigInt) : Promise<number> {
 
 export async function workGenerate(blockHash : string) : Promise<{ hash : string, work : string }> {
     let { hash, work } = await nanoAction('work_generate', {
-        hash: blockHash
+        hash: blockHash,
+        use_peers: 'true'
     })
     return {hash, work};
 }
