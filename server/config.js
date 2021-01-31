@@ -5,7 +5,7 @@ export const URL = `http://127.0.0.1:${ PORT }`;
 
 export const NANO_PORT = 7076;
 export const NANO_WS = 7078;
-export const NANO_SERVER = '0.0.0.0';
+export const NANO_SERVER = '127.0.0.1';
 export let NANO_RPC;
 
 export const SERVER_PORT = 8000;
